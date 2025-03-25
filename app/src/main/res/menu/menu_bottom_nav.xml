@@ -24,10 +24,10 @@
         android:icon="@drawable/ic_apps"
         android:title="@string/title_apps" />
 
-    <item
-        android:id="@id/gamesContainerFragment"
-        android:icon="@drawable/ic_games"
-        android:title="@string/title_games" />
+<!--    <item-->
+<!--        android:id="@id/gamesContainerFragment"-->
+<!--        android:icon="@drawable/ic_games"-->
+<!--        android:title="@string/title_games" />-->
 
     <item
         android:id="@id/updatesFragment"
