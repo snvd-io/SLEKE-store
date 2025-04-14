@@ -36,6 +36,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.net.Authenticator
@@ -62,6 +63,15 @@ object OkHttpClientModule {
     fun providesOkHttpClientInstance(certPinner: CertificatePinner, proxy: Proxy?): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient().newBuilder()
             .proxy(proxy)
+            
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = if (BuildConfig.DEBUG) {
+                    HttpLoggingInterceptor.Level.BODY
+                } else {
+                    HttpLoggingInterceptor.Level.NONE
+                }
+            })
+
             .connectTimeout(25, TimeUnit.SECONDS)
             .readTimeout(25, TimeUnit.SECONDS)
             .writeTimeout(25, TimeUnit.SECONDS)
