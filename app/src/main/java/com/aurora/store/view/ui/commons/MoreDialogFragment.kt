@@ -176,7 +176,7 @@ class MoreDialogFragment : DialogFragment() {
                                 }
                             )
                         }
-                        Footer(onPrimaryColor)
+//                        Footer(onPrimaryColor)
                     }
                 }
             }
@@ -438,11 +438,11 @@ class MoreDialogFragment : DialogFragment() {
                 icon = R.drawable.ic_favorite_unchecked,
                 destinationID = R.id.favouriteFragment
             ),
-            ViewOption(
-                title = R.string.title_spoof_manager,
-                icon = R.drawable.ic_spoof,
-                destinationID = R.id.spoofFragment
-            )
+//            ViewOption(
+//                title = R.string.title_spoof_manager,
+//                icon = R.drawable.ic_spoof,
+//                destinationID = R.id.spoofFragment
+//            )
         )
     }
 
@@ -453,11 +453,11 @@ class MoreDialogFragment : DialogFragment() {
                 icon = R.drawable.ic_menu_settings,
                 destinationID = R.id.settingsFragment
             ),
-            ViewOption(
-                title = R.string.title_about,
-                icon = R.drawable.ic_menu_about,
-                destinationID = R.id.aboutFragment
-            )
+//            ViewOption(
+//                title = R.string.title_about,
+//                icon = R.drawable.ic_menu_about,
+//                destinationID = R.id.aboutFragment
+//            )
         )
     }
 }

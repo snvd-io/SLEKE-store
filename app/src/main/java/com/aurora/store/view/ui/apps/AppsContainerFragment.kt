@@ -96,22 +96,25 @@ class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
         binding.pager.isUserInputEnabled =
             false //Disable viewpager scroll to avoid scroll conflicts
 
-        val tabTitles: MutableList<String> = mutableListOf<String>().apply {
-            if (isForYouEnabled) {
-                add(getString(R.string.tab_for_you))
-            }
+//        val tabTitles: MutableList<String> = mutableListOf<String>().apply {
+//            if (isForYouEnabled) {
+//                add(getString(R.string.tab_for_you))
+//            }
+//
+//            add(getString(R.string.tab_top_charts))
+//            add(getString(R.string.tab_categories))
+//        }
 
-            add(getString(R.string.tab_top_charts))
-            add(getString(R.string.tab_categories))
-        }
+        binding.tabLayout.visibility = View.GONE
+        binding.pager.visibility = View.GONE
 
-        TabLayoutMediator(
-            binding.tabLayout,
-            binding.pager,
-            true
-        ) { tab: TabLayout.Tab, position: Int ->
-            tab.text = tabTitles[position]
-        }.attach()
+//        TabLayoutMediator(
+//            binding.tabLayout,
+//            binding.pager,
+//            true
+//        ) { tab: TabLayout.Tab, position: Int ->
+//            tab.text = tabTitles[position]
+//        }.attach()
 
         binding.searchFab.setOnClickListener {
             findNavController().navigate(R.id.searchSuggestionFragment)

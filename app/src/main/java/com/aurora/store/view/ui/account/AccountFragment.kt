@@ -50,6 +50,7 @@ class AccountFragment : BaseFragment<FragmentAccountBinding>() {
 
         // Chips
         view.context.apply {
+            binding.chipLayout.visibility = View.GONE
             binding.chipDisclaimer.setOnClickListener { browse(URL_DISCLAIMER) }
             binding.chipLicense.setOnClickListener { browse(URL_LICENSE) }
             binding.chipTos.setOnClickListener { browse(URL_TOS) }

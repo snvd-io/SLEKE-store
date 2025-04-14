@@ -43,6 +43,11 @@
         app:tabPaddingEnd="@dimen/padding_normal"
         app:tabPaddingStart="@dimen/padding_normal" />
 
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/appsListCompose"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"
         android:layout_width="match_parent"
