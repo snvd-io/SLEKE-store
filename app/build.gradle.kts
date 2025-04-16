@@ -30,6 +30,7 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.androidx.navigation)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.googleServices)
     alias(libs.plugins.rikka.tools.refine.plugin)
     alias(libs.plugins.hilt.android.plugin)
 }
@@ -44,7 +45,7 @@ android {
 
     defaultConfig {
         applicationId = "com.aurora.store"
-        minSdk = 21
+        minSdk = 26
         targetSdk = 36
 
         versionCode = 66
@@ -54,6 +55,13 @@ android {
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
 
         buildConfigField("String", "EXODUS_API_KEY", "\"bbe6ebae4ad45a9cbacb17d69739799b8df2c7ae\"")
+    }
+
+    packaging {
+        resources {
+//            excludes += "google/protobuf/descriptor.proto"
+            pickFirsts += "**/*.proto"
+        }
     }
 
     signingConfigs {
@@ -98,7 +106,7 @@ android {
         }
 
         debug {
-            applicationIdSuffix = ".debug"
+//            applicationIdSuffix = ".debug"
             signingConfig = signingConfigs.getByName("aosp")
         }
     }
@@ -136,12 +144,20 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
-dependencies {
+configurations.all {
+    resolutionStrategy {
+        force("com.google.protobuf:protobuf-javalite:4.26.1")
+    }
+}
 
+dependencies {
+    implementation(project(":sleke"))
+
+    implementation(libs.coil)
     //Google's Goodies
     implementation(libs.google.android.material)
     implementation(libs.google.gson)
-    implementation(libs.google.protobuf.javalite)
+    api(libs.google.protobuf.javalite)
 
     //AndroidX
     implementation(libs.androidx.core.ktx)
@@ -165,6 +181,10 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+    
+    // Paging Compose
+    implementation("androidx.paging:paging-compose:3.3.0")
+    
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
@@ -184,6 +204,7 @@ dependencies {
 
     //HTTP Clients
     implementation(libs.squareup.okhttp)
+    implementation(libs.squareup.okhttp.logging.interceptor)
 
     //Lib-SU
     implementation(libs.github.topjohnwu.libsu)

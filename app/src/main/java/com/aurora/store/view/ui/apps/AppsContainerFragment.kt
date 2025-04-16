@@ -22,6 +22,8 @@ package com.aurora.store.view.ui.apps
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -31,23 +33,25 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.aurora.sleke.home.HomeViewModel
 import com.aurora.store.MobileNavigationDirections
 import com.aurora.store.R
+import com.aurora.store.compose.screens.PagedAppsScreen
+import com.aurora.store.compose.theme.AuroraTheme
 import com.aurora.store.databinding.FragmentAppsGamesBinding
-import com.aurora.store.util.Preferences
 import com.aurora.store.view.ui.commons.BaseFragment
 import com.aurora.store.view.ui.commons.CategoryFragment
 import com.aurora.store.view.ui.commons.ForYouFragment
 import com.aurora.store.view.ui.commons.TopChartContainerFragment
 import com.aurora.store.viewmodel.apps.AppsContainerViewModel
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import com.sleke.library.data.model.Apk
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
 
-    private val viewModel: AppsContainerViewModel by viewModels()
+    private val containerViewModel: AppsContainerViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -61,7 +65,6 @@ class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
             WindowInsetsCompat.CONSUMED
         }
 
-        // Toolbar
         binding.toolbar.apply {
             title = getString(R.string.title_apps)
             setOnMenuItemClickListener {
@@ -80,50 +83,38 @@ class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
             }
         }
 
-        // ViewPager
-        val isForYouEnabled = Preferences.getBoolean(
-            requireContext(),
-            Preferences.PREFERENCE_FOR_YOU
-        )
-
-        binding.pager.adapter = ViewPagerAdapter(
-            childFragmentManager,
-            viewLifecycleOwner.lifecycle,
-            !viewModel.authProvider.isAnonymous,
-            isForYouEnabled
-        )
-
-        binding.pager.isUserInputEnabled =
-            false //Disable viewpager scroll to avoid scroll conflicts
-
-//        val tabTitles: MutableList<String> = mutableListOf<String>().apply {
-//            if (isForYouEnabled) {
-//                add(getString(R.string.tab_for_you))
-//            }
-//
-//            add(getString(R.string.tab_top_charts))
-//            add(getString(R.string.tab_categories))
-//        }
-
-        binding.tabLayout.visibility = View.GONE
-        binding.pager.visibility = View.GONE
-
-//        TabLayoutMediator(
-//            binding.tabLayout,
-//            binding.pager,
-//            true
-//        ) { tab: TabLayout.Tab, position: Int ->
-//            tab.text = tabTitles[position]
-//        }.attach()
+        setupComposeUI()
 
         binding.searchFab.setOnClickListener {
             findNavController().navigate(R.id.searchSuggestionFragment)
         }
     }
 
-    override fun onDestroyView() {
-        binding.pager.adapter = null
-        super.onDestroyView()
+    private fun setupComposeUI() {
+        binding.pager.visibility = View.GONE
+        binding.tabLayout.visibility = View.GONE
+
+        binding.appsListCompose.apply {
+            visibility = View.VISIBLE
+
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+
+            setContent {
+                AuroraTheme {
+                    PagedAppsScreen(
+                        viewModel = homeViewModel,
+                        onAppClick = { app -> navigateToAppDetails(app) }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun navigateToAppDetails(app: Apk) {
+        val bundle = Bundle().apply {
+            putString("packageName", app.packageName)
+        }
+        findNavController().navigate(R.id.appDetailsFragment, bundle)
     }
 
     internal class ViewPagerAdapter(

@@ -35,12 +35,16 @@ import com.aurora.store.data.providers.AccountProvider
 import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.util.AC2DMTask
 import com.aurora.store.util.Preferences
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -57,14 +61,38 @@ class AuthViewModel @Inject constructor(
     private val _authState: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.Init)
     val authState = _authState.asStateFlow()
 
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+
+    private val _currentFirebaseUser = MutableStateFlow<FirebaseUser?>(null)
+    val currentFirebaseUser = _currentFirebaseUser.asStateFlow()
+
     init {
         updateAuthState()
+        initializeFirebase()
+    }
+
+    private fun initializeFirebase() {
+        _currentFirebaseUser.value = firebaseAuth.currentUser
+        firebaseAuth.addAuthStateListener { auth ->
+            _currentFirebaseUser.value = auth.currentUser
+            Log.d(TAG, "Firebase auth state changed: ${auth.currentUser?.email ?: "No user"}")
+        }
     }
 
     fun buildGoogleAuthData(email: String, token: String, tokenType: AuthHelper.Token) {
         _authState.value = AuthState.Fetching
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                if (tokenType == AuthHelper.Token.AUTH) {
+                    try {
+                        val credential = GoogleAuthProvider.getCredential(token, null)
+                        firebaseAuth.signInWithCredential(credential).await()
+                        Log.d(TAG, "Firebase Auth successful with Google")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Firebase Auth failed with Google", e)
+                    }
+                }
+
                 verifyAndSaveAuth(
                     authProvider.buildGoogleAuthData(email, token, tokenType).getOrThrow(),
                     AccountType.GOOGLE
@@ -119,10 +147,15 @@ class AuthViewModel @Inject constructor(
 
     private fun updateAuthState() {
         if (_authState.value != AuthState.Fetching) {
-            if (AccountProvider.isLoggedIn(context)) {
+            if (AccountProvider.isLoggedIn(context) && isFirebaseUserSignedIn()) {
                 _authState.value = AuthState.Available
                 buildSavedAuthData()
             } else {
+                if (AccountProvider.isLoggedIn(context) && firebaseAuth.currentUser == null) {
+                    Log.d(TAG, "Firebase auth missing, logging out completely")
+                    AccountProvider.logout(context)
+                    authProvider.removeAuthData(context)
+                }
                 _authState.value = AuthState.Unavailable
             }
         }
@@ -130,10 +163,17 @@ class AuthViewModel @Inject constructor(
 
     private fun buildSavedAuthData() = viewModelScope.launch(Dispatchers.IO) {
         try {
-            if (authProvider.isSavedAuthDataValid()) {
+            if (authProvider.isSavedAuthDataValid() && isFirebaseUserSignedIn()) {
                 _authState.value = AuthState.Valid
             } else {
-                // Generate and validate new auth
+                if (authProvider.isSavedAuthDataValid() && firebaseAuth.currentUser == null) {
+                    Log.d(TAG, "Firebase auth missing while main auth valid, logging out")
+                    AccountProvider.logout(context)
+                    authProvider.removeAuthData(context)
+                    _authState.value = AuthState.Unavailable
+                    return@launch
+                }
+
                 when (AccountProvider.getAccountType(context)) {
                     AccountType.ANONYMOUS -> buildAnonymousAuthData()
                     AccountType.GOOGLE -> {
@@ -150,7 +190,8 @@ class AuthViewModel @Inject constructor(
                             }
 
                             AuthHelper.Token.AUTH -> {
-                                _authState.value = AuthState.PendingAccountManager(email, tokenPair.first)
+                                _authState.value =
+                                    AuthState.PendingAccountManager(email, tokenPair.first)
                             }
                         }
                     }
@@ -168,21 +209,93 @@ class AuthViewModel @Inject constructor(
 
     private fun verifyAndSaveAuth(authData: AuthData, accountType: AccountType) {
         _authState.value = AuthState.Verifying
-        if (authData.authToken.isNotEmpty() && authData.deviceConfigToken.isNotEmpty()) {
-            authProvider.saveAuthData(authData)
-            AccountProvider.login(
-                context,
-                authData.email,
-                authData.aasToken.ifBlank { authData.authToken },
-                if (authData.aasToken.isBlank()) AuthHelper.Token.AUTH else AuthHelper.Token.AAS,
-                accountType
-            )
-            _authState.value = AuthState.SignedIn
-        } else {
-            authProvider.removeAuthData(context)
-            AccountProvider.logout(context)
-            _authState.value =
-                AuthState.Failed(context.getString(R.string.failed_to_generate_session))
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (!isFirebaseUserSignedIn() && accountType == AccountType.GOOGLE) {
+                    try {
+                        val credential = GoogleAuthProvider.getCredential(authData.authToken, null)
+                        firebaseAuth.signInWithCredential(credential).await()
+                        Log.d(TAG, "Firebase Auth successful with Google token during verification")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Firebase Auth failed during verification", e)
+                        authProvider.removeAuthData(context)
+                        AccountProvider.logout(context)
+                        _authState.value =
+                            AuthState.Failed(context.getString(R.string.failed_to_generate_session))
+                        return@launch
+                    }
+                } else if (!isFirebaseUserSignedIn() && accountType == AccountType.ANONYMOUS) {
+                    try {
+                        firebaseAuth.signInAnonymously().await()
+                        Log.d(TAG, "Firebase anonymous auth successful during verification")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Firebase anonymous auth failed during verification", e)
+                        authProvider.removeAuthData(context)
+                        AccountProvider.logout(context)
+                        _authState.value =
+                            AuthState.Failed(context.getString(R.string.failed_to_generate_session))
+                        return@launch
+                    }
+                }
+
+                if (authData.authToken.isNotEmpty() && authData.deviceConfigToken.isNotEmpty() && isFirebaseUserSignedIn()) {
+                    authProvider.saveAuthData(authData)
+                    AccountProvider.login(
+                        context,
+                        authData.email,
+                        authData.aasToken.ifBlank { authData.authToken },
+                        if (authData.aasToken.isBlank()) AuthHelper.Token.AUTH else AuthHelper.Token.AAS,
+                        accountType
+                    )
+                    _authState.value = AuthState.SignedIn
+                } else {
+                    if (!isFirebaseUserSignedIn()) {
+                        Log.d(TAG, "Firebase auth missing, cannot complete authentication")
+                    }
+                    authProvider.removeAuthData(context)
+                    AccountProvider.logout(context)
+                    _authState.value =
+                        AuthState.Failed(context.getString(R.string.failed_to_generate_session))
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error during auth verification process", e)
+                authProvider.removeAuthData(context)
+                AccountProvider.logout(context)
+                _authState.value =
+                    AuthState.Failed(context.getString(R.string.failed_to_generate_session))
+            }
+        }
+    }
+
+    fun signOutFromFirebase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                firebaseAuth.signOut()
+                Log.d(TAG, "Firebase signed out successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Firebase sign out failed", e)
+            }
+        }
+    }
+
+    fun isFirebaseUserSignedIn(): Boolean {
+        return firebaseAuth.currentUser != null
+    }
+
+    fun signOutCompletely() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                firebaseAuth.signOut()
+
+                authProvider.removeAuthData(context)
+                AccountProvider.logout(context)
+
+                _authState.value = AuthState.SignedOut
+                Log.d(TAG, "Successfully signed out from all authentication systems")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error signing out completely", e)
+            }
         }
     }
 }

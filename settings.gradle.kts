@@ -39,4 +39,5 @@ dependencyResolutionManagement {
     }
 }
 include(":app")
+include(":sleke")
 rootProject.name = "AuroraStore4"

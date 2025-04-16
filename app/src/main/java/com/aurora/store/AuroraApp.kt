@@ -42,10 +42,10 @@ import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.google.android.material.color.DynamicColors
+import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import javax.inject.Inject
@@ -84,6 +84,8 @@ class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Fa
         // Set the app theme
         val themeStyle = Preferences.getInteger(this, Preferences.PREFERENCE_THEME_STYLE)
         setAppTheme(themeStyle)
+
+        FirebaseApp.initializeApp(this)
 
         // Apply dynamic colors to activities
         DynamicColors.applyToActivitiesIfAvailable(this)
