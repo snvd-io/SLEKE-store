@@ -46,4 +46,4 @@ signing.properties
 *.keystore
 
 
-.kotlin/*
+.kotlin/*app/google-services.json
