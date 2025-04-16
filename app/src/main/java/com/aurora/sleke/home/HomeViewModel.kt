@@ -16,7 +16,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,11 +36,7 @@ class HomeViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow<String>("")
     val searchQuery: StateFlow<String> = _searchQuery
 
-    // Internal query with debounce applied
-    private val debouncedSearchQuery = _searchQuery
-        .debounce(300) // 300ms debounce to wait for user to stop typing
-
-    val pagedApps: Flow<PagingData<Apk>> = debouncedSearchQuery
+    val pagedApps: Flow<PagingData<Apk>> = _searchQuery
         .flatMapLatest { query ->
             createPager(query)
         }

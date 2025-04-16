@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AppSkeletonAppItem() {
+fun SkeletonAppItem() {
     val shimmerColors = listOf(
         Color.LightGray.copy(alpha = 0.6f),
         Color.LightGray.copy(alpha = 0.2f),
@@ -63,32 +63,39 @@ fun AppSkeletonAppItem() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
                     .background(brush)
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.7f)
-                        .height(14.dp)
+                        .height(16.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(brush)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .height(12.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(brush)
                 )
@@ -97,31 +104,12 @@ fun AppSkeletonAppItem() {
 
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(0.5f)
+                        .fillMaxWidth(0.3f)
                         .height(10.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(brush)
                 )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.3f)
-                        .height(8.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(brush)
-                )
             }
-            
-            // Rating placeholder
-            Spacer(modifier = Modifier.width(4.dp))
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(brush)
-            )
         }
     }
 } 
