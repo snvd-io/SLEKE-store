@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="installer_service_available">Aurora 服务已可用并准备安装。</string>
+    <string name="installer_service_available">Aurora 服务已可用并准备好安装。</string>
     <string name="installer_root_unavailable">无 Root 权限。授予 Root 权限或更改安装程序。</string>
     <string name="filter_review_two">2★</string>
     <string name="filter_review_three">3★</string>
@@ -124,7 +124,7 @@
     <string name="action_installing">正在安装</string>
     <string name="action_pending">等待中</string>
     <string name="onboarding_welcome_select">你好吗？</string>
-    <string name="toast_purchase_blocked">应用购买在匿名帐号上不可用。</string>
+    <string name="toast_purchase_blocked">应用购买在匿名账户上不可用。</string>
     <string name="toast_spoof_applied">已应用设备伪装。</string>
     <string name="toast_permission_granted">已授予权限</string>
     <string name="toast_developer_setting_failed">从设备设置开启开发者设置来打开它们。</string>
@@ -179,7 +179,7 @@
     <string name="pref_filter_fdroid_title">过滤 F-Droid 应用</string>
     <string name="pref_filter_fdroid_summary">不检查从 F-Droid 下载或安装的应用的更新</string>
     <string name="onboarding_permission_installer_desc">允许 Aurora 商店安装应用</string>
-    <string name="onboarding_permission_installer">安装权限</string>
+    <string name="onboarding_permission_installer">安装器权限</string>
     <string name="onboarding_permission_esm">外部存储管理器</string>
     <string name="onboarding_permission_esa_desc">为了保存大型应用和游戏的 APK 扩展文件（OBBs）。</string>
     <string name="onboarding_permission_esa">访问外部存储</string>
@@ -280,7 +280,7 @@
     <string name="app_language">语言</string>
     <string name="failed_to_generate_session">无法生成会话</string>
     <string name="verifying_new_session">正在验证新会话</string>
-    <string name="app_links_title">应用链接</string>
+    <string name="app_links_title">链接</string>
     <string name="app_links_desc">允许 Aurora 商店打开受支持的链接</string>
     <string name="google_play_store_desc">Google Play，也称 Google Play 商店，之前叫 Android Market。</string>
     <string name="android_market_desc">Android Market 是一个提供为 Android 设备设计的软件应用程序的在线商店，于 2017 年退役。</string>
@@ -349,11 +349,7 @@
     <string name="session_login">请登录你的 Google 账户</string>
     <string name="about_aurora_store_title">关于 Aurora 商店</string>
     <string name="about_aurora_store_subtitle">了解更多有关 Aurora 商店的信息</string>
-    <string name="about_aurora_store_summary">Aurora 商店允许你从官方 Google Play 商店搜索并下载应用。你可以查看应用描述、截图、更新和其他用户的评论并直接将 APK 从 Google Play 下载到你的设备上。要使用 Aurora 商店，你需要有 Google Play 账户，并在你首次打开并配置 Aurora 商店时登录你的 Google Play 商店。
-\n
-\n和传统的应用商店不同， Aurora 商店并不拥有、许可或分发任何应用。所有的应用、应用描述、截图以及 Aurora 商店中的其他内容均直接从 Google Play 访问、下载并/或展示。Aurora 商店的工作方式就像一扇门或一个浏览器，允许你登录你的 Google Play 账户并从 Google Play 寻找应用。
-\n
-\n请注意 Aurora 商店没有来自 Google、Google Play、任何经 Aurora 商店下载的应用或任何应用开发者的任何批准、赞助或授权； Aurora 商店也与它们没有任何从属、合作或联系。</string>
+    <string name="about_aurora_store_summary">Aurora 商店允许你从官方 Google Play 商店搜索并下载应用。你可以查看应用描述、截图、更新和其他用户的评论并直接将 APK 从 Google Play 下载到你的设备上。要使用 Aurora 商店，你需要有 Google Play 账户，并在你首次打开并配置 Aurora 商店时登录你的 Google Play 商店。 \n \n和传统的应用商店不同， Aurora 商店并不拥有、许可或分发任何应用。所有的应用、应用描述、截图以及 Aurora 商店中的其他内容均直接从 Google Play 访问、下载并/或展示。Aurora 商店的工作方式就像一扇门或一个浏览器，允许你登录你的 Google Play 账户并从 Google Play 寻找应用。 \n \n请注意 Aurora 商店没有来自 Google、Google Play、任何经 Aurora 商店下载的应用或任何应用开发者的任何批准、赞助或授权； Aurora 商店也与它们没有任何从属、合作或联系。</string>
     <string name="toast_app_unavailable">应用对你的设备不可用</string>
     <string name="action_favourite">收藏</string>
     <string name="title_favourites_manager">收藏应用</string>

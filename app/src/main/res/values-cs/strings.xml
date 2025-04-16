@@ -53,7 +53,7 @@
     <string name="purchase_failed">Stažení se nezdařilo</string>
     <string name="pref_ui_similar_apps_desc">Zobrazit podobné a související skupiny na stránce s detaily aplikace</string>
     <string name="pref_ui_similar_apps">Podobné a související aplikace</string>
-    <string name="pref_ui_no_for_you_desc">Zobrazení stránek pro vás na domovské obrazovce</string>
+    <string name="pref_ui_no_for_you_desc">Zobrazit stránky pro vás na domovské obrazovce</string>
     <string name="pref_ui_no_for_you">Stránky pro vás</string>
     <string name="pref_ui_layout_tab">Vybrat výchozí kartu</string>
     <string name="pref_ui_layout">Rozložení</string>
@@ -98,7 +98,7 @@
     <string name="installer_status_failure_blocked">Instalace byla zablokována</string>
     <string name="installer_service_unavailable">Nainstalujte služby Aurora 1.0.9 nebo vyšší, nebo změňte instalační program.</string>
     <string name="installer_status_failure">Instalace selhala</string>
-    <string name="installer_service_misconfigured">Nejprve nastavte služby Aurora a udělte všechna oprávnění.</string>
+    <string name="installer_service_misconfigured">Nejprve nastavte Služby Aurora a udělte všechna oprávnění.</string>
     <string name="installer_service_available">Služby Aurora jsou k dispozici a jsou připraveny k instalaci.</string>
     <string name="installer_root_unavailable">Nedostupné oprávnění root, udělte root oprávnění nebo změnte instalátor.</string>
     <string name="filter_review_two">Dvě</string>
@@ -189,7 +189,7 @@
     <string name="action_filter">Filtry</string>
     <string name="action_export">Exportovat</string>
     <string name="action_disable">Zakázat</string>
-    <string name="action_copy_link">Kopírovat Link</string>
+    <string name="action_copy_link">Kopírovat odkaz</string>
     <string name="action_copy">Kopírovat</string>
     <string name="action_close">Zavřít</string>
     <string name="action_clear">Vymazat</string>
@@ -227,7 +227,7 @@
     <string name="toast_export_failed">Nelze exportovat konfiguraci zařízení</string>
     <string name="toast_export_success">Konfigurace zařízení exportována</string>
     <string name="app_updater_service_notif_text">Umožňuje stahování aplikací na pozadí</string>
-    <string name="app_updater_service_notif_title">Stahování na pozadí</string>
+    <string name="app_updater_service_notif_title">Stahování aplikací na pozadí</string>
     <string name="installer_am_unavailable">Nainstalujte si aplikaci App Manager nebo změnte instalátor.</string>
     <string name="pref_install_mode_am">AM instalátor</string>
     <string name="download_progress">Stahování • <xliff:g id="completed_downloads">%1$d</xliff:g> / <xliff:g id="all_downloads">%2$d</xliff:g> • <xliff:g id="speed">%3$s</xliff:g></string>
@@ -249,7 +249,7 @@
     <string name="session_scrapped">Poslední relace zrušena</string>
     <string name="permissions_denied">Požadovaná oprávnění byla odepřena. Pro pokračování v akci je prosím udělte</string>
     <string name="session_verifying">Ověřování relace</string>
-    <string name="session_verifying_google">Ověření relace Google</string>
+    <string name="session_verifying_google">Ověřování relace Google</string>
     <string name="title_advanced">Pokročilé</string>
     <string name="menu">Nabídka</string>
     <string name="error">Vyskytla se chyba!</string>
@@ -348,11 +348,7 @@
     <string name="add_dispenser_summary">Přidat vydavač tokenů do Aurora Store. Vydavače tokenů poskytují údaje o účtech, které Aurora Store používá pro anonymní přihlašování.</string>
     <string name="about_aurora_store_title">O aplikaci Aurora Store</string>
     <string name="about_aurora_store_subtitle">Zjistěte více informací o aplikaci Aurora Store</string>
-    <string name="about_aurora_store_summary">Aplikace Aurora Store umožňuje vyhledávat a stahovat aplikace z oficiálního Obchodu Google Play. Můžete si prohlédnout popisy aplikací, snímky obrazovky, aktualizace, komentáře ostatních uživatelů a stáhnout APK přímo z Google Play do svého zařízení. Chcete-li aplikaci Aurora Store používat, musíte mít účet Google a při prvním otevření a konfiguraci aplikace Aurora Store se k němu přihlásit.
-\n
-\nNa rozdíl od tradičního obchodu s aplikacemi aplikace Aurora Store nevlastní, nelicencuje ani nedistribuuje žádné aplikace. Všechny aplikace, popisy aplikací, snímky obrazovky a další obsah v aplikaci Aurora Store jsou přímo přístupné, stažené a/nebo zobrazené z Obchodu Google Play. Aplikace Aurora Store funguje přesně jako dveře nebo prohlížeč, umožňuje přihlášení k účtu Google a vyhledávání aplikací z Obchodu Google Play.
-\n
-\nUpozornění: aplikace Aurora Store nemá žádné schválení, sponzoring ani autorizaci od společnosti Google, Google Play, aplikací stažených prostřednictvím aplikace Aurora Store ani od vývojářů aplikací; aplikace Aurora Store s nimi také nemá žádné spojení, spolupráci ani vazbu.</string>
+    <string name="about_aurora_store_summary">Aplikace Aurora Store umožňuje vyhledávat a stahovat aplikace z oficiálního Obchodu Google Play. Můžete si prohlédnout popisy aplikací, snímky obrazovky, aktualizace, komentáře ostatních uživatelů a stáhnout APK přímo z Google Play do svého zařízení. Chcete-li aplikaci Aurora Store používat, musíte mít účet Google a při prvním otevření a konfiguraci aplikace Aurora Store se k němu přihlásit. \n \nNa rozdíl od tradičního obchodu s aplikacemi aplikace Aurora Store nevlastní, nelicencuje ani nedistribuuje žádné aplikace. Všechny aplikace, popisy aplikací, snímky obrazovky a další obsah v aplikaci Aurora Store jsou přímo přístupné, stažené a/nebo zobrazené z Obchodu Google Play. Aplikace Aurora Store funguje přesně jako dveře nebo prohlížeč, umožňuje přihlášení k účtu Google a vyhledávání aplikací z Obchodu Google Play. \n \nUpozornění: aplikace Aurora Store nemá žádné schválení, sponzoring ani autorizaci od společnosti Google, Google Play, aplikací stažených prostřednictvím aplikace Aurora Store ani od vývojářů aplikací; aplikace Aurora Store s nimi také nemá žádné spojení, spolupráci ani vazbu.</string>
     <string name="session_login">Přihlaste se prosím do vašeho účtu Google</string>
     <string name="toast_app_unavailable">Aplikace není dostupná pro vaše zařízení</string>
     <string name="details_no_favourites">Nenalezeny žádné oblíbené aplikace</string>
