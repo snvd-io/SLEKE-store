@@ -22,7 +22,6 @@ package com.aurora.store.view.ui.apps
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -57,6 +56,7 @@ class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
         super.onViewCreated(view, savedInstanceState)
 
         // Adjust FAB margins for edgeToEdge display
+        binding.searchFab.visibility = View.GONE
         ViewCompat.setOnApplyWindowInsetsListener(binding.searchFab) { _, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
             binding.searchFab.updateLayoutParams<ViewGroup.MarginLayoutParams> {

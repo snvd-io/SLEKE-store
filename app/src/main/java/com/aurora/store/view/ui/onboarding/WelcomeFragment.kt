@@ -39,20 +39,20 @@ class WelcomeFragment : BaseFragment<FragmentOnboardingWelcomeBinding>() {
         // RecyclerView
         binding.epoxyRecycler.withModels {
             setFilterDuplicates(true)
-            loadDashFromAssets().forEach {
-                add(
-                    DashViewModel_()
-                        .id(it.id)
-                        .dash(it)
-                        .click { _ ->
-                            if (it.id == 0) {
-                                findNavController().navigate(R.id.aboutDialog)
-                            } else {
-                                requireContext().browse(it.url)
-                            }
-                        }
-                )
-            }
+//            loadDashFromAssets().forEach {
+//                add(
+//                    DashViewModel_()
+//                        .id(it.id)
+//                        .dash(it)
+//                        .click { _ ->
+//                            if (it.id == 0) {
+//                                findNavController().navigate(R.id.aboutDialog)
+//                            } else {
+//                                requireContext().browse(it.url)
+//                            }
+//                        }
+//                )
+//            }
         }
     }
 

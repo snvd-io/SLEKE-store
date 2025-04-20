@@ -13,54 +13,47 @@ class FirestorePagingSource(
     private val searchQuery: String? = null
 ) : PagingSource<DocumentSnapshot, Apk>() {
 
-    private var lastVisibleItem: DocumentSnapshot? = null
-
-    private val baseQuery: Query = createQuery()
-
-    private fun createQuery(): Query {
-        val query = firestore.collection("apks")
-        return query.orderBy("name")
+    private fun buildBaseQuery(): Query {
+        val col = firestore.collection("apks")
+        return if (!searchQuery.isNullOrBlank()) {
+            val trimmed = searchQuery.trim()
+            col.orderBy("name")
+                .whereGreaterThanOrEqualTo("name", trimmed)
+                .whereLessThanOrEqualTo("name", "$trimmed\uf8ff")
+        } else {
+            col.orderBy("name")
+        }
     }
 
-    override suspend fun load(params: LoadParams<DocumentSnapshot>): LoadResult<DocumentSnapshot, Apk> {
+    override suspend fun load(
+        params: LoadParams<DocumentSnapshot>
+    ): LoadResult<DocumentSnapshot, Apk> {
         return try {
-            val isSearchQuery = !searchQuery.isNullOrEmpty()
-            
-            val query = baseQuery.run {
-                if (isSearchQuery) {
-                    limit(30)
-                } else {
-                    limit(params.loadSize.toLong())
-                        .run { params.key?.let { startAfter(it) } ?: this }
+            val q = buildBaseQuery()
+                .limit(params.loadSize.toLong())
+                .let { base ->
+                    params.key?.let { base.startAfter(it) } ?: base
                 }
-            }
-                
-            val querySnapshot = query.get().await()
-            val documents = querySnapshot.documents
-            
-            val filteredDocs = if (isSearchQuery) {
-                val trimmedQuery = searchQuery.trim()
-                documents.filter { doc ->
-                    val app = doc.toObject(Apk::class.java)
-                    app?.name?.contains(trimmedQuery, ignoreCase = true) == true
-                }
-            } else {
-                documents
-            }
-            
-            lastVisibleItem = if (!isSearchQuery) documents.lastOrNull() else null
-            
-            val apks = filteredDocs.mapNotNull { it.toObject(Apk::class.java) }
-            
+
+            val snap = q.get().await()
+            val docs = snap.documents
+            val apks = docs.mapNotNull { it.toObject(Apk::class.java) }
+            val nextKey = docs.lastOrNull()
+
             LoadResult.Page(
                 data = apks,
                 prevKey = null,
-                nextKey = if (!isSearchQuery) lastVisibleItem else null
+                nextKey = nextKey
             )
         } catch (e: Exception) {
             LoadResult.Error(e)
         }
     }
 
-    override fun getRefreshKey(state: PagingState<DocumentSnapshot, Apk>): DocumentSnapshot? = null
-} 
+    override fun getRefreshKey(state: PagingState<DocumentSnapshot, Apk>): DocumentSnapshot? {
+        return state.anchorPosition?.let { pos ->
+            state.closestPageToPosition(pos)?.nextKey
+                ?: state.closestPageToPosition(pos)?.prevKey
+        }
+    }
+}

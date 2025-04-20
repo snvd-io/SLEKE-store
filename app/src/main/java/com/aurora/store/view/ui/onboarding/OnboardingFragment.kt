@@ -66,7 +66,7 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>() {
 
     private val viewModel: OnboardingViewModel by viewModels()
 
-    private var lastPosition = 0
+    private var lastPosition = 1
 
     internal class PagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
         FragmentStateAdapter(fragmentManager, lifecycle) {

@@ -197,7 +197,7 @@
     <string name="onboarding_title_installer">"Installer"</string>
     <string name="onboarding_title_permissions">"Permissions"</string>
     <string name="onboarding_title_welcome">"Welcome"</string>
-    <string name="onboarding_welcome_select">"How you doing?"</string>
+    <string name="onboarding_welcome_select">"Let's set up a few things at first"</string>
     <string name="onboarding_permission_esa">"External storage access"</string>
     <string name="onboarding_permission_esa_desc">To save APK expansion files (OBBs) for large apps &amp; games.</string>
     <string name="onboarding_permission_esm">"External storage manager"</string>
