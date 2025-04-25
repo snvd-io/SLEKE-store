@@ -38,18 +38,24 @@ fun SimpleAppItem(
     Card(
         modifier = modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = MaterialTheme.shapes.medium
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f, false),
+                modifier = Modifier
+                    .weight(1f, false)
+                    .padding(end = 8.dp),
                 overflow = TextOverflow.Ellipsis
             )
             when (appState) {

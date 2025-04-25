@@ -178,7 +178,6 @@ val focusRequester = remember { FocusRequester() }
         }
     }
 }
-}
 
 @Composable
 fun AppsList(
