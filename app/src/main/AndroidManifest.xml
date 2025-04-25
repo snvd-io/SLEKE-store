@@ -81,6 +81,17 @@
         android:theme="@style/AppTheme"
         tools:targetApi="tiramisu">
 
+<!-- START  Sleke store  -->
+
+        <receiver
+            android:name="com.sleke.library.essential.DownloadCompletedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.sleke.store.fileprovider"
@@ -90,6 +101,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/paths" />
         </provider>
+
+<!-- END  Sleke store  -->
 
         <activity
             android:name=".MainActivity"
