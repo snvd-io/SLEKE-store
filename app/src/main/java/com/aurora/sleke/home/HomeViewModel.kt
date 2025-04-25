@@ -71,21 +71,6 @@ class HomeViewModel @Inject constructor(
         _searchQuery.value = query
     }
 
-    fun loadAndEnrichApps(limit: Int = 20) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            
-//            val firebaseApps = firestoreRepository.getApkList(limit)
-//
-//            if (firebaseApps.isNotEmpty()) {
-//                val enrichedApps = gplayRepository.enrichWithAppDetails(firebaseApps)
-//                _detailedApps.value = enrichedApps
-//            }
-
-            _isLoading.value = false
-        }
-    }
-
     fun getAppDetails(packageName: String, callback: (Apk?) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
