@@ -124,3 +124,6 @@
 -keep class * extends androidx.viewbinding.ViewBinding {
     *;
 }
+
+# Exclude all from com.sleke.home
+-keep class com.sleke.home.** { *; }

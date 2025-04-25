@@ -1,5 +1,5 @@
 // SlekeAppsViewModel.kt
-package com.sleke.home
+package com.sleke.home.screens
 
 import android.content.Context
 import android.content.pm.PackageManager

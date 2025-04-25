@@ -1,4 +1,4 @@
-package com.sleke.home
+package com.sleke.home.screens
 
 import android.content.BroadcastReceiver
 import android.content.Context

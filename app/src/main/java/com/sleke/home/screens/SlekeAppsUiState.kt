@@ -1,4 +1,4 @@
-package com.sleke.home
+package com.sleke.home.screens
 
 import com.sleke.library.model.firebase.SlekeApkDto
 import com.sleke.library.ui.SimpleAppUiState

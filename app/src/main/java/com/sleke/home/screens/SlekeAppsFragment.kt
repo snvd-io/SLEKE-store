@@ -1,4 +1,4 @@
-package com.sleke.home
+package com.sleke.home.screens
 
 import android.os.Bundle
 import android.view.LayoutInflater
