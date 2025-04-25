@@ -24,7 +24,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".view.ui.details.AppDetailsFragment">
+    tools:context="com.sleke.store.view.ui.details.AppDetailsFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

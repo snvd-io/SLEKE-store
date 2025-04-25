@@ -81,6 +81,16 @@
         android:theme="@style/AppTheme"
         tools:targetApi="tiramisu">
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.sleke.store.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/paths" />
+        </provider>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

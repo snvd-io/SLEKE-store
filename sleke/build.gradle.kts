@@ -35,11 +35,16 @@ android {
 }
 
 dependencies {
+    api(libs.timber)
+    api("androidx.datastore:datastore-preferences:1.1.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+
     // Firebase
     api(platform(libs.firebase.bom))
     api(libs.firebase.auth)
     api(libs.firebase.firestore)
     api(libs.firebase.ui.firestore)
+    api("com.firebaseui:firebase-ui-auth:8.0.2")
     api(libs.firebase.core)
 
     // Paging
@@ -55,7 +60,11 @@ dependencies {
     // Room annotations for data models
     implementation(libs.androidx.room.runtime)
 
-    // Hilt for DI
-    implementation(libs.hilt.android.core)
     ksp(libs.hilt.android.compiler)
+    ksp(libs.hilt.androidx.compiler)
+    implementation(libs.hilt.android.core)
+    implementation(libs.hilt.androidx.work)
+    implementation(libs.androidx.work.runtime.ktx)
+
+    implementation(libs.bundles.ktor)
 }

@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.sleke.library.data.model.Apk
+import com.sleke.library.model.firebase.Apk
 import kotlinx.coroutines.tasks.await
 
 class FirestorePagingSource(

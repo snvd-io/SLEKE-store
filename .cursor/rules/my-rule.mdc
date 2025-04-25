@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+Keep the code well organized and clean, readable. Do not add comments in code. Ever! Only in specific cases when it is really required.
+
+- You can @ files here
+- You can use markdown but dont have to

@@ -42,8 +42,12 @@ viewpager2Version = "1.1.0"
 workVersion = "2.10.0"
 androidxJunit = "1.2.1"
 appcompat = "1.7.0"
+timber = "5.0.1"
+ktor = "3.1.2"
 
 [libraries]
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+
 airbnb-epoxy-android = { module = "com.airbnb.android:epoxy", version.ref = "epoxyVersion" }
 airbnb-epoxy-processor = { module = "com.airbnb.android:epoxy-processor", version.ref = "epoxyVersion" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -107,6 +111,16 @@ firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-core = { module = "com.google.firebase:firebase-analytics-ktx" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxJunit" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+
+
+ktor = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+ktor-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+
+
+[bundles]
+ktor = ["ktor", "ktor-logging", "ktor-negotiation", "ktor-serialization"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

@@ -58,6 +58,11 @@
         android:label="@string/title_games"
         tools:layout="@layout/fragment_apps_games" />
     <fragment
+        android:id="@+id/slekeAppsContainerFragment"
+        android:name="com.sleke.home.SlekeAppsFragment"
+        android:label="@string/title_sleke_apps"
+        tools:layout="@layout/fragment_sleke_apps" />
+    <fragment
         android:id="@+id/updatesFragment"
         android:name="com.aurora.store.view.ui.updates.UpdatesFragment"
         android:label="@string/title_updates"
@@ -152,7 +157,7 @@
     </fragment>
     <fragment
         android:id="@+id/appDetailsFragment"
-        android:name="com.aurora.store.view.ui.details.AppDetailsFragment"
+        android:name="com.sleke.store.view.ui.details.AppDetailsFragment"
         tools:layout="@layout/fragment_details">
         <argument
             android:name="packageName"
@@ -282,7 +287,7 @@
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.aurora.store.view.ui.splash.SplashFragment"
+        android:name="com.sleke.store.view.ui.splash.SplashFragment"
         tools:layout="@layout/fragment_splash">
         <argument
             android:name="packageName"
@@ -413,7 +418,7 @@
         tools:layout="@layout/sheet_download_menu">
         <argument
             android:name="download"
-            app:argType="com.aurora.store.data.room.download.Download" />
+            app:argType="com.sleke.store.data.room.download.Download" />
     </dialog>
     <dialog
         android:id="@+id/deviceMiuiSheet"

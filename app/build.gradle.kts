@@ -44,7 +44,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.aurora.store"
+        applicationId = "com.sleke.store"
         minSdk = 26
         targetSdk = 36
 
