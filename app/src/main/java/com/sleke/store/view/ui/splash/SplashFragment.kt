@@ -236,6 +236,7 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
         }
 
         binding.btnEmail.addOnClickListener {
+            binding.btnEmail.updateProgress(true)
             launchFirebaseUi()
         }
 
@@ -263,6 +264,11 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
 
     private fun resetActions() {
         binding.btnGoogle.apply {
+            updateProgress(false)
+            isEnabled = true
+        }
+
+        binding.btnAnonymous.apply {
             updateProgress(false)
             isEnabled = true
         }
