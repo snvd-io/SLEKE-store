@@ -37,6 +37,7 @@ import com.aurora.store.viewmodel.sheets.DownloadMenuViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class DownloadMenuSheet : BaseDialogSheet<SheetDownloadMenuBinding>() {

@@ -35,6 +35,8 @@ import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PathUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_AUTO_DELETE
+import com.sleke.library.util.SlekeConstants
+import com.sleke.store.data.installer.base.IInstaller
 import java.io.File
 
 abstract class InstallerBase(private val context: Context) : IInstaller {
@@ -117,7 +119,7 @@ abstract class InstallerBase(private val context: Context) : IInstaller {
     fun getUri(file: File): Uri {
         return FileProvider.getUriForFile(
             context,
-            "${BuildConfig.APPLICATION_ID}.fileProvider",
+            SlekeConstants.ProviderAuthority,
             file
         )
     }

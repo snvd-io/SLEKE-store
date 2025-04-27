@@ -20,7 +20,7 @@ import com.aurora.store.MainActivity
 import com.aurora.store.R
 import com.aurora.store.data.activity.InstallActivity
 import com.aurora.store.data.helper.DownloadHelper
-import com.aurora.store.data.installer.AppInstaller
+import com.sleke.store.data.installer.AppInstaller
 import com.aurora.store.data.model.DownloadStatus
 import com.aurora.store.data.receiver.DownloadCancelReceiver
 import com.sleke.store.data.room.download.Download

@@ -18,6 +18,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.sleke.library.util.SlekeConstants
 import com.sleke.library.util.extractPackageName
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -93,7 +94,7 @@ class ApkDownloadWorker @AssistedInject constructor(
 
             val uri = FileProvider.getUriForFile(
                 applicationContext,
-                "com.sleke.store.fileprovider",
+                SlekeConstants.ProviderAuthority,
                 outFile
             )
 

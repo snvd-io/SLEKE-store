@@ -18,7 +18,7 @@
  *
  */
 
-package com.aurora.store.data.installer
+package com.sleke.store.data.installer
 
 import android.app.PendingIntent
 import android.content.Context
@@ -40,18 +40,19 @@ import com.aurora.extensions.runOnUiThread
 import com.aurora.store.AuroraApp
 import com.aurora.store.R
 import com.aurora.store.data.event.InstallerEvent
-import com.aurora.store.data.installer.AppInstaller.Companion.ACTION_INSTALL_STATUS
-import com.aurora.store.data.installer.AppInstaller.Companion.EXTRA_DISPLAY_NAME
-import com.aurora.store.data.installer.AppInstaller.Companion.EXTRA_PACKAGE_NAME
-import com.aurora.store.data.installer.AppInstaller.Companion.EXTRA_VERSION_CODE
+import com.sleke.store.data.installer.AppInstaller.Companion.ACTION_INSTALL_STATUS
+import com.sleke.store.data.installer.AppInstaller.Companion.EXTRA_DISPLAY_NAME
+import com.sleke.store.data.installer.AppInstaller.Companion.EXTRA_PACKAGE_NAME
+import com.sleke.store.data.installer.AppInstaller.Companion.EXTRA_VERSION_CODE
 import com.aurora.store.data.installer.base.InstallerBase
 import com.aurora.store.data.model.BuildType
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
-import com.aurora.store.data.model.SessionInfo
 import com.aurora.store.data.receiver.InstallerStatusReceiver
-import com.sleke.store.data.room.download.Download
 import com.aurora.store.util.PackageUtil.isSharedLibraryInstalled
+import com.sleke.store.data.model.SessionInfo
+import com.sleke.store.data.room.download.Download
+import com.sleke.library.util.SlekeConstants
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
@@ -269,6 +270,7 @@ class SessionInstaller @Inject constructor(
             putExtra(EXTRA_PACKAGE_NAME, sessionInfo.packageName)
             putExtra(EXTRA_VERSION_CODE, sessionInfo.versionCode)
             putExtra(EXTRA_DISPLAY_NAME, sessionInfo.displayName)
+            putExtra(SlekeConstants.EXTRA_IS_CUSTOM_STORE, true)
             addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
         }
 

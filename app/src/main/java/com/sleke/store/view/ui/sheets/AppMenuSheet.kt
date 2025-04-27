@@ -31,7 +31,7 @@ import com.aurora.extensions.toast
 import com.aurora.store.AuroraApp
 import com.aurora.store.R
 import com.aurora.store.data.event.BusEvent
-import com.aurora.store.data.installer.AppInstaller
+import com.sleke.store.data.installer.AppInstaller
 import com.aurora.store.databinding.SheetAppMenuBinding
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.viewmodel.sheets.AppMenuViewModel

@@ -24,7 +24,7 @@ import android.content.Context
 import android.content.Intent
 import com.aurora.store.AuroraApp
 import com.aurora.store.data.event.InstallerEvent
-import com.aurora.store.data.installer.AppInstaller
+import com.sleke.store.data.installer.AppInstaller
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

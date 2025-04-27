@@ -48,6 +48,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import okhttp3.OkHttpClient
 import org.lsposed.hiddenapibypass.HiddenApiBypass
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -84,6 +85,8 @@ class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Fa
         // Set the app theme
         val themeStyle = Preferences.getInteger(this, Preferences.PREFERENCE_THEME_STYLE)
         setAppTheme(themeStyle)
+
+        Timber.plant(Timber.DebugTree())
 
         FirebaseApp.initializeApp(this)
 

@@ -17,7 +17,7 @@
  *
  */
 
-package com.aurora.store.data.installer.base
+package com.sleke.store.data.installer.base
 
 import com.sleke.store.data.room.download.Download
 

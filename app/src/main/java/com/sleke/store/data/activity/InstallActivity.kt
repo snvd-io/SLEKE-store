@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
 import com.aurora.Constants
-import com.aurora.store.data.installer.SessionInstaller
+import com.sleke.store.data.installer.SessionInstaller
 import com.sleke.store.data.room.download.Download
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

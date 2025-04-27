@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.aurora.store.R
-import com.aurora.store.data.installer.SessionInstaller
+import com.sleke.store.data.installer.SessionInstaller
 import com.aurora.store.data.model.InstallerInfo
 
 /**

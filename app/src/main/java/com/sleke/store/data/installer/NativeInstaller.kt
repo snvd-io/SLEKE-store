@@ -21,8 +21,6 @@ package com.aurora.store.data.installer
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.util.Log
 import com.aurora.extensions.runOnUiThread
 import com.aurora.store.R
@@ -30,6 +28,7 @@ import com.aurora.store.data.installer.base.InstallerBase
 import com.aurora.store.data.model.BuildType
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
+import com.sleke.library.util.SlekeConstants
 import com.sleke.store.data.room.download.Download
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -68,21 +67,16 @@ class NativeInstaller @Inject constructor(
     }
 
     private fun xInstall(file: File) {
-        val intent: Intent
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            @Suppress("DEPRECATION")
-            intent = Intent(Intent.ACTION_INSTALL_PACKAGE)
-            intent.data = getUri(file)
-            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-        } else {
-            intent = Intent(Intent.ACTION_VIEW)
-            intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive")
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val intent: Intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(getUri(file), "application/vnd.android.package-archive")
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            putExtra(SlekeConstants.EXTRA_IS_CUSTOM_STORE, true)
+            putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+            putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, context.packageName)
         }
 
-        intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-        intent.putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, context.packageName)
+        Log.d("NativeInstaller", "xInstall: Intent extra EXTRA_IS_CUSTOM_STORE set to true")
         runOnUiThread { context.startActivity(intent) }
     }
 }

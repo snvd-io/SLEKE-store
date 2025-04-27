@@ -24,6 +24,7 @@ fun Context.installApp(apkUri: String) {
         val installIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(apkUri.toUri(), "application/vnd.android.package-archive")
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+            putExtra(SlekeConstants.EXTRA_IS_CUSTOM_STORE, true)
         }
         startActivity(installIntent)
     }.onFailure {
