@@ -71,14 +71,6 @@ object OkHttpClientModule {
                     HttpLoggingInterceptor.Level.NONE
                 }
             })
-            .addInterceptor { chain ->
-                val original = chain.request()
-                val withAgent = original.newBuilder()
-                    .header("User-Agent", "com.aurora.store-4.7.0-66")
-                    .build()
-                chain.proceed(withAgent)
-            }
-
             .connectTimeout(25, TimeUnit.SECONDS)
             .readTimeout(25, TimeUnit.SECONDS)
             .writeTimeout(25, TimeUnit.SECONDS)

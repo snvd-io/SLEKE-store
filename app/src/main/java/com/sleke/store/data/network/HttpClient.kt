@@ -17,7 +17,7 @@
  *
  */
 
-package com.aurora.store.data.network
+package com.sleke.store.data.network
 
 import android.util.Log
 import com.aurora.gplayapi.data.models.PlayResponse
@@ -90,7 +90,7 @@ class HttpClient @Inject constructor(private val okHttpClient: OkHttpClient): IH
             .url(url)
             .header(
                 "User-Agent",
-                "${BuildConfig.APPLICATION_ID}-${BuildConfig.VERSION_NAME}-${BuildConfig.VERSION_CODE}"
+                "com.aurora.store-${BuildConfig.VERSION_NAME}-${BuildConfig.VERSION_CODE}"
             )
             .method(POST, requestBody)
             .build()

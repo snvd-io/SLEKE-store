@@ -34,7 +34,7 @@ import com.aurora.store.data.installer.AppInstaller
 import com.aurora.store.data.model.Algorithm
 import com.aurora.store.data.model.DownloadInfo
 import com.aurora.store.data.model.DownloadStatus
-import com.aurora.store.data.network.HttpClient
+import com.sleke.store.data.network.HttpClient
 import com.aurora.store.data.providers.AuthProvider
 import com.sleke.store.data.room.download.Download
 import com.aurora.store.data.room.download.DownloadDao

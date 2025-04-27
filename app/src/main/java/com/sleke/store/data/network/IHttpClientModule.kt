@@ -1,4 +1,4 @@
-package com.aurora.store.data.network
+package com.sleke.store.data.network
 
 import com.aurora.gplayapi.network.IHttpClient
 import dagger.Module

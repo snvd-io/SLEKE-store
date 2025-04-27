@@ -19,7 +19,7 @@
 
 package com.aurora.store.util
 
-import com.aurora.store.data.network.HttpClient
+import com.sleke.store.data.network.HttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Locale
 import javax.inject.Inject
