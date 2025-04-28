@@ -218,6 +218,7 @@ class SessionInstaller @Inject constructor(
 
     private fun buildSessionParams(packageName: String): SessionParams {
         return SessionParams(SessionParams.MODE_FULL_INSTALL).apply {
+            setInstallerPackageName(context.packageName)
             setAppPackageName(packageName)
             setInstallLocation(PackageInfo.INSTALL_LOCATION_AUTO)
             if (isNAndAbove) {

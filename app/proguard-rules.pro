@@ -127,5 +127,6 @@
 
 # Exclude all from com.sleke.home
 -keep class com.sleke.home.** { *; }
+-keep class com.sleke.store.data.** { *; }
 -keep class com.aurora.home.** { *; }
 -keep class com.sleke.library.** { *; }

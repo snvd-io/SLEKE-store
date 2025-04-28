@@ -19,6 +19,7 @@
  *
  */
 
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import java.util.Properties
 
 plugins {
@@ -136,6 +137,12 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+
+    applicationVariants.configureEach {
+        outputs.configureEach {
+            (this as? BaseVariantOutputImpl)?.outputFileName = "Store_${versionName}.apk"
+        }
+    }
 }
 
 ksp {
@@ -147,6 +154,7 @@ configurations.all {
         force("com.google.protobuf:protobuf-javalite:4.26.1")
     }
 }
+
 
 dependencies {
     implementation(project(":sleke"))

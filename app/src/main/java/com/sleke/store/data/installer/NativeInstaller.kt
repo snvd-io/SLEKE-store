@@ -17,7 +17,7 @@
  *
  */
 
-package com.aurora.store.data.installer
+package com.sleke.store.data.installer
 
 import android.content.Context
 import android.content.Intent
@@ -62,15 +62,25 @@ class NativeInstaller @Inject constructor(
             Log.i(TAG, "${download.packageName} already queued")
         } else {
             Log.i(TAG, "Received native install request for ${download.packageName}")
-            getFiles(download.packageName, download.versionCode).forEach { xInstall(it) }
+
+            getFiles(download.packageName, download.versionCode).forEach { file ->
+
+                Log.d(
+                    TAG, "Found APK to install: name='${file.name}', " +
+                            "extension='${file.extension}', " +
+                            "path='${file.absolutePath}'"
+                )
+
+                xInstall(file)
+            }
         }
     }
 
     private fun xInstall(file: File) {
         val intent: Intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(getUri(file), "application/vnd.android.package-archive")
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             putExtra(SlekeConstants.EXTRA_IS_CUSTOM_STORE, true)
             putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
             putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, context.packageName)

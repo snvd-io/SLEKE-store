@@ -32,7 +32,6 @@ import com.aurora.extensions.isPAndAbove
 import com.aurora.extensions.isSAndAbove
 import com.aurora.store.BuildConfig
 import com.aurora.store.data.installer.AMInstaller
-import com.aurora.store.data.installer.NativeInstaller
 import com.aurora.store.data.installer.RootInstaller
 import com.aurora.store.data.installer.ServiceInstaller
 import com.aurora.store.data.installer.ShizukuInstaller
