@@ -23,10 +23,10 @@ import com.sleke.library.util.extractPackageName
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.ktor.client.HttpClient
-import io.ktor.client.request.get
+import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.contentLength
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.availableForRead
 import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -52,7 +52,6 @@ class ApkDownloadWorker @AssistedInject constructor(
 
         const val PROGRESS = "PROGRESS"
         private const val CHANNEL_ID = "apk_download_channel"
-        private const val NOTIF_ID = 42
 
         @OptIn(ExperimentalUuidApi::class)
         fun enqueue(
@@ -75,43 +74,65 @@ class ApkDownloadWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         runCatching {
-            val packageName =
-                inputData.getString(KEY_PACKAGE) ?: return@withContext Result.failure()
-            val url = inputData.getString(KEY_URL) ?: return@withContext Result.failure()
-            val downloadsDir =
-                applicationContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                    ?: return@withContext Result.failure()
+            val packageName = inputData.getString(KEY_PACKAGE)
+                ?: return@withContext Result.failure()
+            val url = inputData.getString(KEY_URL)
+                ?: return@withContext Result.failure()
+            val downloadsDir = applicationContext
+                .getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                ?: return@withContext Result.failure()
             val outFile = File(downloadsDir, "$packageName.apk")
+
             ensureChannel()
             setForeground(createForegroundInfo(packageName, 0))
-            val channel: ByteReadChannel = httpClient.get(url).bodyAsChannel()
-            val totalBytes = channel.availableForRead.toLong().takeIf { it > 0 } ?: -1L
-            channel.copyToFile(outFile, totalBytes) { pct ->
-                setProgress(workDataOf(PROGRESS to pct))
-                setForeground(createForegroundInfo(packageName, pct))
-            }
-            val extractedPkg = applicationContext.extractPackageName(outFile.absolutePath) ?: Result.failure()
 
+            httpClient.prepareGet(url).execute { response ->
+                val totalBytes = response.contentLength() ?: -1L
+                val channel: ByteReadChannel = response.bodyAsChannel()
+
+                outFile.outputStream().buffered().use { fileOut ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    var copied = 0L
+
+                    while (!channel.isClosedForRead) {
+                        val read = channel.readAvailable(buffer)
+                        if (read <= 0) break
+                        fileOut.write(buffer, 0, read)
+                        copied += read
+
+                        if (totalBytes > 0) {
+                            val pct = (copied * 100 / totalBytes)
+                                .toInt()
+                                .coerceIn(0, 100)
+                            setProgress(workDataOf(PROGRESS to pct))
+                            setForeground(createForegroundInfo(packageName, pct))
+                        }
+                        if (isStopped) throw CancellationException()
+                    }
+                }
+            }
+            val extractedPkg = applicationContext
+                .extractPackageName(outFile.absolutePath)
+                ?: return@withContext Result.failure()
             val uri = FileProvider.getUriForFile(
                 applicationContext,
                 SlekeConstants.ProviderAuthority,
                 outFile
             )
 
-
             extractedPkg to uri
         }.fold(
-            onFailure = {
-                return@withContext Result.failure(
-                    workDataOf(KEY_ERROR to (it.message ?: "Unknown error"))
-                )
-            },
-            onSuccess = { (extractedPkg, uri) ->
-                return@withContext Result.success(
+            onSuccess = { (pkg, uri) ->
+                Result.success(
                     workDataOf(
-                        KEY_PACKAGE to extractedPkg,
+                        KEY_PACKAGE to pkg,
                         KEY_APK_URI to uri.toString()
                     )
+                )
+            },
+            onFailure = { error ->
+                Result.failure(
+                    workDataOf(KEY_ERROR to (error.message ?: "Unknown error"))
                 )
             }
         )
@@ -126,43 +147,30 @@ class ApkDownloadWorker @AssistedInject constructor(
     }
 
     private fun createForegroundInfo(name: String, progress: Int): ForegroundInfo {
-        val notif = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+        val cancelText = "Cancel"
+
+        val cancelIntent = WorkManager
+            .getInstance(applicationContext)
+            .createCancelPendingIntent(id)
+
+        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setContentTitle(name)
             .setSmallIcon(R.drawable.stat_sys_download)
             .setOnlyAlertOnce(true)
             .setProgress(100, progress, false)
+            .setOngoing(true)
+            .addAction(R.drawable.ic_delete, cancelText, cancelIntent)
             .build()
+
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ForegroundInfo(
-                NOTIF_ID,
-                notif,
+                this.id.mostSignificantBits.toInt(),
+                notification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             )
         } else {
-            ForegroundInfo(NOTIF_ID, notif)
+            ForegroundInfo(this.id.mostSignificantBits.toInt(), notification)
         }
     }
 
-    private suspend fun ByteReadChannel.copyToFile(
-        file: File,
-        totalBytes: Long,
-        onProgress: suspend (Int) -> Unit
-    ) {
-        file.parentFile?.mkdirs()
-        file.outputStream().buffered().use { out ->
-            val buf = ByteArray(DEFAULT_BUFFER_SIZE)
-            var copied = 0L
-            while (!isClosedForRead) {
-                val read = readAvailable(buf)
-                if (read <= 0) break
-                out.write(buf, 0, read)
-                copied += read
-                if (isStopped) throw CancellationException()
-                if (totalBytes > 0) {
-                    val pct = (copied * 100 / totalBytes).toInt().coerceIn(0, 100)
-                    onProgress(pct)
-                }
-            }
-        }
-    }
 }
