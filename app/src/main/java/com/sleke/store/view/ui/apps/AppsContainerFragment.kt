@@ -32,10 +32,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.aurora.sleke.home.HomeViewModel
+import com.sleke.home.HomeViewModel
 import com.aurora.store.MobileNavigationDirections
 import com.aurora.store.R
-import com.aurora.store.compose.screens.PagedAppsScreen
+import com.sleke.home.screens.PagedAppsScreen
 import com.aurora.store.compose.theme.AuroraTheme
 import com.aurora.store.databinding.FragmentAppsGamesBinding
 import com.aurora.store.view.ui.commons.BaseFragment

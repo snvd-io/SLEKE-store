@@ -12,7 +12,7 @@ data class SlekeApkDto(
 fun SlekeApkDto.toApk(): Apk {
     return Apk(
         name = name,
-        link = link,
+        link = this@toApk.link,
         type = "apk",
         description = "",
         publisher = "",
