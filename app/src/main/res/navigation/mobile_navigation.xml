@@ -337,7 +337,7 @@
     </fragment>
     <fragment
         android:id="@+id/googleFragment"
-        android:name="com.aurora.store.view.ui.account.GoogleFragment"
+        android:name="com.sleke.store.view.ui.account.GoogleFragment"
         tools:layout="@layout/fragment_google">
         <action
             android:id="@+id/action_googleFragment_to_splashFragment"

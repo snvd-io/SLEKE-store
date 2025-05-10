@@ -57,7 +57,7 @@ import com.aurora.store.util.Preferences.PREFERENCE_DEFAULT_SELECTED_TAB
 import com.aurora.store.util.Preferences.PREFERENCE_INTRO
 import com.aurora.store.util.Preferences.PREFERENCE_MICROG_AUTH
 import com.aurora.store.view.ui.commons.BaseFragment
-import com.aurora.store.viewmodel.auth.AuthViewModel
+import com.sleke.store.viewmodel.auth.AuthViewModel
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.AuthUI.IdpConfig.EmailBuilder
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract

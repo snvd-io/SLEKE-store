@@ -1,4 +1,4 @@
-package com.aurora.store.compose.screens
+package com.sleke.home.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -51,8 +51,8 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.aurora.sleke.home.HomeViewModel
 import com.aurora.store.R
-import com.sleke.store.compose.ui.components.SkeletonAppItem
 import com.sleke.library.model.firebase.Apk
+import com.sleke.store.compose.ui.components.SkeletonAppItem
 
 @Composable
 fun PagedAppsScreen(
@@ -62,7 +62,7 @@ fun PagedAppsScreen(
     val searchQuery by viewModel.searchQuery.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val focusManager = LocalFocusManager.current
-val focusRequester = remember { FocusRequester() }
+    val focusRequester = remember { FocusRequester() }
     val pagedApps = viewModel.pagedApps.collectAsLazyPagingItems()
 
     LaunchedEffect(searchQuery) {

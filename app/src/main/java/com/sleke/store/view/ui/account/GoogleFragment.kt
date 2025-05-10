@@ -17,7 +17,7 @@
  *
  */
 
-package com.aurora.store.view.ui.account
+package com.sleke.store.view.ui.account
 
 import android.os.Build
 import android.os.Bundle
@@ -39,7 +39,7 @@ import com.aurora.store.data.event.AuthEvent
 import com.aurora.store.databinding.FragmentGoogleBinding
 import com.aurora.store.util.AC2DMUtil
 import com.aurora.store.view.ui.commons.BaseFragment
-import com.aurora.store.viewmodel.auth.AuthViewModel
+import com.sleke.store.viewmodel.auth.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

@@ -17,11 +17,10 @@
  *
  */
 
-package com.aurora.store.viewmodel.auth
+package com.sleke.store.viewmodel.auth
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.Constants
