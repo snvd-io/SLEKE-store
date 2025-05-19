@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -49,10 +50,11 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
-import com.aurora.sleke.home.HomeViewModel
 import com.aurora.store.R
+import com.sleke.home.HomeViewModel
 import com.sleke.library.model.firebase.Apk
 import com.sleke.store.compose.ui.components.SkeletonAppItem
+import timber.log.Timber
 
 @Composable
 fun PagedAppsScreen(
@@ -66,9 +68,7 @@ fun PagedAppsScreen(
     val pagedApps = viewModel.pagedApps.collectAsLazyPagingItems()
 
     LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotEmpty()) {
-            pagedApps.refresh()
-        }
+        pagedApps.refresh()
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -84,32 +84,19 @@ fun PagedAppsScreen(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
                 focusManager.clearFocus()
-                pagedApps.refresh()
             })
         )
 
         Box(modifier = Modifier.weight(1f)) {
             when {
-                pagedApps.loadState.refresh is LoadState.Loading -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(10) {
-                            SkeletonAppItem()
-                        }
-                    }
+                isLoading || pagedApps.loadState.refresh is LoadState.Loading -> {
+                    LoadingShimmerList()
                 }
-
+                
                 pagedApps.loadState.refresh is LoadState.Error -> {
                     val error = (pagedApps.loadState.refresh as LoadState.Error).error
                     SideEffect {
-                        Log.e(
-                            "PagedAppsScreen",
-                            "Error loading apps: ${error.localizedMessage}",
-                            error
-                        )
+                        Timber.e(error, "Error loading apps: ${error.localizedMessage}")
                     }
                     Column(
                         modifier = Modifier
@@ -126,7 +113,7 @@ fun PagedAppsScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "Error",
+                            text = "Error Loading Apps",
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -171,6 +158,19 @@ fun PagedAppsScreen(
 }
 
 @Composable
+fun LoadingShimmerList() {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(10) {
+            SkeletonAppItem()
+        }
+    }
+}
+
+@Composable
 fun AppsList(
     pagedApps: LazyPagingItems<Apk>,
     onAppClick: (Apk) -> Unit
@@ -191,8 +191,18 @@ fun AppsList(
         }
 
         if (pagedApps.loadState.append is LoadState.Loading) {
-            items(3) {
-                SkeletonAppItem()
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(32.dp),
+                        strokeWidth = 2.dp
+                    )
+                }
             }
         }
 

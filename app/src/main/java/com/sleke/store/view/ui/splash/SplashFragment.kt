@@ -57,11 +57,11 @@ import com.aurora.store.util.Preferences.PREFERENCE_DEFAULT_SELECTED_TAB
 import com.aurora.store.util.Preferences.PREFERENCE_INTRO
 import com.aurora.store.util.Preferences.PREFERENCE_MICROG_AUTH
 import com.aurora.store.view.ui.commons.BaseFragment
-import com.sleke.store.viewmodel.auth.AuthViewModel
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.AuthUI.IdpConfig.EmailBuilder
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.google.firebase.auth.FirebaseAuth
+import com.sleke.store.viewmodel.auth.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -89,6 +89,7 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
                     getString(R.string.login_failed, response?.error?.errorCode),
                     Toast.LENGTH_LONG
                 )
+                binding.btnGoogle.updateProgress(false)
             }
         }
 
@@ -105,6 +106,7 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
                 resetActions()
             }
         }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -237,27 +239,28 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
 
         binding.btnEmail.addOnClickListener {
             binding.btnEmail.updateProgress(true)
-            launchFirebaseUi()
+            launchFirebaseLogin()
         }
 
         binding.btnGoogle.addOnClickListener {
             if (viewModel.authState.value != AuthState.Fetching) {
                 binding.btnGoogle.updateProgress(true)
-                if (canLoginWithMicroG) {
-                    Log.i(TAG, "Found supported microG, trying to request credentials")
-                    val accountIntent = AccountManager.newChooseAccountIntent(
-                        null,
-                        null,
-                        arrayOf(GOOGLE_ACCOUNT_TYPE),
-                        null,
-                        null,
-                        null,
-                        null
-                    )
-                    startForAccount.launch(accountIntent)
-                } else {
-                    findNavController().navigate(R.id.googleFragment)
-                }
+//                if (canLoginWithMicroG) {
+//                    Log.i(TAG, "Found supported microG, trying to request credentials")
+//                    val accountIntent = AccountManager.newChooseAccountIntent(
+//                        null,
+//                        null,
+//                        arrayOf(GOOGLE_ACCOUNT_TYPE),
+//                        null,
+//                        null,
+//                        null,
+//                        null
+//                    )
+//                    startForAccount.launch(accountIntent)
+//                } else {
+//                    findNavController().navigate(R.id.googleFragment)
+//                }
+                launchFirebaseGoogleLogin()
             }
         }
     }
@@ -353,10 +356,23 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
         }
     }
 
-    private fun launchFirebaseUi() {
+    private fun launchFirebaseLogin() {
         val providers = listOf(
             EmailBuilder()
                 .build(),
+        )
+        val intent = AuthUI.getInstance()
+            .createSignInIntentBuilder()
+            .setTheme(R.style.FirebaseUITheme)
+            .setLogo(R.drawable.sync)
+            .setAvailableProviders(providers)
+            .build()
+        emailSignInLauncher.launch(intent)
+    }
+
+    private fun launchFirebaseGoogleLogin() {
+        val providers = listOf(
+            AuthUI.IdpConfig.GoogleBuilder().build(),
         )
         val intent = AuthUI.getInstance()
             .createSignInIntentBuilder()

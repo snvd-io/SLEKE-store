@@ -1,4 +1,4 @@
-package com.aurora.sleke.home
+package com.sleke.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,84 +6,74 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.aurora.store.data.repository.GPlayRepository
-import com.sleke.library.model.firebase.Apk
+import com.sleke.home.AppDetailsPagingSource
 import com.sleke.library.data.repository.ApkRepository
+import com.sleke.library.model.firebase.Apk
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val firestoreRepository: ApkRepository,
-    private val gplayRepository: GPlayRepository
+    private val apkRepository: ApkRepository,
+    private val gplayRepository: GPlayRepository,
 ) : ViewModel() {
 
-    private val _detailedApps = MutableStateFlow<List<Apk>>(emptyList())
-    val detailedApps: StateFlow<List<Apk>> = _detailedApps
+    private val _firebaseApps = MutableStateFlow<List<Apk>>(emptyList())
 
-    private val _isLoading = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _searchQuery = MutableStateFlow<String>("")
     val searchQuery: StateFlow<String> = _searchQuery
+    
+    private val _triggerRefresh = MutableStateFlow(0)
+
+    init {
+        viewModelScope.launch {
+            val apps = apkRepository.getAllApks()
+            _firebaseApps.update { apps }
+            _isLoading.value = false
+            _triggerRefresh.value += 1
+        }
+    }
 
     @OptIn(FlowPreview::class)
-    val pagedApps: Flow<PagingData<Apk>> = _searchQuery
-        .debounce(300)
-        .distinctUntilChanged()
+    val pagedApps: Flow<PagingData<Apk>> = combine(
+        _searchQuery.debounce(300).distinctUntilChanged(),
+        _triggerRefresh
+    ) { query, _ -> query }
         .flatMapLatest { query ->
             Pager(
                 config = PagingConfig(
-                    pageSize = 5,
-                    prefetchDistance = 5,
+                    pageSize = 8,
                     enablePlaceholders = false,
-                    initialLoadSize = 5
-                ),
-                pagingSourceFactory = {
-                    firestoreRepository.apkPagingSource(
-                        if (query.isBlank()) null else query
-                    )
-                }
-            ).flow.map { pagingData ->
-                pagingData.map { apk ->
-                    gplayRepository.getAppDetails(apk.packageName) ?: apk
-                }
-            }
+                    prefetchDistance = 5
+                )
+            ) {
+                AppDetailsPagingSource(
+                    allApks = _firebaseApps.value,
+                    gplayRepository = gplayRepository,
+                    query = query
+                )
+            }.flow
         }
         .cachedIn(viewModelScope)
 
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
-    }
-
-    fun getAppDetails(packageName: String, callback: (Apk?) -> Unit) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val app = gplayRepository.getAppDetails(packageName)
-            _isLoading.value = false
-            callback(app)
-        }
-    }
-
-    @Deprecated("Use loadAndEnrichApps() instead", ReplaceWith("loadAndEnrichApps()"))
-    fun enrichAppsWithDetails(firebaseApps: List<Apk>) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val enrichedApps = gplayRepository.enrichWithAppDetails(firebaseApps)
-            _detailedApps.value = enrichedApps
-            _isLoading.value = false
-        }
     }
 }

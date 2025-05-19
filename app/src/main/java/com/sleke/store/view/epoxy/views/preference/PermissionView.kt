@@ -27,9 +27,15 @@ import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.aurora.store.R
 import com.aurora.store.data.model.Permission
+import com.aurora.store.data.model.PermissionType
 import com.aurora.store.databinding.ViewPermissionBinding
 import com.aurora.store.view.epoxy.views.BaseModel
 import com.aurora.store.view.epoxy.views.BaseView
+
+data class PermissionState(
+    val type: PermissionType,
+    val granted: Boolean,
+)
 
 @ModelView(
     autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT,
@@ -48,8 +54,13 @@ class PermissionView @JvmOverloads constructor(
     }
 
     @ModelProp
-    fun isGranted(granted: Boolean) {
-        if (granted) {
+    fun isGranted(state: PermissionState) {
+        if (state.type == PermissionType.APP_LINKS) {
+            binding.btnAction.text = ContextCompat.getString(context, R.string.set)
+            return
+        }
+
+        if (state.granted) {
             binding.btnAction.isEnabled = false
             binding.btnAction.text = ContextCompat.getString(context, R.string.action_granted)
         } else {

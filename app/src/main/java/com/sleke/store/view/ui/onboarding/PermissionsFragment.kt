@@ -36,6 +36,7 @@ import com.aurora.store.data.model.Permission
 import com.aurora.store.data.model.PermissionType
 import com.aurora.store.databinding.FragmentOnboardingPermissionsBinding
 import com.aurora.store.view.epoxy.views.TextDividerViewModel_
+import com.aurora.store.view.epoxy.views.preference.PermissionState
 import com.aurora.store.view.epoxy.views.preference.PermissionViewModel_
 import com.aurora.store.view.ui.commons.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -165,8 +166,13 @@ class PermissionsFragment : BaseFragment<FragmentOnboardingPermissionsBinding>()
     private fun renderPermissionView(permission: Permission): PermissionViewModel_ {
         return PermissionViewModel_()
             .id(permission.type.name)
+            .isGranted(
+                PermissionState(
+                    permission.type,
+                    permissionProvider.isGranted(permission.type),
+                )
+            )
             .permission(permission)
-            .isGranted(permissionProvider.isGranted(permission.type))
             .click { _ ->
                 permissionProvider.request(permission.type) {
                     if (it) updateController()
