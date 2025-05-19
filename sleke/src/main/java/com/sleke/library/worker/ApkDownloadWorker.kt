@@ -20,6 +20,7 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.sleke.library.util.SlekeConstants
 import com.sleke.library.util.extractPackageName
+import com.sleke.library.util.installApp
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.ktor.client.HttpClient
@@ -30,6 +31,7 @@ import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.uuid.ExperimentalUuidApi
@@ -123,6 +125,11 @@ class ApkDownloadWorker @AssistedInject constructor(
             extractedPkg to uri
         }.fold(
             onSuccess = { (pkg, uri) ->
+                runCatching {
+                    applicationContext.installApp(uri.toString())
+                }.onFailure {
+                    Timber.tag("SlekeAppsScreen").e(it, "Failed to install app from APK URI: $uri")
+                }
                 Result.success(
                     workDataOf(
                         KEY_PACKAGE to pkg,

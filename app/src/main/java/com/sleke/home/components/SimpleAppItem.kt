@@ -1,27 +1,22 @@
 package com.sleke.home.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sleke.home.screens.AppStateStatusRow
 import com.sleke.library.ui.SimpleAppUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,53 +53,15 @@ fun SimpleAppItem(
                     .padding(end = 8.dp),
                 overflow = TextOverflow.Ellipsis
             )
-            when (appState) {
-                is SimpleAppUiState.NotDownloaded -> {
-                    Button(onClick = onDownload) {
-                        Text("Download")
-                    }
-                }
-
-                is SimpleAppUiState.Downloading -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        CircularProgressIndicator(
-                            progress = { appState.progress / 100f },
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                        Text(
-                            "${appState.progress}%",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-
-                is SimpleAppUiState.Downloaded -> {
-                    Button(onClick = { onInstall(appState.apkUri) }) {
-                        Text("Install")
-                    }
-                }
-
-                is SimpleAppUiState.Installed -> {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = onOpen) {
-                            Text("Open")
-                        }
-                        Button(onClick = onUninstall) {
-                            Text("Uninstall")
-                        }
-                    }
-                }
-
-                is SimpleAppUiState.Error -> {
-                    TextButton(onClick = onDownload) {
-                        Text("Retry")
-                    }
-                }
-            }
+            AppStateStatusRow(
+                appState = appState,
+                onDownload = onDownload,
+                onInstall = { uri, packageName ->
+                    onInstall(uri)
+                },
+                onOpen = onOpen,
+                onUninstall = onUninstall,
+            )
         }
     }
 }

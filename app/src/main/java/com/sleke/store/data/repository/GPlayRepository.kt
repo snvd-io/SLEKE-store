@@ -1,4 +1,4 @@
-package com.aurora.store.data.repository
+package com.sleke.store.data.repository
 
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.helpers.AppDetailsHelper
@@ -18,15 +18,12 @@ class GPlayRepository @Inject constructor(
 ) {
     private val appInstalled: HashMap<String, String> = hashMapOf()
 
-    suspend fun getAppDetails(packageName: String): Apk? = withContext(Dispatchers.IO) {
+    suspend fun getAppDetails(packageName: String, firebaseApp: Apk? = null): Apk? = withContext(Dispatchers.IO) {
         try {
             val authData = authProvider.authData ?: return@withContext null
-            
             val appDetailsHelper = AppDetailsHelper(authData)
-            
             val appDetails: App = appDetailsHelper.getAppByPackageName(packageName) ?: return@withContext null
-            
-            return@withContext convertToApk(appDetails)
+            return@withContext convertToApk(appDetails, firebaseApp)
         } catch (e: Exception) {
             e.printStackTrace()
             return@withContext null
@@ -48,7 +45,7 @@ class GPlayRepository @Inject constructor(
                 val appDetails: App? = appDetailsHelper.getAppByPackageName(firebaseApp.packageName)
                 
                 if (appDetails != null) {
-                    enrichedApps.add(convertToApk(appDetails))
+                    enrichedApps.add(convertToApk(appDetails, firebaseApp))
                 } else {
                     enrichedApps.add(firebaseApp)
                 }
@@ -61,7 +58,7 @@ class GPlayRepository @Inject constructor(
         return@withContext enrichedApps
     }
     
-    private fun convertToApk(app: App): Apk {
+    private fun convertToApk(app: App, firebaseApp: Apk? = null): Apk {
         return Apk(
             name = app.displayName,
             packageName = app.packageName,
@@ -69,7 +66,7 @@ class GPlayRepository @Inject constructor(
             description = app.description,
             publisher = app.developerName,
             type = "app",
-            link = "",
+            link = firebaseApp?.link.orEmpty(),
             iconUrl = app.iconArtwork.url,
             rating = app.rating.average.toFloat(),
             installs = app.installs.toString(),

@@ -32,6 +32,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.sleke.home.HomeViewModel
 import com.aurora.store.MobileNavigationDirections
 import com.aurora.store.R
 import com.sleke.home.screens.PagedAppsScreen
@@ -42,7 +43,6 @@ import com.aurora.store.view.ui.commons.CategoryFragment
 import com.aurora.store.view.ui.commons.ForYouFragment
 import com.aurora.store.view.ui.commons.TopChartContainerFragment
 import com.aurora.store.viewmodel.apps.AppsContainerViewModel
-import com.sleke.home.HomeViewModel
 import com.sleke.library.model.firebase.Apk
 import dagger.hilt.android.AndroidEntryPoint
 
