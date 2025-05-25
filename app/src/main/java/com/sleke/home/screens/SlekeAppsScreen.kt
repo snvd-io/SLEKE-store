@@ -22,11 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.aurora.store.R
 import com.sleke.home.components.SimpleAppItem
 import com.sleke.library.util.installApp
 import com.sleke.library.util.openApp
@@ -55,7 +53,7 @@ fun SlekeAppsScreen(
             override fun onReceive(ctx: Context, intent: Intent) {
                 val pkg = intent.data?.schemeSpecificPart ?: return
                 when (intent.action) {
-                    Intent.ACTION_PACKAGE_ADDED -> viewModel.onPackageInstalled(pkg)
+                    Intent.ACTION_PACKAGE_ADDED   -> viewModel.onPackageInstalled(pkg)
                     Intent.ACTION_PACKAGE_REMOVED -> viewModel.onPackageUninstalled(pkg)
                 }
             }
@@ -65,7 +63,7 @@ fun SlekeAppsScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.title_sleke_apps)) }) }
+        topBar = { TopAppBar(title = { Text("Sleke Apps") }) }
     ) { padding ->
         Box(
             modifier

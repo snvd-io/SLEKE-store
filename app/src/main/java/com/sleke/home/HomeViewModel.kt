@@ -8,19 +8,15 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.sleke.store.data.repository.GPlayRepository
-import com.aurora.store.data.repository.GPlayRepository
-import com.sleke.home.AppDetailsPagingSource
 import com.sleke.library.data.repository.ApkRepository
 import com.sleke.library.model.firebase.Apk
 import com.sleke.library.model.firebase.SlekeApkDto
 import com.sleke.library.ui.SimpleAppUiState
 import com.sleke.library.util.isAppInstalled
 import com.sleke.library.worker.ApkDownloadWorker
-import com.sleke.library.model.firebase.Apk
+import com.sleke.store.data.repository.GPlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,10 +39,9 @@ import kotlin.uuid.toJavaUuid
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalUuidApi::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val firestoreRepository: ApkRepository,
     private val gplayRepository: GPlayRepository,
     private val workManager: WorkManager,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
     private val apkRepository: ApkRepository,
 ) : ViewModel() {
 
@@ -68,19 +63,18 @@ class HomeViewModel @Inject constructor(
             val apps = apkRepository.getAllApks()
             _firebaseApps.update { apps }
             _isLoading.value = false
-            _triggerRefresh.value += 1
         }
     }
 
     @OptIn(FlowPreview::class)
     val pagedApps: Flow<PagingData<Apk>> = combine(
         _searchQuery.debounce(300).distinctUntilChanged(),
-        _triggerRefresh
+        _firebaseApps
     ) { query, _ -> query }
         .flatMapLatest { query ->
             Pager(
                 config = PagingConfig(
-                    pageSize = 8,
+                    pageSize = 5,
                     enablePlaceholders = false,
                     prefetchDistance = 5
                 )
@@ -127,23 +121,37 @@ class HomeViewModel @Inject constructor(
                         when (it.state) {
                             WorkInfo.State.RUNNING, WorkInfo.State.ENQUEUED -> {
                                 val progress = it.progress.getInt(ApkDownloadWorker.PROGRESS, 0)
-                                updateAppState(app.packageName, SimpleAppUiState.Downloading(progress))
+                                updateAppState(
+                                    app.packageName,
+                                    SimpleAppUiState.Downloading(progress)
+                                )
                             }
+
                             WorkInfo.State.SUCCEEDED -> {
                                 val uri = it.outputData.getString(ApkDownloadWorker.KEY_APK_URI)!!
-                                val pkgName = it.outputData.getString(ApkDownloadWorker.KEY_PACKAGE)!!
+                                val pkgName =
+                                    it.outputData.getString(ApkDownloadWorker.KEY_PACKAGE)!!
                                 if (context.isAppInstalled(pkgName)) {
                                     updateAppState(app.packageName, SimpleAppUiState.Installed)
                                 } else {
-                                    updateAppState(app.packageName, SimpleAppUiState.Downloaded(uri, pkgName))
+                                    updateAppState(
+                                        app.packageName,
+                                        SimpleAppUiState.Downloaded(uri, pkgName)
+                                    )
                                 }
                                 activeDownloads.remove(app.packageName)
                             }
+
                             WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {
-                                updateAppState(app.packageName, SimpleAppUiState.Error("Download failed"))
+                                updateAppState(
+                                    app.packageName,
+                                    SimpleAppUiState.Error("Download failed")
+                                )
                                 activeDownloads.remove(app.packageName)
                             }
-                            else -> { /* Do nothing */ }
+
+                            else -> { /* Do nothing */
+                            }
                         }
                     }
                 }
@@ -188,16 +196,6 @@ class HomeViewModel @Inject constructor(
             } catch (e: Exception) {
                 Timber.e(e, "Failed to refresh installed apps")
             }
-        }
-    }
-
-    @Deprecated("Use loadAndEnrichApps() instead", ReplaceWith("loadAndEnrichApps()"))
-    fun enrichAppsWithDetails(firebaseApps: List<Apk>) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val enrichedApps = gplayRepository.enrichWithAppDetails(firebaseApps)
-            _detailedApps.value = enrichedApps
-            _isLoading.value = false
         }
     }
 }
