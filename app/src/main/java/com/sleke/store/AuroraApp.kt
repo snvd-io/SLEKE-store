@@ -114,17 +114,6 @@ class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Fa
         CommonUtil.cleanupInstallationSessions(applicationContext)
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
-        scope.cancel("onLowMemory() called by system")
-        scope = MainScope()
-    }
-
-    override fun onTerminate() {
-        super.onTerminate()
-        scope.cancel()
-    }
-
     override fun newImageLoader(context: Context): ImageLoader {
         return ImageLoader(this).newBuilder()
             .crossfade(true)
