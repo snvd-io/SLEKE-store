@@ -241,9 +241,9 @@ class AuthViewModel @Inject constructor(
         return firebaseAuth.currentUser != null
     }
 
-    internal fun saveSlekeEnterpriseAccount(email: String) {
+    internal fun saveSlekeEnterpriseAccount(id: String, email: String) {
         viewModelScope.launch {
-            dataStore.setEnterpriseAccount(email)
+            dataStore.setEnterpriseAccount(id, email)
         }
     }
 }

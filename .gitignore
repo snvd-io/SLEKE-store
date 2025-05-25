@@ -45,6 +45,8 @@ app/nightly/*
 signing.properties
 *.keystore
 
+.kotlin
+
 
 .kotlin/*app/google-services.json
 /app/google-services.json

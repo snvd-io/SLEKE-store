@@ -1,4 +1,4 @@
-package com.sleke.home.screens
+package com.sleke.presentation.screens
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -54,9 +54,9 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.aurora.store.R
-import com.sleke.home.HomeViewModel
-import com.sleke.home.components.StoreAppItem
-import com.sleke.library.model.firebase.Apk
+import com.sleke.presentation.HomeViewModel
+import com.sleke.presentation.components.StoreAppItem
+import com.sleke.library.model.firebase.AppDto
 import com.sleke.store.compose.ui.components.SkeletonAppItem
 import timber.log.Timber
 import kotlin.uuid.ExperimentalUuidApi
@@ -64,7 +64,7 @@ import kotlin.uuid.ExperimentalUuidApi
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
 fun PagedAppsScreen(
-    onAppClick: (Apk) -> Unit,
+    onAppClick: (AppDto) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -204,8 +204,8 @@ fun LoadingShimmerList() {
 
 @Composable
 fun AppsList(
-    pagedApps: LazyPagingItems<Apk>,
-    onAppClick: (Apk) -> Unit
+    pagedApps: LazyPagingItems<AppDto>,
+    onAppClick: (AppDto) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),

@@ -17,8 +17,8 @@ class LogoutUseCase @Inject constructor(
 
     suspend operator fun invoke() {
         firebaseAuth.signOut()
+        slekePreferencesDataStore.clean()
         AccountProvider.logout(context)
         authProvider.removeAuthData(context)
-        slekePreferencesDataStore.clean()
     }
 }

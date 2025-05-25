@@ -1,4 +1,4 @@
-package com.sleke.home.components
+package com.sleke.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,12 +31,12 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.aurora.store.R
-import com.sleke.library.model.firebase.Apk
+import com.sleke.library.model.firebase.AppDto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoreAppItem(
-    app: Apk,
+    app: AppDto,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

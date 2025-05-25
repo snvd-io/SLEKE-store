@@ -40,11 +40,9 @@ import androidx.navigation.fragment.findNavController
 import com.aurora.extensions.hide
 import com.aurora.extensions.isMAndAbove
 import com.aurora.extensions.isNAndAbove
-import com.aurora.extensions.navigate
 import com.aurora.extensions.show
 import com.aurora.gplayapi.helpers.AuthHelper
 import com.aurora.store.R
-import com.aurora.store.compose.navigation.Screen
 import com.aurora.store.data.model.AuthState
 import com.aurora.store.databinding.FragmentSplashBinding
 import com.aurora.store.util.CertUtil.GOOGLE_ACCOUNT_TYPE
@@ -79,8 +77,8 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
             val response = res.idpResponse
             if (res.resultCode == android.app.Activity.RESULT_OK) {
                 val user = FirebaseAuth.getInstance().currentUser
-                user?.email?.let { email ->
-                    viewModel.saveSlekeEnterpriseAccount(email)
+                user?.let {
+                    viewModel.saveSlekeEnterpriseAccount(it.uid, it.email.orEmpty())
                     viewModel.buildAnonymousAuthData()
                 }
             } else {

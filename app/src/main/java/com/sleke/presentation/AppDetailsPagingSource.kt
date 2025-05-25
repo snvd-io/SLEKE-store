@@ -1,24 +1,24 @@
-package com.sleke.home
+package com.sleke.presentation
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.sleke.library.model.firebase.Apk
+import com.sleke.library.model.firebase.AppDto
 import com.sleke.store.data.repository.GPlayRepository
 import timber.log.Timber
 
 class AppDetailsPagingSource(
-    private val allApks: List<Apk>,
+    private val allAppDtos: List<AppDto>,
     private val gplayRepository: GPlayRepository,
     private val query: String
-) : PagingSource<Int, Apk>() {
+) : PagingSource<Int, AppDto>() {
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Apk> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AppDto> {
         return try {
 
             val filteredApks = if (query.isBlank()) {
-                allApks
+                allAppDtos
             } else {
-                allApks.filter { apk ->
+                allAppDtos.filter { apk ->
                     apk.name.contains(query, ignoreCase = true) ||
                             apk.packageName.contains(query, ignoreCase = true)
                 }
@@ -42,7 +42,7 @@ class AppDetailsPagingSource(
                 try {
                     gplayRepository.getAppDetails(apk.packageName)
                 } catch (e: Exception) {
-                    Timber.tag("PagingSource").e(e, "Error fetching details for ${apk.packageName}")
+                    Timber.tag("AppPaging").w(e, "Error fetching details for ${apk.packageName}")
                     apk
                 }
             }
@@ -58,7 +58,7 @@ class AppDetailsPagingSource(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, Apk>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, AppDto>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)

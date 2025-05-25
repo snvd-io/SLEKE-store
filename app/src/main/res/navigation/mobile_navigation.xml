@@ -59,7 +59,7 @@
         tools:layout="@layout/fragment_apps_games" />
     <fragment
         android:id="@+id/slekeAppsContainerFragment"
-        android:name="com.sleke.home.screens.SlekeAppsFragment"
+        android:name="com.sleke.presentation.screens.SlekeAppsFragment"
         android:label="@string/title_sleke_apps"
         tools:layout="@layout/fragment_sleke_apps" />
     <fragment

@@ -1,4 +1,4 @@
-package com.sleke.home
+package com.sleke.presentation
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -11,7 +11,7 @@ import androidx.paging.cachedIn
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.sleke.library.data.repository.ApkRepository
-import com.sleke.library.model.firebase.Apk
+import com.sleke.library.model.firebase.AppDto
 import com.sleke.library.model.firebase.SlekeApkDto
 import com.sleke.library.ui.SimpleAppUiState
 import com.sleke.library.util.isAppInstalled
@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
     private val apkRepository: ApkRepository,
 ) : ViewModel() {
 
-    private val _firebaseApps = MutableStateFlow<List<Apk>>(emptyList())
+    private val _firebaseApps = MutableStateFlow<List<AppDto>>(emptyList())
     val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
@@ -67,7 +67,7 @@ class HomeViewModel @Inject constructor(
     }
 
     @OptIn(FlowPreview::class)
-    val pagedApps: Flow<PagingData<Apk>> = combine(
+    val pagedApps: Flow<PagingData<AppDto>> = combine(
         _searchQuery.debounce(300).distinctUntilChanged(),
         _firebaseApps
     ) { query, _ -> query }
@@ -80,7 +80,7 @@ class HomeViewModel @Inject constructor(
                 )
             ) {
                 AppDetailsPagingSource(
-                    allApks = _firebaseApps.value,
+                    allAppDtos = _firebaseApps.value,
                     gplayRepository = gplayRepository,
                     query = query
                 )
@@ -92,7 +92,7 @@ class HomeViewModel @Inject constructor(
         _searchQuery.value = query
     }
 
-    fun downloadApp(app: Apk) {
+    fun downloadApp(app: AppDto) {
         if (app.packageName.isEmpty()) {
             Timber.e("Cannot download app with empty package name")
             updateAppState(app.packageName, SimpleAppUiState.Error("Invalid package name"))

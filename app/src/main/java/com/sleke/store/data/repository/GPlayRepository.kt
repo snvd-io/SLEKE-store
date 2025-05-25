@@ -3,7 +3,7 @@ package com.sleke.store.data.repository
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.store.data.providers.AuthProvider
-import com.sleke.library.model.firebase.Apk
+import com.sleke.library.model.firebase.AppDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -18,7 +18,7 @@ class GPlayRepository @Inject constructor(
 ) {
     private val appInstalled: HashMap<String, String> = hashMapOf()
 
-    suspend fun getAppDetails(packageName: String, firebaseApp: Apk? = null): Apk? = withContext(Dispatchers.IO) {
+    suspend fun getAppDetails(packageName: String, firebaseApp: AppDto? = null): AppDto? = withContext(Dispatchers.IO) {
         try {
             val authData = authProvider.authData ?: return@withContext null
             val appDetailsHelper = AppDetailsHelper(authData)
@@ -33,12 +33,12 @@ class GPlayRepository @Inject constructor(
     /**
      * Enrich Firebase apps with GPlayAPI details
      */
-    suspend fun enrichWithAppDetails(firebaseApps: List<Apk>): List<Apk> = withContext(Dispatchers.IO) {
+    suspend fun enrichWithAppDetails(firebaseApps: List<AppDto>): List<AppDto> = withContext(Dispatchers.IO) {
         val authData = authProvider.authData ?: return@withContext firebaseApps
         
         val appDetailsHelper = AppDetailsHelper(authData)
         
-        val enrichedApps = mutableListOf<Apk>()
+        val enrichedApps = mutableListOf<AppDto>()
         
         for (firebaseApp in firebaseApps) {
             try {
@@ -58,8 +58,8 @@ class GPlayRepository @Inject constructor(
         return@withContext enrichedApps
     }
     
-    private fun convertToApk(app: App, firebaseApp: Apk? = null): Apk {
-        return Apk(
+    private fun convertToApk(app: App, firebaseApp: AppDto? = null): AppDto {
+        return AppDto(
             name = app.displayName,
             packageName = app.packageName,
             versionNameDisplay = app.versionName,

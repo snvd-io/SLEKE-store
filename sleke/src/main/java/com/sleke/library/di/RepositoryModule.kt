@@ -1,6 +1,7 @@
 package com.sleke.library.di
 
 import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.sleke.library.data.datastore.SlekePreferencesDataStore
 import com.sleke.library.data.datastore.SlekePreferencesDataStoreImpl
@@ -18,9 +19,20 @@ import javax.inject.Singleton
 object RepositoryModule {
 
     @Provides
+    fun provideContext(
+        @ApplicationContext context: Context
+    ): Context = context
+
+    @Provides
     @Singleton
     fun provideFirebaseFirestore(): FirebaseFirestore {
         return FirebaseFirestore.getInstance()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
     }
 
     @Provides

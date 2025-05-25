@@ -138,6 +138,7 @@ class ApkDownloadWorker @AssistedInject constructor(
                 )
             },
             onFailure = { error ->
+                Timber.w(error, "Error downloading APK for package: ${inputData.getString(KEY_PACKAGE)}")
                 Result.failure(
                     workDataOf(KEY_ERROR to (error.message ?: "Unknown error"))
                 )

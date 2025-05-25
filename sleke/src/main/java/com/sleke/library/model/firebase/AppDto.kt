@@ -3,7 +3,7 @@ package com.sleke.library.model.firebase
 import com.google.firebase.firestore.IgnoreExtraProperties
 
 @IgnoreExtraProperties
-data class Apk(
+data class AppDto(
     val name: String = "",
     val link: String = "",
     val type: String = "",

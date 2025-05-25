@@ -1,4 +1,4 @@
-package com.sleke.home.components
+package com.sleke.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -19,17 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -91,7 +87,7 @@ fun SimpleAppItem(
                 ) {
                     SimpleAppIcon(
                         modifier = Modifier.size(56.dp),
-                        iconUrl = app.iconUrl,
+                        iconUrl = app.iconUrl.orEmpty(),
                         packageName = app.packageName,
                         appName = app.name
                     )
@@ -164,10 +160,10 @@ fun SimpleAppItem(
             AnimatedVisibility(
                 visible = isExpanded,
                 enter = expandVertically(
-                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy)
                 ) + fadeIn(),
                 exit = shrinkVertically(
-                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy)
                 ) + fadeOut()
             ) {
                 ExpandedContent(
@@ -219,7 +215,7 @@ private fun SimpleAppIcon(
 private fun ExpandedContent(
     description: String,
     packageName: String,
-    type: String,
+    type: String?,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -264,7 +260,7 @@ private fun ExpandedContent(
                 )
             }
 
-            if (type.isNotEmpty()) {
+            if (type.isNullOrEmpty().not()) {
                 DetailItem(
                     label = "Type",
                     value = type.uppercase(),

@@ -5,13 +5,13 @@ import androidx.paging.PagingState
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.sleke.library.model.firebase.Apk
+import com.sleke.library.model.firebase.AppDto
 import kotlinx.coroutines.tasks.await
 
 class FirestorePagingSource(
     private val firestore: FirebaseFirestore,
     private val searchQuery: String? = null
-) : PagingSource<DocumentSnapshot, Apk>() {
+) : PagingSource<DocumentSnapshot, AppDto>() {
 
     private fun buildBaseQuery(): Query {
         val col = firestore.collection("apks")
@@ -27,7 +27,7 @@ class FirestorePagingSource(
 
     override suspend fun load(
         params: LoadParams<DocumentSnapshot>
-    ): LoadResult<DocumentSnapshot, Apk> {
+    ): LoadResult<DocumentSnapshot, AppDto> {
         return try {
             val q = buildBaseQuery()
                 .limit(params.loadSize.toLong())
@@ -37,11 +37,11 @@ class FirestorePagingSource(
 
             val snap = q.get().await()
             val docs = snap.documents
-            val apks = docs.mapNotNull { it.toObject(Apk::class.java) }
+            val appDtos = docs.mapNotNull { it.toObject(AppDto::class.java) }
             val nextKey = docs.lastOrNull()
 
             LoadResult.Page(
-                data = apks,
+                data = appDtos,
                 prevKey = null,
                 nextKey = nextKey
             )
@@ -50,7 +50,7 @@ class FirestorePagingSource(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<DocumentSnapshot, Apk>): DocumentSnapshot? {
+    override fun getRefreshKey(state: PagingState<DocumentSnapshot, AppDto>): DocumentSnapshot? {
         return state.anchorPosition?.let { pos ->
             state.closestPageToPosition(pos)?.nextKey
                 ?: state.closestPageToPosition(pos)?.prevKey

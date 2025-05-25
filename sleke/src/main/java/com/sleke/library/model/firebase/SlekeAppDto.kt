@@ -1,6 +1,7 @@
 package com.sleke.library.model.firebase
 
 import com.google.firebase.firestore.IgnoreExtraProperties
+import com.sleke.library.domain.AppDomain
 
 @IgnoreExtraProperties
 data class SlekeApkDto(
@@ -9,19 +10,19 @@ data class SlekeApkDto(
     val packageName: String = "",
     val description: String = "",
     val publisher: String = "",
-    val type: String = "",
+    val type: String? = null,
     val versionName: String = "",
     val versionNameDisplay: String = "",
 )
 
-fun SlekeApkDto.toApk(): Apk {
-    return Apk(
+fun SlekeApkDto.toApp(): AppDomain {
+    return AppDomain(
         name = name,
-        link = this@toApk.link,
-        type = type.ifEmpty { "apk" },
+        downloadUrl = this@toApp.link,
+        type = type,
         description = description,
         publisher = publisher,
-        versionNameDisplay = versionNameDisplay.ifEmpty { versionName },
+        version = versionNameDisplay.ifEmpty { versionName },
         packageName = packageName,
     )
 }
