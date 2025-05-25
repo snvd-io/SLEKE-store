@@ -25,7 +25,8 @@ data class EnterpriseAppsUiState(
     val isLoading: Boolean = true,
     val apps: List<DownloadableApp<AppDomain>> = emptyList(),
     val error: String? = null,
-    val hasAccess: Boolean = false
+    val hasAccess: Boolean = false,
+    val enterpriseName: String = ""
 )
 
 @HiltViewModel
@@ -51,7 +52,7 @@ class EnterpriseAppsViewModel @Inject constructor(
 
                 if (currentUser != null) {
                     _uiState.value = _uiState.value.copy(hasAccess = true)
-                    loadEnterpriseApps(currentUser.uid)
+                    loadEnterpriseData(currentUser.uid)
                 } else {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -68,8 +69,9 @@ class EnterpriseAppsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadEnterpriseApps(userId: String) {
+    private suspend fun loadEnterpriseData(userId: String) {
         try {
+            val enterpriseDetails = apkRepository.getEnterpriseDetails(userId)
             val apps = apkRepository.getEnterpriseApps(userId)
             val downloadableApps = apps.map { app ->
                 val isAppInstalled = try {
@@ -89,12 +91,13 @@ class EnterpriseAppsViewModel @Inject constructor(
             }
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
-                apps = downloadableApps
+                apps = downloadableApps,
+                enterpriseName = enterpriseDetails?.title ?: "Enterprise"
             )
         } catch (e: Exception) {
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
-                error = e.message ?: "Failed to load enterprise apps"
+                error = e.message ?: "Failed to load enterprise data"
             )
         }
     }

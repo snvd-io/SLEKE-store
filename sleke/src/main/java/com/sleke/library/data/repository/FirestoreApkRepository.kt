@@ -7,6 +7,7 @@ import com.sleke.library.data.Firestore
 import com.sleke.library.domain.AppDomain
 import com.sleke.library.model.firebase.AppDto
 import com.sleke.library.model.firebase.EnterpriseAppDto
+import com.sleke.library.model.firebase.EnterpriseDto
 import com.sleke.library.model.firebase.SlekeApkDto
 import com.sleke.library.model.firebase.UserDto
 import com.sleke.library.model.firebase.toApp
@@ -82,6 +83,33 @@ class FirestoreApkRepository @Inject constructor(
         } catch (e: Exception) {
             Timber.tag("FBRepository").w(e, "Error fetching enterprise apps for user: $userId")
             return emptyList()
+        }
+    }
+
+    override suspend fun getEnterpriseDetails(userId: String): EnterpriseDto? {
+        return try {
+            val user = firestore.collection(Firestore.Collection.USERS)
+                .document(userId)
+                .get()
+                .await()
+                .toObject(UserDto::class.java)
+
+            if (user == null || user.enterprise.isNullOrBlank()) {
+                Timber.tag("FBRepository")
+                    .d("User not found or no enterprise access for user: $userId")
+                return null
+            }
+
+            val enterpriseDoc = firestore
+                .collection(Firestore.Collection.ENTERPRISE)
+                .document(user.enterprise)
+                .get()
+                .await()
+
+            enterpriseDoc.toObject(EnterpriseDto::class.java)
+        } catch (e: Exception) {
+            Timber.tag("FBRepository").w(e, "Error fetching enterprise details for user: $userId")
+            null
         }
     }
 } 

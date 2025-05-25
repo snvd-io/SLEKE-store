@@ -22,6 +22,7 @@ import com.aurora.store.R
 
 @Composable
 fun <T> UiStateContainer(
+    modifier: Modifier = Modifier,
     isLoading: Boolean,
     error: String?,
     data: T?,
@@ -31,12 +32,14 @@ fun <T> UiStateContainer(
     emptyContent: @Composable () -> Unit = { DefaultEmptyView() },
     content: @Composable (T) -> Unit
 ) {
-    when {
-        isLoading -> loadingContent()
-        error != null -> errorContent(error)
-        data != null && isEmpty -> emptyContent()
-        data != null -> content(data)
-        else -> emptyContent()
+    Box(modifier = modifier) {
+        when {
+            isLoading -> loadingContent()
+            error != null -> errorContent(error)
+            data != null && isEmpty -> emptyContent()
+            data != null -> content(data)
+            else -> emptyContent()
+        }
     }
 }
 

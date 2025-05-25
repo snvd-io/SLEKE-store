@@ -6,13 +6,13 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun <T> EnterpriseUiStateContainer(
+    modifier: Modifier = Modifier,
     hasAccess: Boolean,
     isLoading: Boolean,
     error: String?,
     data: T?,
     isEmpty: Boolean = false,
-    modifier: Modifier = Modifier,
-    noAccessContent: @Composable () -> Unit = { 
+    noAccessContent: @Composable () -> Unit = {
         CenteredMessageView(
             message = "No enterprise access available",
         )

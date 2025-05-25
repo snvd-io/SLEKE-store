@@ -150,8 +150,7 @@ class HomeViewModel @Inject constructor(
                                 activeDownloads.remove(app.packageName)
                             }
 
-                            else -> { /* Do nothing */
-                            }
+                            else -> {}
                         }
                     }
                 }

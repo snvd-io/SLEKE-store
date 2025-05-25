@@ -1,4 +1,4 @@
-package com.sleke.presentation.enterprise
+package com.sleke.home.screens
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +32,7 @@ import com.sleke.library.util.openApp
 import com.sleke.library.util.uninstallApp
 import com.sleke.presentation.components.SimpleAppItem
 import com.sleke.presentation.components.toSimpleApp
+import com.sleke.presentation.enterprise.EnterpriseAppsViewModel
 import com.sleke.store.compose.ui.components.EnterpriseUiStateContainer
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -40,7 +41,7 @@ import kotlin.uuid.ExperimentalUuidApi
 fun EnterpriseAppsScreen(
     modifier: Modifier = Modifier,
     viewModel: EnterpriseAppsViewModel = hiltViewModel(),
-    upPress: () -> Unit,
+    upPress: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -67,15 +68,17 @@ fun EnterpriseAppsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Enterprise Apps") },
+                title = {
+                    Text(uiState.enterpriseName.ifBlank { "Enterprise Apps" })
+                },
                 navigationIcon = {
-                    IconButton(upPress) {
+                    IconButton(onClick = upPress) {
                         Icon(
-                            Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = null,
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
                         )
                     }
-                }
+                },
             )
         },
     ) { padding ->
