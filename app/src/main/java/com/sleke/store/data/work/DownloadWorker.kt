@@ -41,6 +41,7 @@ import com.aurora.store.data.room.download.DownloadDao
 import com.aurora.store.util.CertUtil
 import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PathUtil
+import com.sleke.store.data.installer.SessionInstaller
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers

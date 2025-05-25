@@ -1,67 +1,378 @@
 package com.sleke.home.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sleke.home.screens.AppStateStatusRow
+import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.aurora.store.R
 import com.sleke.library.ui.SimpleAppUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimpleAppItem(
-    title: String,
-    appState: SimpleAppUiState,
+    modifier: Modifier = Modifier,
+    app: SimpleApp,
     onDownload: () -> Unit,
     onInstall: (apkUri: String) -> Unit,
     onOpen: () -> Unit,
     onUninstall: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
+    var isExpanded by remember { mutableStateOf(false) }
+
     Card(
-        modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(),
+        onClick = { 
+            if (app.appState !is SimpleAppUiState.Downloading) {
+                isExpanded = !isExpanded 
+            }
+        },
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(12.dp)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SimpleAppIcon(
+                        modifier = Modifier.size(56.dp),
+                        iconUrl = app.iconUrl,
+                        packageName = app.packageName,
+                        appName = app.name
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = app.name,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        if (app.publisher.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = app.publisher,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        if (app.versionDisplay.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = app.versionDisplay,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AppStateStatusRow(
+                        appState = app.appState,
+                        onDownload = onDownload,
+                        onInstall = { uri, packageName ->
+                            onInstall(uri)
+                        },
+                        onOpen = onOpen,
+                        onUninstall = onUninstall,
+                    )
+
+                    if (app.appState !is SimpleAppUiState.Downloading) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        IconButton(
+                            onClick = { isExpanded = !isExpanded }
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_arrow_down),
+                                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                                modifier = Modifier.rotate(if (isExpanded) 180f else 0f),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                }
+            }
+
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+                ) + fadeIn(),
+                exit = shrinkVertically(
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+                ) + fadeOut()
+            ) {
+                ExpandedContent(
+                    description = app.description,
+                    packageName = app.packageName,
+                    type = app.type
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SimpleAppIcon(
+    iconUrl: String,
+    packageName: String,
+    appName: String,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    SubcomposeAsyncImage(
+        model = ImageRequest.Builder(context)
+            .data(iconUrl.ifEmpty { "https://play-lh.googleusercontent.com/icon?id=${packageName}&s=120" })
+            .crossfade(true)
+            .build(),
+        contentDescription = "$appName icon",
+        contentScale = ContentScale.Fit,
+        modifier = modifier
+            .clip(CircleShape),
+        loading = {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                strokeWidth = 2.dp
+            )
+        },
+        error = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_apps),
+                contentDescription = "App icon placeholder",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+    )
+}
+
+@Composable
+private fun ExpandedContent(
+    description: String,
+    packageName: String,
+    type: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp)
+    ) {
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+            thickness = 1.dp
+        )
+
+                Spacer(modifier = Modifier.height(12.dp))
+        
+        if (description.isNotEmpty()) {
             Text(
-                title,
-                style = MaterialTheme.typography.titleMedium,
+                text = "Description",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            if (packageName.isNotEmpty()) {
+                DetailItem(
+                    label = "Package",
+                    value = packageName,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            if (type.isNotEmpty()) {
+                DetailItem(
+                    label = "Type",
+                    value = type.uppercase(),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailItem(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun AppStateStatusRow(
+    appState: SimpleAppUiState,
+    onDownload: () -> Unit,
+    onInstall: (uri: String, packageName: String) -> Unit,
+    onOpen: () -> Unit,
+    onUninstall: () -> Unit
+) {
+    when (appState) {
+        is SimpleAppUiState.NotDownloaded -> {
+            IconButton(onClick = onDownload) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_download),
+                    contentDescription = "Download",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        is SimpleAppUiState.Downloading -> {
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .weight(1f, false)
-                    .padding(end = 8.dp),
-                overflow = TextOverflow.Ellipsis
-            )
-            AppStateStatusRow(
-                appState = appState,
-                onDownload = onDownload,
-                onInstall = { uri, packageName ->
-                    onInstall(uri)
-                },
-                onOpen = onOpen,
-                onUninstall = onUninstall,
-            )
+                    .size(40.dp)
+                    .padding(end = 4.dp)
+            ) {
+                CircularProgressIndicator(
+                    progress = { appState.progress / 100f },
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(44.dp)
+                )
+                Text(
+                    "${appState.progress}%",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
+        is SimpleAppUiState.Downloaded -> {
+            IconButton(onClick = { onInstall(appState.apkUri, appState.packageName) }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_install),
+                    contentDescription = "Install",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        is SimpleAppUiState.Installed -> {
+            Row {
+                IconButton(onClick = onUninstall) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_delete),
+                        contentDescription = "Uninstall",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+                IconButton(onClick = onOpen) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_apps),
+                        contentDescription = "Open",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+
+        is SimpleAppUiState.Error -> {
+            IconButton(onClick = onDownload) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_download),
+                    contentDescription = "Retry",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }
@@ -69,28 +380,19 @@ fun SimpleAppItem(
 @Preview(showBackground = true)
 @Composable
 fun SimpleAppItemPreview() {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         SimpleAppItem(
-            title = "Example App",
-            appState = SimpleAppUiState.NotDownloaded,
-            onDownload = {},
-            onOpen = {},
-            onInstall = {},
-            onUninstall = {}
-        )
-        SimpleAppItem(
-            title = "Downloading…",
-            appState = SimpleAppUiState.Downloading(progress = 42),
-            onDownload = {},
-            onOpen = {},
-            onInstall = {},
-            onUninstall = {}
-        )
-        SimpleAppItem(
-            title = "Downloaded App",
-            appState = SimpleAppUiState.Downloaded(
-                apkUri = "content://example/app.apk",
-                packageName = "com.example.app"
+            app = SimpleApp(
+                name = "Airbnb (Web)",
+                description = "Find inspiration, plan a trip with your group, book it, and go. You'll always have access to important trip information.",
+                publisher = "Airbnb",
+                packageName = "com.sleke.airbnbweb",
+                versionDisplay = "1.0",
+                type = "travel",
+                appState = SimpleAppUiState.NotDownloaded
             ),
             onDownload = {},
             onOpen = {},
@@ -98,8 +400,30 @@ fun SimpleAppItemPreview() {
             onUninstall = {}
         )
         SimpleAppItem(
-            title = "Installed App",
-            appState = SimpleAppUiState.Installed,
+            app = SimpleApp(
+                name = "Downloading App",
+                description = "This app is currently downloading...",
+                publisher = "Example Publisher",
+                packageName = "com.example.downloading",
+                versionDisplay = "2.1",
+                type = "utility",
+                appState = SimpleAppUiState.Downloading(progress = 42)
+            ),
+            onDownload = {},
+            onOpen = {},
+            onInstall = {},
+            onUninstall = {}
+        )
+        SimpleAppItem(
+            app = SimpleApp(
+                name = "Installed App",
+                description = "This app is already installed on your device and ready to use.",
+                publisher = "Example Corp",
+                packageName = "com.example.installed",
+                versionDisplay = "3.0.1",
+                type = "productivity",
+                appState = SimpleAppUiState.Installed
+            ),
             onDownload = {},
             onOpen = {},
             onInstall = {},

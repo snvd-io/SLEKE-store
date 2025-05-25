@@ -265,7 +265,7 @@
     <string name="title_account_manager">"Accounts"</string>
     <string name="title_apps">"Apps"</string>
     <string name="title_app_settings">"App settings"</string>
-    <string name="title_apps_games">"My apps &amp; games"</string>
+    <string name="title_apps_games">"My apps"</string>
     <string name="title_apps_library">"Apps in library"</string>
     <string name="title_blacklist_manager">"Blacklist manager"</string>
     <string name="title_favourites_manager">"Favourite apps"</string>
@@ -321,7 +321,7 @@
     <string name="item_required">Required</string>
     <string name="item_optional">Optional</string>
     <string name="permissions_denied">Required permissions were denied. Please grant them in order to continue the action</string>
-    <string name="search_hint">Search for apps &amp; games</string>
+    <string name="search_hint">Search for apps</string>
     <string name="requesting_new_session">Requesting new session</string>
     <string name="server_maintenance">Server down for maintenance</string>
     <string name="downloading_dep">Downloading additional files for <xliff:g id="app">%1$s</xliff:g></string>

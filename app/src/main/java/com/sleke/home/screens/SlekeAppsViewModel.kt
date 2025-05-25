@@ -9,6 +9,7 @@ import androidx.work.WorkManager
 import com.sleke.library.data.repository.ApkRepository
 import com.sleke.library.model.firebase.SlekeApkDto
 import com.sleke.library.ui.SimpleAppUiState
+import com.sleke.library.util.installApp
 import com.sleke.library.util.isAppInstalled
 import com.sleke.library.worker.ApkDownloadWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,19 +41,15 @@ class SlekeAppsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val dtos = repo.slekeApks()
-            val apps = dtos.map {
+            val apps = dtos.map { dto ->
                 val isAppInstalled = try {
-                    context.packageManager.getPackageInfo(it.packageName, 0)
+                    context.packageManager.getPackageInfo(dto.packageName, 0)
                     true
                 } catch (e: PackageManager.NameNotFoundException) {
                     false
                 }
                 SlekeApp(
-                    apk = SlekeApkDto(
-                        name = it.name,
-                        link = it.link,
-                        packageName = it.packageName,
-                    ),
+                    apk = dto,
                     downloadState = if (isAppInstalled) {
                         SimpleAppUiState.Installed
                     } else {
@@ -96,10 +93,13 @@ class SlekeAppsViewModel @Inject constructor(
                         }
                         val uri = it.outputData.getString(ApkDownloadWorker.KEY_APK_URI)!!
                         val isAppInstalled = context.isAppInstalled(pkgName)
-                        if (isAppInstalled) SimpleAppUiState.Installed else SimpleAppUiState.Downloaded(
-                            uri,
-                            pkgName
-                        )
+                        if (isAppInstalled) SimpleAppUiState.Installed else {
+                            context.installApp(uri)
+                            SimpleAppUiState.Downloaded(
+                                uri,
+                                pkgName
+                            )
+                        }
                     }
 
                     WorkInfo.State.FAILED, WorkInfo.State.CANCELLED -> {

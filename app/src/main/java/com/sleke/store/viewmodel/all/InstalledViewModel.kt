@@ -31,6 +31,7 @@ import com.aurora.store.data.room.favourite.Favourite
 import com.aurora.store.data.room.favourite.ImportExport
 import com.aurora.store.util.PackageUtil
 import com.google.gson.Gson
+import com.sleke.library.data.repository.ApkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +45,8 @@ class InstalledViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val blacklistProvider: BlacklistProvider,
     private val gson: Gson,
-    private val webAppDetailsHelper: WebAppDetailsHelper
+    private val webAppDetailsHelper: WebAppDetailsHelper,
+    private val apkRepository: ApkRepository
 ) : ViewModel() {
 
     private val TAG = InstalledViewModel::class.java.simpleName
@@ -59,11 +61,13 @@ class InstalledViewModel @Inject constructor(
     fun fetchApps() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                val firebaseApks = apkRepository.getAllApks()
+                val firebasePackageNames = firebaseApks.map { it.packageName }.toSet()
+                
                 val packages = PackageUtil.getAllValidPackages(context)
                     .filterNot { blacklistProvider.isBlacklisted(it.packageName) }
+                    .filter { firebasePackageNames.contains(it.packageName) }
 
-                // Divide the list of packages into chunks of 100 & fetch app details
-                // 50 is a safe number to avoid hitting the rate limit or package size limit
                 val chunkedPackages = packages.chunked(50)
                 val allApps = chunkedPackages.flatMap { chunk ->
                     webAppDetailsHelper.getAppDetails(chunk.map { it.packageName })

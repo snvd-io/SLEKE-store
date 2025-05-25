@@ -122,10 +122,10 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
         binding.toolbar.apply {
             setOnMenuItemClickListener {
                 when (it.itemId) {
-                    R.id.menu_blacklist_manager -> {
-                        requireContext().navigate(Screen.Blacklist)
-                    }
-
+//                    R.id.menu_blacklist_manager -> {
+//                        requireContext().navigate(Screen.Blacklist)
+//                    }
+//
 //                    R.id.menu_spoof_manager -> {
 //                        findNavController().navigate(R.id.spoofFragment)
 //                    }

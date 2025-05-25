@@ -126,7 +126,7 @@ class HttpClient @Inject constructor(private val okHttpClient: OkHttpClient): IH
             .url(url)
             .header(
                 "User-Agent",
-                "${BuildConfig.APPLICATION_ID}-${BuildConfig.VERSION_NAME}-${BuildConfig.VERSION_CODE}"
+                "com.aurora.store-${BuildConfig.VERSION_NAME}-${BuildConfig.VERSION_CODE}"
             )
             .method(GET, null)
             .build()

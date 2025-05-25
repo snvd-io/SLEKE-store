@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,9 +24,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sleke.home.components.SimpleAppItem
+import com.sleke.home.components.toSimpleApp
 import com.sleke.library.util.installApp
 import com.sleke.library.util.openApp
 import com.sleke.library.util.uninstallApp
@@ -63,7 +66,7 @@ fun SlekeAppsScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Sleke Apps") }) }
+        topBar = { TopAppBar(title = { Text("Sleke Apps") }) },
     ) { padding ->
         Box(
             modifier
@@ -103,14 +106,14 @@ fun SlekeAppsScreen(
                     ) {
                         items(uiState.apps) { item ->
                             SimpleAppItem(
-                                title = item.apk.name,
-                                appState = item.downloadState,
+                                modifier = Modifier.zIndex(3f),
+                                app = item.apk.toSimpleApp(item.downloadState),
                                 onDownload = { viewModel.startDownload(item.apk) },
                                 onOpen = {
                                     context.openApp(item.apk.packageName)
                                 },
-                                onInstall = {
-                                    context.installApp(it)
+                                onInstall = { uri ->
+                                    context.installApp(uri)
                                 },
                                 onUninstall = {
                                     context.uninstallApp(item.apk.packageName)
