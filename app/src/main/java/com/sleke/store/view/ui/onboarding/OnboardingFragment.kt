@@ -160,8 +160,8 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>() {
 
     private fun loadDefaultPreferences() {
         /*Filters*/
-        save(PREFERENCE_FILTER_AURORA_ONLY, false)
-        save(PREFERENCE_FILTER_FDROID, true)
+        save(PREFERENCE_FILTER_AURORA_ONLY, true)
+        save(PREFERENCE_FILTER_FDROID, false)
 
         /*Network*/
         // TODO: Gather feedback and drop setting default dispenser for all builds
@@ -173,7 +173,7 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>() {
         /*Customization*/
         save(PREFERENCE_THEME_STYLE, 0)
         save(PREFERENCE_DEFAULT_SELECTED_TAB, 0)
-        save(PREFERENCE_FOR_YOU, true)
+        save(PREFERENCE_FOR_YOU, false)
         save(PREFERENCE_SIMILAR, false)
 
         /*Installer*/
