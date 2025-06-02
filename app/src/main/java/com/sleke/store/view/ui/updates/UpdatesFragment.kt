@@ -57,6 +57,8 @@ class UpdatesFragment : BaseFragment<FragmentUpdatesBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.searchFab.visibility = View.GONE
+
         // Adjust FAB margins for edgeToEdge display
         ViewCompat.setOnApplyWindowInsetsListener(binding.searchFab) { _, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())

@@ -30,10 +30,12 @@ import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_AUTO
 import com.google.gson.Gson
+import com.sleke.library.data.repository.ApkRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.Locale
 
 /**
@@ -53,6 +55,7 @@ class UpdateWorker @AssistedInject constructor(
     private val downloadHelper: DownloadHelper,
     private val authProvider: AuthProvider,
     private val appDetailsHelper: AppDetailsHelper,
+    private val firebaseApkRepository: ApkRepository,
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters
 ) : AuthWorker(authProvider, context, workerParams) {
@@ -154,10 +157,20 @@ class UpdateWorker @AssistedInject constructor(
 
             // Filter out packages based on user's preferences
             val filteredPackages = if (isAuroraOnlyFilterEnabled) {
-                packages.filter { CertUtil.isAuroraStoreApp(context, it.packageName) }
+//                packages.filter { CertUtil.isAuroraStoreApp(context, it.packageName) }
+                val firebasePackages = firebaseApkRepository.getAllApks()
+                val packagesAfterFilter = packages.filter { pkg ->
+                    firebasePackages.any { it.packageName == pkg.packageName }
+                }
+                packagesAfterFilter
             } else {
                 packages.filterNot { if (isFDroidFilterEnabled) CertUtil.isFDroidApp(context, it.packageName) else false }
             }
+
+
+            Timber.tag("UpdateWorker").d(
+                "Found ${filteredPackages.size} packages to check for updates"
+            )
 
             val updates = appDetailsHelper.getAppByPackageName(filteredPackages.map { it.packageName })
                 .filter { it.displayName.isNotEmpty() }
