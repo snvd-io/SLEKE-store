@@ -116,6 +116,8 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
             return
         }
 
+        binding.btnGoogle.visibility = View.GONE
+
         // Toolbar
         binding.toolbar.apply {
             setOnMenuItemClickListener {
