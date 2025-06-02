@@ -79,24 +79,24 @@ class AppsGamesFragment : BaseFragment<FragmentGenericWithSearchBinding>() {
 
         // Toolbar
         binding.toolbar.apply {
-            inflateMenu(R.menu.menu_import_export)
+//            inflateMenu(R.menu.menu_import_export)
 
             // TODO: Add support for batch install
-            menu.findItem(R.id.action_import).isEnabled = false
+//            menu.findItem(R.id.action_import).isEnabled = false
 
             setNavigationOnClickListener { findNavController().navigateUp() }
-            setOnMenuItemClickListener {
-                when (it.itemId) {
-                    R.id.action_export -> {
-                        startForDocumentExport.launch(
-                            "aurora_store_apps_${Calendar.getInstance().time.time}.json"
-                        )
-                        true
-                    }
-
-                    else -> false
-                }
-            }
+//            setOnMenuItemClickListener {
+//                when (it.itemId) {
+//                    R.id.action_export -> {
+//                        startForDocumentExport.launch(
+//                            "aurora_store_apps_${Calendar.getInstance().time.time}.json"
+//                        )
+//                        true
+//                    }
+//
+//                    else -> false
+//                }
+//            }
         }
 
         binding.searchBar.addTextChangedListener(object : TextWatcher {
