@@ -44,7 +44,7 @@ dependencies {
     api(libs.firebase.auth)
     api(libs.firebase.firestore)
     api(libs.firebase.ui.firestore)
-    api("com.firebaseui:firebase-ui-auth:8.0.2")
+    api(libs.firebase.ui.auth)
     api(libs.firebase.core)
 
     // Paging
