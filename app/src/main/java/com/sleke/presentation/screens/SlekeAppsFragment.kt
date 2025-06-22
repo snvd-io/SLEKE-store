@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aurora.store.compose.theme.AuroraTheme
-import com.sleke.home.screens.EnterpriseAppsScreen
+import com.sleke.home.screens.EnterpriseAppsPane
 import com.sleke.store.util.FragmentThemeUtils.hideActionBar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
@@ -52,7 +52,7 @@ class SlekeAppsFragment : Fragment() {
                     }
 
                     composable<SlekeNavigation.SlekeEnterprise> {
-                        EnterpriseAppsScreen(
+                        EnterpriseAppsPane(
                             upPress = {
                             navController.popBackStack<SlekeNavigation.SlekeApps>(
                                 inclusive = false

@@ -44,6 +44,9 @@ import com.aurora.store.view.ui.commons.ForYouFragment
 import com.aurora.store.view.ui.commons.TopChartContainerFragment
 import com.aurora.store.viewmodel.apps.AppsContainerViewModel
 import com.sleke.library.model.firebase.AppDto
+import com.sleke.home.screens.EnterpriseAppsPane
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -101,10 +104,17 @@ class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
 
             setContent {
                 AuroraTheme {
-                    PagedAppsScreen(
-                        viewModel = homeViewModel,
-                        onAppClick = { app -> navigateToAppDetails(app) }
-                    )
+                    val isEnterprise by homeViewModel.isEnterprise.collectAsStateWithLifecycle()
+                    if (isEnterprise) {
+                        EnterpriseAppsPane(
+                            upPress = { }
+                        )
+                    } else {
+                        PagedAppsScreen(
+                            viewModel = homeViewModel,
+                            onAppClick = { app -> navigateToAppDetails(app) }
+                        )
+                    }
                 }
             }
         }

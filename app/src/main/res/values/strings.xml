@@ -509,4 +509,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="login_failed">Login failed, please check your credentials</string>
     <string name="title_sleke_apps">SLEKE.</string>
+    <string name="enterprise_apps">Enterprise Apps</string>
 </resources>

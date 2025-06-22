@@ -17,6 +17,7 @@ import com.sleke.library.ui.SimpleAppUiState
 import com.sleke.library.util.isAppInstalled
 import com.sleke.library.worker.ApkDownloadWorker
 import com.sleke.store.data.repository.GPlayRepository
+import com.sleke.library.data.datastore.SlekePreferencesDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,10 +25,14 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -43,6 +48,7 @@ class HomeViewModel @Inject constructor(
     private val workManager: WorkManager,
     @ApplicationContext private val context: Context,
     private val apkRepository: ApkRepository,
+    private val slekePreferencesDataStore: SlekePreferencesDataStore,
 ) : ViewModel() {
 
     private val _firebaseApps = MutableStateFlow<List<AppDto>>(emptyList())
@@ -54,6 +60,14 @@ class HomeViewModel @Inject constructor(
 
     private val _appStates = MutableStateFlow<Map<String, SimpleAppUiState>>(emptyMap())
     val appStates: StateFlow<Map<String, SimpleAppUiState>> = _appStates
+
+    val isEnterprise: StateFlow<Boolean> = slekePreferencesDataStore.signedAccount
+        .map { signedAccount -> signedAccount?.isEnterprise ?: false }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
 
     private val activeDownloads = mutableMapOf<String, Uuid>()
 
