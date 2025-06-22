@@ -101,13 +101,16 @@ android {
         }
 
         register("nightly") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            isDebuggable = true
             initWith(getByName("release"))
             applicationIdSuffix = ".nightly"
         }
 
         debug {
-//            applicationIdSuffix = ".debug"
-            signingConfig = signingConfigs.getByName("aosp")
+            applicationIdSuffix = ".debug"
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
