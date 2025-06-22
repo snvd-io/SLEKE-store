@@ -40,6 +40,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.sleke.library.data.datastore.SlekePreferencesDataStore
+import com.sleke.library.data.repository.ApkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +56,7 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     val authProvider: AuthProvider,
     val dataStore: SlekePreferencesDataStore,
+    val apkRepository: ApkRepository,
     val logoutUseCase: LogoutUseCase,
     @ApplicationContext private val context: Context,
     private val aC2DMTask: AC2DMTask
@@ -241,9 +243,17 @@ class AuthViewModel @Inject constructor(
         return firebaseAuth.currentUser != null
     }
 
-    internal fun saveSlekeEnterpriseAccount(id: String, email: String) {
+
+    fun onEmailSignIn(uid: String, email: String) {
         viewModelScope.launch {
-            dataStore.setEnterpriseAccount(id, email)
+            val hasEnterpriseAccess = apkRepository.hasEnterpriseAccess(uid)
+            if (hasEnterpriseAccess) {
+                dataStore.setEnterpriseAccount(uid, email, true)
+                buildAnonymousAuthData()
+            } else {
+                dataStore.setEnterpriseAccount(uid, email, false)
+                buildAnonymousAuthData()
+            }
         }
     }
 }

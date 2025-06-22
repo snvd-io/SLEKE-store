@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         R.id.appsContainerFragment,
 //        R.id.gamesContainerFragment,
         R.id.slekeAppsContainerFragment,
-//        R.id.updatesFragment
+        R.id.updatesFragment
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

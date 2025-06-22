@@ -78,8 +78,14 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
             if (res.resultCode == android.app.Activity.RESULT_OK) {
                 val user = FirebaseAuth.getInstance().currentUser
                 user?.let {
-                    viewModel.saveSlekeEnterpriseAccount(it.uid, it.email.orEmpty())
-                    viewModel.buildAnonymousAuthData()
+                    viewModel.onEmailSignIn(it.uid, it.email.orEmpty())
+                } ?: run {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.login_failed, response?.error?.errorCode),
+                        Toast.LENGTH_LONG
+                    )
+                    binding.btnEmail.updateProgress(false)
                 }
             } else {
                 Toast.makeText(
@@ -87,7 +93,7 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
                     getString(R.string.login_failed, response?.error?.errorCode),
                     Toast.LENGTH_LONG
                 )
-                binding.btnGoogle.updateProgress(false)
+                binding.btnEmail.updateProgress(false)
             }
         }
 
