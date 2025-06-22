@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     private val topLevelFrags = listOf(
         R.id.appsContainerFragment,
 //        R.id.gamesContainerFragment,
-        R.id.slekeAppsContainerFragment,
+//        R.id.slekeAppsContainerFragment,
         R.id.updatesFragment
     )
 
@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity() {
         // Check and run migrations first if required
         // This is needed thanks to OEMs breaking the MY_PACKAGE_REPLACED API
         MigrationReceiver.runMigrationsIfRequired(this)
-
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 

@@ -123,7 +123,7 @@ fun StoreAppItem(
                             Spacer(modifier = Modifier.width(2.dp))
                             Text(
                                 text = String.format("%.1f", app.rating),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                             )
                         }

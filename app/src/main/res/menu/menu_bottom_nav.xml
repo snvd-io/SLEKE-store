@@ -29,10 +29,10 @@
 <!--        android:icon="@drawable/ic_games"-->
 <!--        android:title="@string/title_games" />-->
 
-    <item
-        android:id="@id/slekeAppsContainerFragment"
-        android:icon="@drawable/ic_server"
-        android:title="@string/title_sleke_apps" />
+<!--    <item-->
+<!--        android:id="@id/slekeAppsContainerFragment"-->
+<!--        android:icon="@drawable/ic_server"-->
+<!--        android:title="@string/title_sleke_apps" />-->
 
     <item
         android:id="@id/updatesFragment"
