@@ -227,16 +227,10 @@ fun AppsList(
 
         if (pagedApps.loadState.append is LoadState.Loading) {
             item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(32.dp),
-                        strokeWidth = 2.dp
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    repeat(3) {
+                        SkeletonAppItem()
+                    }
                 }
             }
         }
