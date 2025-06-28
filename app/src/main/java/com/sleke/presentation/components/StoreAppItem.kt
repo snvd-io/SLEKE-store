@@ -58,30 +58,11 @@ fun StoreAppItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(app.iconUrl.ifEmpty { "https://play-lh.googleusercontent.com/icon?id=${app.packageName}&s=120" })
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "App icon",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape),
-                loading = {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        strokeWidth = 2.dp
-                    )
-                },
-                error = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_apps),
-                        contentDescription = "App icon placeholder",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+            AppLogoIcon(
+                modifier = Modifier.size(56.dp),
+                iconUrl = app.iconUrl,
+                packageName = app.packageName,
+                appName = app.name
             )
 
             Spacer(modifier = Modifier.width(12.dp))

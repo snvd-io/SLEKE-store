@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -47,6 +48,7 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.aurora.store.R
+import com.sleke.compose.base.shimmer
 import com.sleke.library.ui.SimpleAppUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,7 +87,7 @@ fun SimpleAppItem(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SimpleAppIcon(
+                    AppLogoIcon(
                         modifier = Modifier.size(56.dp),
                         iconUrl = app.iconUrl.orEmpty(),
                         packageName = app.packageName,
@@ -177,7 +179,7 @@ fun SimpleAppItem(
 }
 
 @Composable
-private fun SimpleAppIcon(
+fun AppLogoIcon(
     iconUrl: String,
     packageName: String,
     appName: String,
@@ -195,10 +197,7 @@ private fun SimpleAppIcon(
         modifier = modifier
             .clip(CircleShape),
         loading = {
-            CircularProgressIndicator(
-                modifier = Modifier.size(24.dp),
-                strokeWidth = 2.dp
-            )
+            Box(modifier = Modifier.fillMaxSize().shimmer())
         },
         error = {
             Icon(
