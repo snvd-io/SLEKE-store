@@ -34,8 +34,9 @@ fun Modifier.shimmer(
         initialValue = initialValue * width,
         targetValue = targetValue * width,
     )
-    val transparent = Color.Transparent
-    val white = Color.White
+    val transparent = Color.LightGray.copy(alpha = 0.2f)
+    val white = Color.LightGray.copy(alpha = 0.6f)
+
     val colorStops = remember {
         arrayOf(
             0f to transparent,

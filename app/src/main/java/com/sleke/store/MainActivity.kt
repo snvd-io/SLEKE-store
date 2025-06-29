@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     private val topLevelFrags = listOf(
         R.id.appsContainerFragment,
 //        R.id.gamesContainerFragment,
-//        R.id.slekeAppsContainerFragment,
+        R.id.slekeAppsContainerFragment,
         R.id.updatesFragment
     )
 
