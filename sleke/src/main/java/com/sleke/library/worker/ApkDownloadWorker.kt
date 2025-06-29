@@ -118,7 +118,7 @@ class ApkDownloadWorker @AssistedInject constructor(
                 ?: return@withContext Result.failure()
             val uri = FileProvider.getUriForFile(
                 applicationContext,
-                SlekeConstants.ProviderAuthority,
+                SlekeConstants.getProviderAuthority(applicationContext),
                 outFile
             )
 

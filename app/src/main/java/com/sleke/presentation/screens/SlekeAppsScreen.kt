@@ -44,7 +44,7 @@ private const val PROGRESS_KEY = "PROGRESS"
 @Composable
 fun SlekeAppsScreen(
     modifier: Modifier = Modifier,
-    onNavigateToEnterprise: () -> Unit = {}
+    onNavigateToEnterprise: () -> Unit
 ) {
     val viewModel: SlekeAppsViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -73,16 +73,6 @@ fun SlekeAppsScreen(
         topBar = {
             LargeTopAppBar(
                 title = { Text("Sleke Apps") },
-                actions = {
-                    AnimatedVisibility(uiState.hasEnterpriseAccess) {
-                        IconButton(onClick = onNavigateToEnterprise) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Enterprise Apps"
-                            )
-                        }
-                    }
-                },
                 windowInsets = WindowInsets(0)
             )
         },

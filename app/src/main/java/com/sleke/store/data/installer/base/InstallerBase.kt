@@ -27,7 +27,6 @@ import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.core.content.getSystemService
 import com.aurora.store.AuroraApp
-import com.aurora.store.BuildConfig
 import com.aurora.store.R
 import com.aurora.store.data.event.InstallerEvent
 import com.sleke.store.data.room.download.Download
@@ -119,7 +118,7 @@ abstract class InstallerBase(private val context: Context) : IInstaller {
     fun getUri(file: File): Uri {
         return FileProvider.getUriForFile(
             context,
-            SlekeConstants.ProviderAuthority,
+            SlekeConstants.getProviderAuthority(context),
             file
         )
     }
