@@ -1,4 +1,4 @@
-package com.aurora.store.usecase
+package com.sleke.store.usecase
 
 import android.content.Context
 import com.aurora.store.data.providers.AccountProvider

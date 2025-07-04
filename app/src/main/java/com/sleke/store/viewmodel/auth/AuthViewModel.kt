@@ -33,7 +33,7 @@ import com.aurora.store.data.model.AccountType
 import com.aurora.store.data.model.AuthState
 import com.aurora.store.data.providers.AccountProvider
 import com.aurora.store.data.providers.AuthProvider
-import com.aurora.store.usecase.LogoutUseCase
+import com.sleke.store.usecase.LogoutUseCase
 import com.aurora.store.util.AC2DMTask
 import com.aurora.store.util.Preferences
 import com.google.firebase.auth.FirebaseAuth

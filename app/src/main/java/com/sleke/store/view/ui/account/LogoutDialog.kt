@@ -7,7 +7,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.aurora.store.R
-import com.aurora.store.usecase.LogoutUseCase
+import com.sleke.store.usecase.LogoutUseCase
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
