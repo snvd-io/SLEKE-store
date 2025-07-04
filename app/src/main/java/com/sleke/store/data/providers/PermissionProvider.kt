@@ -132,7 +132,7 @@ class PermissionProvider(private val fragment: Fragment) :
         permissionLauncher.unregister()
     }
 
-    @SuppressLint("InlinedApi")
+    @SuppressLint("InlinedApi", "BatteryLife")
     private fun knownPermissions(): Map<PermissionType, Intent> {
         return mapOf(
             PermissionType.STORAGE_MANAGER to PackageUtil.getStorageManagerIntent(context),
