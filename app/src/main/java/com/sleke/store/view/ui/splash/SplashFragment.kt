@@ -122,8 +122,6 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
             return
         }
 
-        binding.btnGoogle.visibility = View.GONE
-
         // Toolbar
         binding.toolbar.apply {
             setOnMenuItemClickListener {
@@ -251,22 +249,22 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
         binding.btnGoogle.addOnClickListener {
             if (viewModel.authState.value != AuthState.Fetching) {
                 binding.btnGoogle.updateProgress(true)
-//                if (canLoginWithMicroG) {
-//                    Log.i(TAG, "Found supported microG, trying to request credentials")
-//                    val accountIntent = AccountManager.newChooseAccountIntent(
-//                        null,
-//                        null,
-//                        arrayOf(GOOGLE_ACCOUNT_TYPE),
-//                        null,
-//                        null,
-//                        null,
-//                        null
-//                    )
-//                    startForAccount.launch(accountIntent)
-//                } else {
-//                    findNavController().navigate(R.id.googleFragment)
-//                }
-                launchFirebaseGoogleLogin()
+                if (canLoginWithMicroG) {
+                    Log.i(TAG, "Found supported microG, trying to request credentials")
+                    val accountIntent = AccountManager.newChooseAccountIntent(
+                        null,
+                        null,
+                        arrayOf(GOOGLE_ACCOUNT_TYPE),
+                        null,
+                        null,
+                        null,
+                        null
+                    )
+                    startForAccount.launch(accountIntent)
+                } else {
+                    findNavController().navigate(R.id.googleFragment)
+                }
+//                launchFirebaseGoogleLogin()
             }
         }
     }

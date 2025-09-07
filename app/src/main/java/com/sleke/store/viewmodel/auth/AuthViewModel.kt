@@ -203,8 +203,8 @@ class AuthViewModel @Inject constructor(
             try {
                 if (!isFirebaseUserSignedIn() && accountType == AccountType.GOOGLE) {
                     try {
-                        val credential = GoogleAuthProvider.getCredential(authData.authToken, null)
-                        firebaseAuth.signInWithCredential(credential).await()
+//                        val credential = GoogleAuthProvider.getCredential(authData.authToken, null)
+//                        firebaseAuth.signInWithCredential(credential).await()
                         Log.d(TAG, "Firebase Auth successful with Google token during verification")
                     } catch (e: Exception) {
                         Log.e(TAG, "Firebase Auth failed during verification", e)
