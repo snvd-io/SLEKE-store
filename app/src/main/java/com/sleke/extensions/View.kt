@@ -17,7 +17,7 @@
  *
  */
 
-package com.aurora.extensions
+package com.sleke.extensions
 
 import android.view.View
 import android.view.inputmethod.InputMethodManager

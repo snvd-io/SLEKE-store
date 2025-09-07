@@ -18,7 +18,7 @@
  *
  */
 
-package com.aurora.extensions
+package com.sleke.extensions
 
 import android.annotation.SuppressLint
 import android.os.Build

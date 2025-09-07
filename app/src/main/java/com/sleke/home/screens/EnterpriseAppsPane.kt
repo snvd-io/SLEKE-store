@@ -32,7 +32,7 @@ import com.sleke.library.util.uninstallApp
 import com.sleke.presentation.components.SimpleAppItem
 import com.sleke.presentation.components.toSimpleApp
 import com.sleke.presentation.enterprise.EnterpriseAppsViewModel
-import com.sleke.store.compose.ui.components.EnterpriseUiStateContainer
+import com.aurora.store.compose.ui.components.EnterpriseUiStateContainer
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)

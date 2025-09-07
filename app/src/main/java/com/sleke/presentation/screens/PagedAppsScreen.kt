@@ -57,7 +57,7 @@ import com.aurora.store.R
 import com.sleke.presentation.HomeViewModel
 import com.sleke.presentation.components.StoreAppItem
 import com.sleke.library.model.firebase.AppDto
-import com.sleke.store.compose.ui.components.SkeletonAppItem
+import com.aurora.store.compose.ui.components.SkeletonAppItem
 import timber.log.Timber
 import kotlin.uuid.ExperimentalUuidApi
 

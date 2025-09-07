@@ -34,8 +34,8 @@ import com.sleke.library.util.openApp
 import com.sleke.library.util.uninstallApp
 import com.sleke.presentation.components.SimpleAppItem
 import com.sleke.presentation.components.toSimpleApp
-import com.sleke.store.compose.ui.components.CenteredMessageView
-import com.sleke.store.compose.ui.components.UiStateContainer
+import com.aurora.store.compose.ui.components.CenteredMessageView
+import com.aurora.store.compose.ui.components.UiStateContainer
 import kotlin.uuid.ExperimentalUuidApi
 
 private const val PROGRESS_KEY = "PROGRESS"

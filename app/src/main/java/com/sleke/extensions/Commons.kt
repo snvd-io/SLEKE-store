@@ -17,7 +17,7 @@
  *
  */
 
-package com.aurora.extensions
+package com.sleke.extensions
 
 import android.text.format.DateFormat
 import java.util.Calendar

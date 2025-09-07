@@ -17,8 +17,9 @@
  *
  */
 
-package com.aurora.extensions
+package com.sleke.extensions
 
+import android.R
 import android.content.Context
 import android.content.DialogInterface
 import androidx.annotation.StringRes
@@ -45,13 +46,13 @@ fun Context.showDialog(
             setMessage(message)
 
             if (positiveListener != null) {
-                setPositiveButton(android.R.string.ok, positiveListener)
+                setPositiveButton(R.string.ok, positiveListener)
             } else {
-                setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+                setPositiveButton(R.string.ok) { dialog, _ -> dialog.dismiss() }
             }
 
             negativeListener?.let {
-                setNegativeButton(android.R.string.cancel, negativeListener)
+                setNegativeButton(R.string.cancel, negativeListener)
             }
 
         }.create()

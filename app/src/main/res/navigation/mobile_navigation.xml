@@ -157,7 +157,7 @@
     </fragment>
     <fragment
         android:id="@+id/appDetailsFragment"
-        android:name="com.sleke.store.view.ui.details.AppDetailsFragment"
+        android:name="com.aurora.store.view.ui.details.AppDetailsFragment"
         tools:layout="@layout/fragment_details">
         <argument
             android:name="packageName"
@@ -287,7 +287,7 @@
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.sleke.store.view.ui.splash.SplashFragment"
+        android:name="com.aurora.store.view.ui.splash.SplashFragment"
         tools:layout="@layout/fragment_splash">
         <argument
             android:name="packageName"
@@ -337,7 +337,7 @@
     </fragment>
     <fragment
         android:id="@+id/googleFragment"
-        android:name="com.sleke.store.view.ui.account.GoogleFragment"
+        android:name="com.aurora.store.view.ui.account.GoogleFragment"
         tools:layout="@layout/fragment_google">
         <action
             android:id="@+id/action_googleFragment_to_splashFragment"
@@ -418,7 +418,7 @@
         tools:layout="@layout/sheet_download_menu">
         <argument
             android:name="download"
-            app:argType="com.sleke.store.data.room.download.Download" />
+            app:argType="com.aurora.store.data.room.download.Download" />
     </dialog>
     <dialog
         android:id="@+id/deviceMiuiSheet"

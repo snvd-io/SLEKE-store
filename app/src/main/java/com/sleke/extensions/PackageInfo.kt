@@ -1,4 +1,4 @@
-package com.aurora.extensions
+package com.sleke.extensions
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo

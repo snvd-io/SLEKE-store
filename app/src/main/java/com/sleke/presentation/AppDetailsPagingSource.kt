@@ -3,7 +3,7 @@ package com.sleke.presentation
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.sleke.library.model.firebase.AppDto
-import com.sleke.store.data.repository.GPlayRepository
+import com.aurora.store.data.repository.GPlayRepository
 import timber.log.Timber
 
 class AppDetailsPagingSource(

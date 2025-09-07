@@ -1,4 +1,4 @@
-package com.aurora.extensions
+package com.sleke.extensions
 
 import android.content.pm.Signature
 import java.security.cert.CertificateFactory

@@ -16,7 +16,7 @@ import com.sleke.library.model.firebase.SlekeApkDto
 import com.sleke.library.ui.SimpleAppUiState
 import com.sleke.library.util.isAppInstalled
 import com.sleke.library.worker.ApkDownloadWorker
-import com.sleke.store.data.repository.GPlayRepository
+import com.aurora.store.data.repository.GPlayRepository
 import com.sleke.library.data.datastore.SlekePreferencesDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
