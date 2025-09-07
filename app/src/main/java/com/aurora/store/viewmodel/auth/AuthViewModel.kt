@@ -89,11 +89,11 @@ class AuthViewModel @Inject constructor(
         _authState.value = AuthState.Fetching
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                if (tokenType == AuthHelper.Token.AUTH) {
-                    val credential = GoogleAuthProvider.getCredential(token, null)
-                    firebaseAuth.signInWithCredential(credential).await()
-                    Log.d(TAG, "Firebase Auth successful with Google")
-                }
+//                if (tokenType == AuthHelper.Token.AUTH) {
+//                    val credential = GoogleAuthProvider.getCredential(token, null)
+//                    firebaseAuth.signInWithCredential(credential).await()
+//                    Log.d(TAG, "Firebase Auth successful with Google")
+//                }
 
                 verifyAndSaveAuth(
                     authProvider.buildGoogleAuthData(email, token, tokenType).getOrThrow(),
@@ -160,7 +160,7 @@ class AuthViewModel @Inject constructor(
 
     private fun buildSavedAuthData() = viewModelScope.launch(Dispatchers.IO) {
         try {
-            if (authProvider.isSavedAuthDataValid() && isFirebaseUserSignedIn()) {
+            if (authProvider.isSavedAuthDataValid()) {
                 _authState.value = AuthState.Valid
             } else {
                 when (AccountProvider.getAccountType(context)) {
