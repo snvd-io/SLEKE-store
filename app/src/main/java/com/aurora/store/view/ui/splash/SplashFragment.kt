@@ -64,6 +64,7 @@ import com.aurora.store.view.ui.splash.SplashFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 @AndroidEntryPoint
 class SplashFragment : BaseFragment<FragmentSplashBinding>() {
@@ -249,23 +250,7 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
 
         binding.btnGoogle.addOnClickListener {
             if (viewModel.authState.value != AuthState.Fetching) {
-                binding.btnGoogle.updateProgress(true)
-                if (canLoginWithMicroG) {
-                    Log.i(TAG, "Found supported microG, trying to request credentials")
-                    val accountIntent = AccountManager.newChooseAccountIntent(
-                        null,
-                        null,
-                        arrayOf(GOOGLE_ACCOUNT_TYPE),
-                        null,
-                        null,
-                        null,
-                        null
-                    )
-                    startForAccount.launch(accountIntent)
-                } else {
-                    findNavController().navigate(R.id.googleFragment)
-                }
-//                launchFirebaseGoogleLogin()
+                showGoogleLoginWarningDialog()
             }
         }
     }
@@ -373,6 +358,39 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
             .setAvailableProviders(providers)
             .build()
         emailSignInLauncher.launch(intent)
+    }
+
+    private fun showGoogleLoginWarningDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.google_login_warning_title))
+            .setMessage(getString(R.string.google_login_warning_message))
+            .setPositiveButton(getString(R.string.action_continue)) { _, _ ->
+                proceedWithGoogleLogin()
+            }
+            .setNegativeButton(getString(R.string.action_cancel)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(true)
+            .show()
+    }
+
+    private fun proceedWithGoogleLogin() {
+        binding.btnGoogle.updateProgress(true)
+        if (canLoginWithMicroG) {
+            Log.i(TAG, "Found supported microG, trying to request credentials")
+            val accountIntent = AccountManager.newChooseAccountIntent(
+                null,
+                null,
+                arrayOf(GOOGLE_ACCOUNT_TYPE),
+                null,
+                null,
+                null,
+                null
+            )
+            startForAccount.launch(accountIntent)
+        } else {
+            findNavController().navigate(R.id.googleFragment)
+        }
     }
 
     private fun launchFirebaseGoogleLogin() {

@@ -510,4 +510,7 @@
     <string name="login_failed">Login failed, please check your credentials</string>
     <string name="title_sleke_apps">SLEKE.</string>
     <string name="enterprise_apps">Enterprise Apps</string>
+    <string name="google_login_warning_title">Warning</string>
+    <string name="google_login_warning_message">Logging in with your primary Google account may result in account suspension due to Google Terms of Service violations. We strongly recommend creating a separate Gmail account for this app to protect your primary account. Use at your own risk.</string>
+    <string name="action_continue">Continue</string>
 </resources>
