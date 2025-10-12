@@ -164,6 +164,7 @@ dependencies {
     implementation(project(":sleke"))
 
     implementation(libs.coil)
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
     //Google's Goodies
     implementation(libs.google.android.material)
     implementation(libs.google.gson)

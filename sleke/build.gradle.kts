@@ -67,6 +67,7 @@ dependencies {
 
     // Room annotations for data models
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.compose.ui)
 
     ksp(libs.hilt.android.compiler)
     ksp(libs.hilt.androidx.compiler)

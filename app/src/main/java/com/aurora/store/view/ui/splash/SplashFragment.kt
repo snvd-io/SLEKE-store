@@ -29,22 +29,20 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Base64
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.sleke.extensions.hide
-import com.sleke.extensions.isMAndAbove
-import com.sleke.extensions.isNAndAbove
-import com.sleke.extensions.show
 import com.aurora.gplayapi.helpers.AuthHelper
 import com.aurora.store.R
+import com.aurora.store.compose.theme.AuroraTheme
 import com.aurora.store.data.model.AuthState
-import com.aurora.store.databinding.FragmentSplashBinding
 import com.aurora.store.util.CertUtil.GOOGLE_ACCOUNT_TYPE
 import com.aurora.store.util.CertUtil.GOOGLE_PLAY_AUTH_TOKEN_TYPE
 import com.aurora.store.util.CertUtil.GOOGLE_PLAY_CERT
@@ -54,20 +52,17 @@ import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_DEFAULT_SELECTED_TAB
 import com.aurora.store.util.Preferences.PREFERENCE_INTRO
 import com.aurora.store.util.Preferences.PREFERENCE_MICROG_AUTH
-import com.aurora.store.view.ui.commons.BaseFragment
+import com.aurora.store.viewmodel.auth.AuthViewModel
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.AuthUI.IdpConfig.EmailBuilder
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.google.firebase.auth.FirebaseAuth
-import com.aurora.store.viewmodel.auth.AuthViewModel
-import com.aurora.store.view.ui.splash.SplashFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 @AndroidEntryPoint
-class SplashFragment : BaseFragment<FragmentSplashBinding>() {
+class SplashFragment : androidx.fragment.app.Fragment() {
 
     private val TAG = SplashFragment::class.java.simpleName
 
@@ -76,8 +71,8 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
     @SuppressLint("StringFormatInvalid")
     private val emailSignInLauncher =
         registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-            val response = res.idpResponse
             if (res.resultCode == android.app.Activity.RESULT_OK) {
+                val response = res.idpResponse
                 val user = FirebaseAuth.getInstance().currentUser
                 user?.let {
                     viewModel.onEmailSignIn(it.uid, it.email.orEmpty())
@@ -86,21 +81,13 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
                         requireContext(),
                         getString(R.string.login_failed, response?.error?.errorCode),
                         Toast.LENGTH_LONG
-                    )
-                    binding.btnEmail.updateProgress(false)
+                    ).show()
                 }
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.login_failed, response?.error?.errorCode),
-                    Toast.LENGTH_LONG
-                )
-                binding.btnEmail.updateProgress(false)
             }
         }
 
     private val canLoginWithMicroG: Boolean
-        get() = isMAndAbove && PackageUtil.hasSupportedMicroG(requireContext()) &&
+        get() = com.sleke.extensions.isMAndAbove && PackageUtil.hasSupportedMicroG(requireContext()) &&
                 Preferences.getBoolean(requireContext(), PREFERENCE_MICROG_AUTH, true)
 
     private val startForAccount =
@@ -109,12 +96,45 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
             if (!accountName.isNullOrBlank()) {
                 requestAuthTokenForGoogle(accountName)
             } else {
-                resetActions()
+//                resetActions()
             }
         }
 
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onCreateView(
+        inflater: android.view.LayoutInflater,
+        container: android.view.ViewGroup?,
+        savedInstanceState: Bundle?
+    ): android.view.View {
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                val authState by viewModel.authState.collectAsStateWithLifecycle(AuthState.Init)
+                val statusText = getStatusText(authState)
+                val showAnonymousButton = !viewModel.authProvider.dispenserURL.isNullOrBlank()
+
+                AuroraTheme {
+                    SplashScreen(
+                        authState = authState,
+                        statusText = statusText,
+                        onGoogleLogin = { proceedWithGoogleLogin() },
+                        onEmailLogin = { launchFirebaseLogin() },
+                        onAnonymousLogin = {
+                            if (authState != AuthState.Fetching) {
+                                viewModel.buildAnonymousAuthData()
+                            }
+                        },
+                        onSettingsClick = {
+                            findNavController().navigate(R.id.settingsFragment)
+                        },
+                        showAnonymousButton = showAnonymousButton
+                    )
+                }
+            }
+        }
+    }
+
+    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         if (!Preferences.getBoolean(requireContext(), PREFERENCE_INTRO)) {
@@ -124,43 +144,10 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
             return
         }
 
-        // Toolbar
-        binding.toolbar.apply {
-            setOnMenuItemClickListener {
-                when (it.itemId) {
-//                    R.id.menu_blacklist_manager -> {
-//                        requireContext().navigate(Screen.Blacklist)
-//                    }
-//
-//                    R.id.menu_spoof_manager -> {
-//                        findNavController().navigate(R.id.spoofFragment)
-//                    }
-
-                    R.id.menu_settings -> {
-                        findNavController().navigate(R.id.settingsFragment)
-                    }
-
-//                    R.id.menu_about -> findNavController().navigate(R.id.aboutFragment)
-                }
-                true
-            }
-        }
-
-        attachActions()
-
-        // Show anonymous logins if we have dispenser URL
-        binding.btnAnonymous.isVisible = !viewModel.authProvider.dispenserURL.isNullOrBlank()
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.authState.collectLatest {
                 when (it) {
-                    AuthState.Init -> updateStatus(getString(R.string.session_init))
-
-                    AuthState.Fetching -> {
-                        updateStatus(getString(R.string.requesting_new_session))
-                    }
-
-                    AuthState.Valid -> {
+                    AuthState.Valid, AuthState.SignedIn -> {
                         val packageName = getPackageName(requireActivity().intent)
                         if (packageName.isNullOrBlank()) {
                             navigateToDefaultTab()
@@ -172,39 +159,6 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
                                 )
                             )
                         }
-                    }
-
-                    AuthState.Available -> {
-                        updateStatus(getString(R.string.session_verifying))
-                        updateActionLayout(false)
-                    }
-
-                    AuthState.Unavailable -> {
-                        updateStatus(getString(R.string.session_login))
-                        updateActionLayout(true)
-                    }
-
-                    AuthState.SignedIn -> {
-                        val packageName = getPackageName(requireActivity().intent)
-                        if (packageName.isNullOrBlank()) {
-                            navigateToDefaultTab()
-                        } else {
-                            requireArguments().remove("packageName")
-                            findNavController().navigate(
-                                SplashFragmentDirections.actionSplashFragmentToAppDetailsFragment(
-                                    packageName
-                                )
-                            )
-                        }
-                    }
-
-                    AuthState.SignedOut -> {
-                        updateStatus(getString(R.string.session_scrapped))
-                        updateActionLayout(true)
-                    }
-
-                    AuthState.Verifying -> {
-                        updateStatus(getString(R.string.verifying_new_session))
                     }
 
                     is AuthState.PendingAccountManager -> {
@@ -212,65 +166,35 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
                     }
 
                     is AuthState.Failed -> {
-                        updateStatus(it.status)
-                        updateActionLayout(true)
-                        resetActions()
+                        Toast.makeText(requireContext(), it.status, Toast.LENGTH_LONG).show()
+                    }
+
+                    AuthState.Init,
+                    AuthState.Fetching,
+                    AuthState.Verifying,
+                    AuthState.Available,
+                    AuthState.Unavailable,
+                    AuthState.SignedOut -> {
+                        // These states are handled by the Compose UI
                     }
                 }
             }
         }
     }
 
-    private fun updateStatus(string: String?) {
-        activity?.runOnUiThread { binding.txtStatus.text = string }
-    }
-
-    private fun updateActionLayout(isVisible: Boolean) {
-        if (isVisible) {
-            binding.layoutAction.show()
-            binding.toolbar.visibility = View.VISIBLE
-        } else {
-            binding.layoutAction.hide()
-            binding.toolbar.visibility = View.GONE
+    private fun getStatusText(authState: AuthState): String {
+        return when (authState) {
+            AuthState.Init -> getString(R.string.session_init)
+            AuthState.Fetching -> getString(R.string.requesting_new_session)
+            AuthState.Verifying -> getString(R.string.verifying_new_session)
+            AuthState.Available -> getString(R.string.session_verifying)
+            AuthState.Unavailable -> getString(R.string.session_login)
+            AuthState.SignedOut -> getString(R.string.session_scrapped)
+            is AuthState.Failed -> authState.status
+            else -> ""
         }
     }
 
-    private fun attachActions() {
-        binding.btnAnonymous.addOnClickListener {
-            if (viewModel.authState.value != AuthState.Fetching) {
-                binding.btnAnonymous.updateProgress(true)
-                viewModel.buildAnonymousAuthData()
-            }
-        }
-
-        binding.btnEmail.addOnClickListener {
-            binding.btnEmail.updateProgress(true)
-            launchFirebaseLogin()
-        }
-
-        binding.btnGoogle.addOnClickListener {
-            if (viewModel.authState.value != AuthState.Fetching) {
-                showGoogleLoginWarningDialog()
-            }
-        }
-    }
-
-    private fun resetActions() {
-        binding.btnGoogle.apply {
-            updateProgress(false)
-            isEnabled = true
-        }
-
-        binding.btnAnonymous.apply {
-            updateProgress(false)
-            isEnabled = true
-        }
-
-        binding.btnAnonymous.apply {
-            updateProgress(false)
-            isEnabled = true
-        }
-    }
 
     private fun navigateToDefaultTab() {
         val defaultDestination =
@@ -301,7 +225,7 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
                 UrlQuerySanitizer(clipData).getValue("id")
             }
 
-            isNAndAbove && intent.action == Intent.ACTION_SHOW_APP_INFO -> {
+            com.sleke.extensions.isNAndAbove && intent.action == Intent.ACTION_SHOW_APP_INFO -> {
                 intent.extras?.getString(Intent.EXTRA_PACKAGE_NAME)
             }
 
@@ -360,22 +284,8 @@ class SplashFragment : BaseFragment<FragmentSplashBinding>() {
         emailSignInLauncher.launch(intent)
     }
 
-    private fun showGoogleLoginWarningDialog() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.google_login_warning_title))
-            .setMessage(getString(R.string.google_login_warning_message))
-            .setPositiveButton(getString(R.string.action_continue)) { _, _ ->
-                proceedWithGoogleLogin()
-            }
-            .setNegativeButton(getString(R.string.action_cancel)) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .setCancelable(true)
-            .show()
-    }
 
     private fun proceedWithGoogleLogin() {
-        binding.btnGoogle.updateProgress(true)
         if (canLoginWithMicroG) {
             Log.i(TAG, "Found supported microG, trying to request credentials")
             val accountIntent = AccountManager.newChooseAccountIntent(

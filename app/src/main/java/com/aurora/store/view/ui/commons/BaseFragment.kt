@@ -44,6 +44,7 @@ abstract class BaseFragment<ViewBindingType : ViewBinding> : Fragment() {
 
     private var _binding: ViewBindingType? = null
     protected val binding get() = _binding!!
+    protected val safeBinding get() = _binding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
