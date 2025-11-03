@@ -121,7 +121,6 @@ ktor = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
 ktor-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
-androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 
 
 [bundles]

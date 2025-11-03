@@ -55,9 +55,9 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.aurora.store.R
 import com.sleke.presentation.HomeViewModel
-import com.sleke.presentation.components.StoreAppItem
 import com.sleke.library.model.firebase.AppDto
-import com.aurora.store.compose.ui.components.SkeletonAppItem
+import com.sleke.library.ui.components.SkeletonAppItem
+import com.sleke.library.ui.components.StoreAppItem
 import timber.log.Timber
 import kotlin.uuid.ExperimentalUuidApi
 

@@ -23,7 +23,6 @@ class AppDownloadManager @Inject constructor(
     private val workManager: WorkManager,
     private val context: Context
 ) {
-
     fun startDownload(
         downloadUrl: String,
         packageName: String,

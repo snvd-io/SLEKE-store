@@ -1,4 +1,4 @@
-package com.sleke.presentation.components
+package com.sleke.library.ui.components
 
 import com.sleke.library.domain.AppDomain
 import com.sleke.library.model.firebase.AppDto

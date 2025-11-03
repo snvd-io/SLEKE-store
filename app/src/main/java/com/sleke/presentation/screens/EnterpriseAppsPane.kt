@@ -1,4 +1,4 @@
-package com.sleke.home.screens
+package com.sleke.presentation.screens
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -25,14 +25,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aurora.store.R
+import com.sleke.library.domain.AppDomain
+import com.sleke.library.ui.components.EnterpriseUiStateContainer
 import com.sleke.library.util.installApp
 import com.sleke.library.util.openApp
 import com.sleke.library.util.uninstallApp
-import com.sleke.presentation.components.SimpleAppItem
-import com.sleke.presentation.components.toSimpleApp
+import com.sleke.library.ui.components.SimpleAppItem
+import com.sleke.library.ui.components.toSimpleApp
+import com.sleke.presentation.enterprise.EnterpriseAppsUiState
 import com.sleke.presentation.enterprise.EnterpriseAppsViewModel
-import com.aurora.store.compose.ui.components.EnterpriseUiStateContainer
+import com.topjohnwu.superuser.internal.Utils.context
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
@@ -64,10 +68,25 @@ fun EnterpriseAppsPane(
         onDispose { context.unregisterReceiver(receiver) }
     }
 
+    EnterpriseAppsContent(
+        uiState = uiState,
+        modifier = modifier,
+        onDownload = {
+            viewModel.startDownload(it)
+        }
+    )
+}
+
+@Composable
+fun EnterpriseAppsContent(
+    uiState: EnterpriseAppsUiState, modifier: Modifier,
+    onDownload: (app: AppDomain) -> Unit
+) {
+    val context = LocalContext.current
     Scaffold { padding ->
-        Column(modifier = Modifier.padding(padding)) {
+        Column(modifier = Modifier.Companion.padding(padding)) {
             Text(
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.Companion.padding(horizontal = 16.dp),
                 text = uiState.enterpriseName.ifBlank { stringResource(R.string.enterprise_apps) },
                 style = MaterialTheme.typography.headlineMedium
             )
@@ -80,7 +99,7 @@ fun EnterpriseAppsPane(
                 modifier = modifier.fillMaxSize()
             ) { apps ->
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.Companion.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -89,7 +108,7 @@ fun EnterpriseAppsPane(
                             modifier = Modifier.zIndex(3f),
                             app = downloadableApp.app.toSimpleApp(downloadableApp.downloadState),
                             onDownload = {
-                                viewModel.startDownload(downloadableApp.app)
+                                onDownload(downloadableApp.app)
                             },
                             onOpen = {
                                 context.openApp(downloadableApp.app.packageName)
@@ -106,4 +125,4 @@ fun EnterpriseAppsPane(
             }
         }
     }
-} 
+}

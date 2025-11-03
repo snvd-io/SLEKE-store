@@ -1,4 +1,4 @@
-package com.sleke.presentation.components
+package com.sleke.library.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -20,6 +20,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.InstallMobile
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,8 +54,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.aurora.store.R
-import com.sleke.compose.base.shimmer
+import com.sleke.library.R
+import com.sleke.library.ui.base.shimmer
 import com.sleke.library.ui.SimpleAppUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,29 +81,29 @@ fun SimpleAppItem(
         },
     ) {
         Column(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.Companion.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.Companion.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AppLogoIcon(
-                        modifier = Modifier.size(56.dp),
+                        modifier = Modifier.Companion.size(56.dp),
                         iconUrl = app.iconUrl.orEmpty(),
                         packageName = app.packageName,
                         appName = app.name
                     )
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.Companion.width(12.dp))
 
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.Companion.weight(1f)) {
                         Text(
                             text = app.name,
                             style = MaterialTheme.typography.titleMedium.copy(
@@ -107,7 +114,7 @@ fun SimpleAppItem(
                         )
 
                         if (app.publisher.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(2.dp))
+                            Spacer(modifier = Modifier.Companion.height(2.dp))
                             Text(
                                 text = app.publisher,
                                 style = MaterialTheme.typography.bodyMedium,
@@ -118,7 +125,7 @@ fun SimpleAppItem(
                         }
 
                         if (app.versionDisplay.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(2.dp))
+                            Spacer(modifier = Modifier.Companion.height(2.dp))
                             Text(
                                 text = app.versionDisplay,
                                 style = MaterialTheme.typography.bodySmall,
@@ -144,12 +151,12 @@ fun SimpleAppItem(
                     )
 
                     if (app.appState !is SimpleAppUiState.Downloading) {
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.Companion.width(4.dp))
                         IconButton(
                             onClick = { isExpanded = !isExpanded }
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_arrow_down),
+                                imageVector = Icons.Default.ArrowDropDown,
                                 contentDescription = if (isExpanded) "Collapse" else "Expand",
                                 modifier = Modifier.rotate(if (isExpanded) 180f else 0f),
                                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -197,14 +204,14 @@ fun AppLogoIcon(
         modifier = modifier
             .clip(CircleShape),
         loading = {
-            Box(modifier = Modifier.fillMaxSize().shimmer())
+            Box(modifier = Modifier.Companion.fillMaxSize().shimmer())
         },
         error = {
             Icon(
-                painter = painterResource(id = R.drawable.ic_apps),
+                imageVector = Icons.Default.Apps,
                 contentDescription = "App icon placeholder",
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.Companion.size(32.dp)
             )
         }
     )
@@ -227,7 +234,7 @@ private fun ExpandedContent(
             thickness = 1.dp
         )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.Companion.height(12.dp))
         
         if (description.isNotEmpty()) {
             Text(
@@ -237,25 +244,25 @@ private fun ExpandedContent(
                 ),
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.Companion.height(8.dp))
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.Companion.height(12.dp))
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.Companion.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             if (packageName.isNotEmpty()) {
                 DetailItem(
                     label = "Package",
                     value = packageName,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.Companion.weight(1f)
                 )
             }
 
@@ -263,7 +270,7 @@ private fun ExpandedContent(
                 DetailItem(
                     label = "Type",
                     value = type.uppercase(),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.Companion.weight(1f)
                 )
             }
         }
@@ -282,7 +289,7 @@ private fun DetailItem(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.Companion.height(4.dp))
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
@@ -305,7 +312,7 @@ fun AppStateStatusRow(
         is SimpleAppUiState.NotDownloaded -> {
             IconButton(onClick = onDownload) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_download),
+                    imageVector = Icons.Default.Download,
                     contentDescription = "Download",
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -315,14 +322,14 @@ fun AppStateStatusRow(
         is SimpleAppUiState.Downloading -> {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .size(40.dp)
                     .padding(end = 4.dp)
             ) {
                 CircularProgressIndicator(
                     progress = { appState.progress / 100f },
                     strokeWidth = 2.dp,
-                    modifier = Modifier.size(44.dp)
+                    modifier = Modifier.Companion.size(44.dp)
                 )
                 Text(
                     "${appState.progress}%",
@@ -334,7 +341,7 @@ fun AppStateStatusRow(
         is SimpleAppUiState.Downloaded -> {
             IconButton(onClick = { onInstall(appState.apkUri, appState.packageName) }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_install),
+                    imageVector = Icons.Default.InstallMobile,
                     contentDescription = "Install",
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -345,14 +352,14 @@ fun AppStateStatusRow(
             Row {
                 IconButton(onClick = onUninstall) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
+                        imageVector = Icons.Default.Delete,
                         contentDescription = "Uninstall",
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
                 IconButton(onClick = onOpen) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_apps),
+                        imageVector = Icons.Default.Apps,
                         contentDescription = "Open",
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -363,7 +370,7 @@ fun AppStateStatusRow(
         is SimpleAppUiState.Error -> {
             IconButton(onClick = onDownload) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_download),
+                    imageVector = Icons.Default.Download,
                     contentDescription = "Retry",
                     tint = MaterialTheme.colorScheme.error
                 )
@@ -376,7 +383,7 @@ fun AppStateStatusRow(
 @Composable
 fun SimpleAppItemPreview() {
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.Companion.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         SimpleAppItem(

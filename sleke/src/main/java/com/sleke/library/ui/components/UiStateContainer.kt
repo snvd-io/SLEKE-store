@@ -1,4 +1,4 @@
-package com.aurora.store.compose.ui.components
+package com.sleke.library.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.aurora.store.R
 
 @Composable
 fun <T> UiStateContainer(
@@ -48,7 +49,7 @@ fun DefaultLoadingView(
     itemCount: Int = 3
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.Companion.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -71,18 +72,18 @@ fun DefaultErrorView(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_apps),
+            imageVector = Icons.Default.Apps,
             contentDescription = null,
-            modifier = Modifier.size(64.dp),
+            modifier = Modifier.Companion.size(64.dp),
             tint = MaterialTheme.colorScheme.error
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.Companion.height(16.dp))
         Text(
             text = "Error",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.error
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.Companion.height(8.dp))
         Text(
             text = error,
             style = MaterialTheme.typography.bodyMedium,
@@ -104,12 +105,12 @@ fun DefaultEmptyView(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_apps),
+            imageVector = Icons.Default.Apps,
             contentDescription = null,
-            modifier = Modifier.size(64.dp),
+            modifier = Modifier.Companion.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.Companion.height(16.dp))
         Text(
             text = message,
             style = MaterialTheme.typography.titleLarge,

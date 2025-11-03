@@ -1,4 +1,4 @@
-package com.aurora.store.compose.ui.components
+package com.sleke.library.ui.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -59,49 +59,49 @@ fun SkeletonAppItem() {
     )
 
     Card(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .size(56.dp)
                     .clip(CircleShape)
                     .background(brush)
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.Companion.width(16.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.Companion.weight(1f)) {
                 Box(
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .fillMaxWidth(0.7f)
                         .height(16.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(brush)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.Companion.height(8.dp))
 
                 Box(
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .fillMaxWidth(0.5f)
                         .height(12.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(brush)
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.Companion.height(4.dp))
 
                 Box(
-                    modifier = Modifier
+                    modifier = Modifier.Companion
                         .fillMaxWidth(0.3f)
                         .height(10.dp)
                         .clip(RoundedCornerShape(4.dp))

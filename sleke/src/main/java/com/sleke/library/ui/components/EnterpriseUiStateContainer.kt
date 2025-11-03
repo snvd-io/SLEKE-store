@@ -1,4 +1,4 @@
-package com.aurora.store.compose.ui.components
+package com.sleke.library.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable

@@ -10,22 +10,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aurora.store.compose.theme.AuroraTheme
-import com.sleke.home.screens.EnterpriseAppsPane
 import com.aurora.store.util.FragmentThemeUtils.hideActionBar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.serialization.Serializable
+import kotlin.apply
 
-internal interface SlekeNavigation {
-    @Serializable
-    data object SlekeApps : SlekeNavigation
-
-    @Serializable
-    data object SlekeEnterprise : SlekeNavigation
-}
 
 @AndroidEntryPoint
 class SlekeAppsFragment : Fragment() {
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         hideActionBar()

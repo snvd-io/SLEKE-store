@@ -1,4 +1,4 @@
-package com.sleke.compose.base
+package com.sleke.library.ui.base
 
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.animateFloat

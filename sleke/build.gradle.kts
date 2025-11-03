@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.hilt.android.plugin)
+    alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.google.ksp)
 }
 
@@ -43,8 +44,21 @@ android {
 }
 
 dependencies {
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+
+    
+    //Coil
+    implementation(libs.coil.kt)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network)
+
     api(libs.timber)
-    api("androidx.datastore:datastore-preferences:1.1.4")
+    api("androidx.datastore:datastore-preferences:1.1.7")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
 
     // Firebase
@@ -67,7 +81,6 @@ dependencies {
 
     // Room annotations for data models
     implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.compose.ui)
 
     ksp(libs.hilt.android.compiler)
     ksp(libs.hilt.androidx.compiler)
