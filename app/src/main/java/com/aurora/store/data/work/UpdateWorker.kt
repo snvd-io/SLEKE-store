@@ -8,12 +8,14 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.aurora.Constants
+import com.aurora.extensions.isIgnoringBatteryOptimizations
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.gplayapi.network.IHttpClient
 import com.aurora.store.BuildConfig
 import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.helper.UpdateHelper
+import com.aurora.store.data.installer.AppInstaller
 import com.aurora.store.data.model.BuildType
 import com.aurora.store.data.model.SelfUpdate
 import com.aurora.store.data.model.UpdateMode
@@ -22,19 +24,17 @@ import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.data.providers.BlacklistProvider
 import com.aurora.store.data.room.update.Update
 import com.aurora.store.data.room.update.UpdateDao
-import com.aurora.store.data.work.AuthWorker
 import com.aurora.store.util.CertUtil
 import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
-import com.google.gson.Gson
-import com.sleke.extensions.isIgnoringBatteryOptimizations
+import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_AUTO
 import com.sleke.library.data.repository.ApkRepository
-import com.aurora.store.data.installer.AppInstaller
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import timber.log.Timber
 import java.util.Locale
 
@@ -43,12 +43,12 @@ import java.util.Locale
  * filters and the auto-updates mode selected by the user. The repeat interval
  * is configurable by the user, defaulting to 3 hours with a flex time of 30 minutes.
  *
- * Avoid using this worker directly and prefer using [com.aurora.store.data.helper.UpdateHelper] instead.
- * @see com.aurora.store.data.work.AuthWorker
+ * Avoid using this worker directly and prefer using [UpdateHelper] instead.
+ * @see AuthWorker
  */
 @HiltWorker
 class UpdateWorker @AssistedInject constructor(
-    private val gson: Gson,
+    private val json: Json,
     private val blacklistProvider: BlacklistProvider,
     private val httpClient: IHttpClient,
     private val updateDao: UpdateDao,
@@ -66,7 +66,7 @@ class UpdateWorker @AssistedInject constructor(
 
     private val canSelfUpdate = !CertUtil.isFDroidApp(context, BuildConfig.APPLICATION_ID) &&
             !CertUtil.isAppGalleryApp(context, BuildConfig.APPLICATION_ID) &&
-            BuildType.Companion.CURRENT != BuildType.DEBUG
+            BuildType.CURRENT != BuildType.DEBUG
 
     private val isAuroraOnlyFilterEnabled: Boolean
         get() = Preferences.getBoolean(context, Preferences.PREFERENCE_FILTER_AURORA_ONLY, false)
@@ -82,10 +82,10 @@ class UpdateWorker @AssistedInject constructor(
 
         Log.i(TAG, "Checking for app updates")
         val updateMode = UpdateMode.entries[inputData.getInt(
-            UpdateHelper.Companion.UPDATE_MODE,
+            UpdateHelper.UPDATE_MODE,
             Preferences.getInteger(
                 context,
-                Preferences.PREFERENCE_UPDATES_AUTO,
+                PREFERENCE_UPDATES_AUTO,
                 UpdateMode.CHECK_AND_INSTALL.ordinal
             )
         )]
@@ -126,10 +126,7 @@ class UpdateWorker @AssistedInject constructor(
                 }
 
             // Notify about apps that cannot be auto-updated
-            Log.i(
-                TAG,
-                "Found  ${updates.size} updates out of which ${filteredUpdates.second.size} cannot be auto-updated"
-            )
+            Log.i(TAG, "Found  ${updates.size} updates out of which ${filteredUpdates.second.size} cannot be auto-updated")
             notifyUpdates(filteredUpdates.second)
 
             // Trigger download for apps if they can be auto-updated
@@ -167,12 +164,7 @@ class UpdateWorker @AssistedInject constructor(
                 }
                 packagesAfterFilter
             } else {
-                packages.filterNot {
-                    if (isFDroidFilterEnabled) CertUtil.isFDroidApp(
-                        context,
-                        it.packageName
-                    ) else false
-                }
+                packages.filterNot { if (isFDroidFilterEnabled) CertUtil.isFDroidApp(context, it.packageName) else false }
             }
 
 
@@ -180,21 +172,14 @@ class UpdateWorker @AssistedInject constructor(
                 "Found ${filteredPackages.size} packages to check for updates"
             )
 
-            val updates =
-                appDetailsHelper.getAppByPackageName(filteredPackages.map { it.packageName })
-                    .filter { it.displayName.isNotEmpty() }
-                    .filter {
-                        PackageUtil.isUpdatable(
-                            context,
-                            it.packageName,
-                            it.versionCode.toLong()
-                        )
-                    }
-                    .toMutableList()
+            val updates = appDetailsHelper.getAppByPackageName(filteredPackages.map { it.packageName })
+                .filter { it.displayName.isNotEmpty() }
+                .filter { PackageUtil.isUpdatable(context, it.packageName, it.versionCode.toLong()) }
+                .toMutableList()
 
             if (canSelfUpdate) getSelfUpdate()?.let { updates.add(it) }
 
-            return@withContext updates.map { Update.Companion.fromApp(context, it) }
+            return@withContext updates.map { Update.fromApp(context, it) }
                 .sortedBy { it.displayName.lowercase(Locale.getDefault()) }
         }
     }
@@ -204,7 +189,7 @@ class UpdateWorker @AssistedInject constructor(
      */
     private suspend fun getSelfUpdate(): App? {
         return withContext(Dispatchers.IO) {
-            val updateUrl = when (BuildType.Companion.CURRENT) {
+            val updateUrl = when (BuildType.CURRENT) {
                 BuildType.RELEASE -> Constants.UPDATE_URL_STABLE
                 BuildType.NIGHTLY -> Constants.UPDATE_URL_NIGHTLY
                 else -> {
@@ -215,25 +200,21 @@ class UpdateWorker @AssistedInject constructor(
 
             try {
                 val response = httpClient.get(updateUrl, mapOf())
-                val selfUpdate = gson.fromJson(
-                    String(response.responseBytes),
-                    SelfUpdate::class.java
-                )
+                val selfUpdate = json.decodeFromString<SelfUpdate>(String(response.responseBytes))
 
-                val isUpdate = when (BuildType.Companion.CURRENT) {
+                val isUpdate = when (BuildType.CURRENT) {
                     BuildType.NIGHTLY,
                     BuildType.RELEASE -> selfUpdate.versionCode > BuildConfig.VERSION_CODE
-
                     else -> false
                 }
 
                 if (isUpdate) {
                     if (CertUtil.isFDroidApp(context, BuildConfig.APPLICATION_ID)) {
                         if (selfUpdate.fdroidBuild.isNotEmpty()) {
-                            return@withContext SelfUpdate.Companion.toApp(selfUpdate, context)
+                            return@withContext SelfUpdate.toApp(selfUpdate, context)
                         }
                     } else if (selfUpdate.auroraBuild.isNotEmpty()) {
-                        return@withContext SelfUpdate.Companion.toApp(selfUpdate, context)
+                        return@withContext SelfUpdate.toApp(selfUpdate, context)
                     } else {
                         Log.e(TAG, "Update file is missing!")
                         return@withContext null

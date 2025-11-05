@@ -140,7 +140,7 @@
     <string name="pref_install_delete_title">Usuń APK po zainstalowaniu</string>
     <string name="pref_install_delete_summary">Pobrany plik APKs zostanie usunięty zaraz po zakończonej instalacji</string>
     <string name="pref_filter_fdroid_title">Filtruj aplikacje F-Droid</string>
-    <string name="pref_filter_fdroid_summary">Nie sprawdzaj aktualizacji dla aplikacji pobranych lub zainstalowanych z F-Droid</string>
+    <string name="pref_filter_fdroid_summary">Nie sprawdzaj aktualizacji dla aplikacji zainstalowanych z F-Droid</string>
     <string name="title_installation">Instalacja</string>
     <string name="pref_install_mode_title">Metoda instalacji</string>
     <string name="pref_ui_title">Dostosowywanie</string>
@@ -157,7 +157,7 @@
     <string name="dialog_title_self_update">Dostępna jest nowa aktualizacja</string>
     <string name="device_miui_subtitle">Instalator sesji nie może zainstalować aplikacji z powodu Optymalizacji MIUI.</string>
     <string name="device_miui_title">Wykryto MIUI!</string>
-    <string name="menu_terms">Warunki korzystania z usługi</string>
+    <string name="menu_terms">Warunki świadczenia usługi</string>
     <string name="menu_license">Licencja</string>
     <string name="menu_disclaimer">Zrzeczenie się odpowiedzialności</string>
     <string name="installer_status_user_action">Czekam na potwierdzenie użytkownika</string>
@@ -211,7 +211,6 @@
     <string name="pref_common_extra">Dodatkowe</string>
     <string name="pref_ui_no_for_you">Strony dla Ciebie</string>
     <string name="pref_ui_no_for_you_desc">Wyświetl strony Dla Ciebie na ekranie głównym</string>
-    <string name="pref_ui_similar_apps_desc">Wyświetl grupy podobnych i powiązanych na stronie szczegółów aplikacji</string>
     <string name="pref_ui_similar_apps">Aplikacje podobne i powiązane</string>
     <string name="pref_ui_layout_tab">Wybierz domyślną kartę</string>
     <string name="pref_ui_layout">Układ</string>
@@ -271,7 +270,7 @@
     <string name="title_search_suggestion">Podpowiedzi wyszukiwania</string>
     <string name="access_denied_using_vpn">Odmowa dostępu! Czy używasz VPN lub Tor\?</string>
     <string name="bad_request">Błąd wewnętrzny! Spróbuj ponownie później</string>
-    <string name="login_rate_limited">Ups, masz ograniczoną liczbę żądań</string>
+    <string name="login_rate_limited">Masz ograniczoną liczbę żądań</string>
     <string name="server_unreachable">Serwer jest niedostępny</string>
     <string name="failed_generating_session">Nie udało się wygenerować sesji, kod błędu: <xliff:g id="status_code">%1$d</xliff:g></string>
     <string name="title_search_results">Wyniki wyszukiwania</string>
@@ -286,14 +285,14 @@
     <string name="android_market_desc">Android Market był sklepem internetowym oferującym aplikacje przeznaczone na urządzenia z systemem Android, wycofanym w 2017 roku.</string>
     <string name="details_ratings_title_hint">Tytuł recenzji</string>
     <string name="pref_updates_check_frequency_desc">Skonfiguruj częstotliwość automatycznych aktualizacji (w godzinach)</string>
-    <string name="pref_aurora_only">Tylko aplikacje Aurora Store</string>
+    <string name="pref_aurora_only">Filtruj aplikacje z innych źródeł</string>
     <string name="title_app_settings">Ustawienia aplikacji</string>
     <string name="pref_updates_check_frequency">Częstotliwość automatycznych aktualizacji</string>
     <string name="pref_network_proxy_url">Adres URL serwera proxy</string>
     <string name="toast_proxy_invalid">Nieprawidłowy adres URL serwera proxy, sprawdź format!</string>
     <string name="toast_proxy_success">Ustawiono serwer proxy</string>
     <string name="toast_proxy_failed">Nie udało się ustawić serwera proxy</string>
-    <string name="pref_aurora_only_desc">Sprawdzaj aktualizacje tylko dla aplikacji zainstalowanych przez Aurora Store</string>
+    <string name="pref_aurora_only_desc">Nie sprawdzaj aktualizacji dla aplikacji zainstalowanych ze źródeł innych niż Aurora Store</string>
     <string name="pref_vending_version_device">Domyślna (z konfiguracji urządzenia)</string>
     <string name="pref_vending_version_title">Wersja Google Play</string>
     <string name="onboarding_permission_doze">Pobieranie w tle</string>
@@ -305,8 +304,8 @@
     <string name="pref_updates_auto_install">Sprawdź i automatycznie zainstaluj dostępne aktualizacje</string>
     <string name="action_request_analysis">Poproś o nową analizę</string>
     <string name="failed_apk_export">Nie udało się wyeksportować pliku APKs</string>
-    <string name="pref_updates_incompatible">Niekompatybilne aktualizacje</string>
-    <string name="pref_updates_incompatible_desc">Pokaż aktualizacje dla niekompatybilnych lub wyłączonych aplikacji, których instalacja może się nie udać</string>
+    <string name="pref_updates_incompatible">Pokaż aktualizacje, które mogą zakończyć się niepowodzeniem</string>
+    <string name="pref_updates_incompatible_desc">Wyświetl aktualizacje dla niekompatybilnych lub wyłączonych aplikacji, których instalacja może zakończyć się niepowodzeniem</string>
     <string name="download_clear_finished">Wyczyść zakończone</string>
     <string name="action_home_screen">Dodaj do ekranu głównego</string>
     <string name="faqs_subtitle">Masz pytania? Znajdź odpowiedzi</string>
@@ -324,7 +323,7 @@
     <string name="root_installer_subtitle">Instalator oparty na powłoce z uprawnieniami roota</string>
     <string name="root_installer_desc">Wymaga uprawnień roota/superużytkownika, obsługuje wszystkie wersje Androida.</string>
     <string name="shizuku_installer_subtitle">Bezpośrednie korzystanie z systemowych interfejsów API z uprawnieniami adb/root</string>
-    <string name="shizuku_installer_desc">Wymaga Shizuku lub Sui, musi zostać skonfigurowana i uzyskać pozwolenie</string>
+    <string name="shizuku_installer_desc">Wymaga Shizuku lub Sui, musi zostać skonfigurowana i uzyskać uprawnienie</string>
     <string name="native_installer_subtitle">Instalator oparty na intencjach, dostępny na wszystkich urządzeniach</string>
     <string name="services_installer_desc">Wymaga zainstalowania Aurora Services jako uprzywilejowanej aplikacji systemowej</string>
     <string name="am_installer_desc">Wymaga Menedżera aplikacji, wymaga trybu adb/root do instalacji, gdy włączona jest optymalizacja miui</string>
@@ -422,10 +421,48 @@
     <string name="set">Ustaw</string>
     <string name="pref_updates_restrictions_title">Ograniczenia automatycznych aktualizacji</string>
     <string name="pref_network_proxy_desc">Wyświetl i zarządzaj konfiguracją serwera proxy</string>
-    <string name="pref_updates_restrictions_desc">Skonfiguruj ograniczenia dla automatycznych aktualizacji.</string>
+    <string name="pref_updates_restrictions_desc">Skonfiguruj ograniczenia dla automatycznych aktualizacji</string>
     <string name="pref_updates_restrictions_metered">Tylko w sieciach bez limitu</string>
     <string name="pref_updates_restrictions_idle">Gdy urządzenie jest bezczynne</string>
     <string name="pref_updates_restrictions_battery">Gdy poziom baterii jest wysoki</string>
     <string name="verification_failed">Nie udało się zweryfikować pobranych plików</string>
-    <string name="pref_network_microg_login_desc">Uwierzytelnij się za pomocą microG podczas logowania do kont Google, aby uprościć proces logowania.</string>
+    <string name="pref_network_microg_login_desc">Uwierzytelnij się za pomocą microG podczas logowania do kont Google, aby uprościć proces logowania</string>
+    <string name="pref_common_advanced">Zaawansowane</string>
+    <string name="pref_updates_app_source">Źródło aplikacji</string>
+    <string name="app_info_downloads">Pobrane</string>
+    <string name="app_info_updated_on">Ostatnia aktualizacja</string>
+    <string name="app_info_min_android">Minimalna wersja systemu Android</string>
+    <string name="app_info_target_android">Docelowy poziom API</string>
+    <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> uprawnień</string>
+    <string name="action_install_microG">Zainstaluj pakiet microG</string>
+    <string name="onboarding_title_gsf">Zgodność aplikacji</string>
+    <string name="onboarding_title_gsf_desc">Brakujące zależności</string>
+    <string name="microg_privacy_policy">Przeczytaj politykę prywatności microG</string>
+    <string name="microg_license_agreement">Przeczytaj licencję i umowę microG</string>
+    <string name="microg_website">Odwiedź stronę internetową projektu microG</string>
+    <string name="onboarding_gms_agreement">Przeczytałem i akceptuję warunki świadczenia usług oraz politykę prywatności microG</string>
+    <string name="onboarding_gms_missing">Nie znaleźliśmy usług Google Play na twoim urządzeniu. Niektóre popularne aplikacje wymagają tej usługi do prawidłowego działania!</string>
+    <string name="onboarding_gms_microg">microG to darmowa otwartoźródłowa implementacja zastrzeżonych bibliotek Google o otwartym kodzie źródłowym, która zastępuje usługi Google Play w systemie operacyjnym Android.\n\nmicroG umożliwia aplikacjom dostęp do interfejsów Google API, zwiększając kompatybilność i oferując korzyści związane z prywatnością.\n\nmicroG będzie działać automatycznie w tle gdy otworzysz aplikacje zależne od usług mobilnych Google.</string>
+    <string name="select_app_for_details">Wybierz aplikację, aby uzyskać więcej informacji</string>
+    <string name="details_more_package_name">Nazwa pakietu</string>
+    <string name="details_more_content_rating">Ocena treści</string>
+    <string name="details_more_target_api">Docelowy poziom interfejsu</string>
+    <string name="details_more_info">Więcej informacji</string>
+    <string name="exodus_report_trackers"><xliff:g id="number_of_trackers">%1$d</xliff:g> znane elementy śledzące w <xliff:g id="app_version_name">%2$s</xliff:g></string>
+    <string name="no_description">Brak opisu</string>
+    <string name="details_data_safety_collect">Dane, które może zbierać ta aplikacja</string>
+    <string name="details_data_safety_shared">Dane, które może udostępniać ta aplikacja</string>
+    <string name="details_data_safety_collect_none">Deweloper twierdzi, że ta aplikacja nie gromadzi danych użytkownika.</string>
+    <string name="details_data_safety_share_none">Deweloper twierdzi, że ta aplikacja nie udostępnia danych użytkownika innym firmom lub organizacjom.</string>
+    <string name="exodus_tracker_desc">Ta wersja aplikacji może zawierać więcej elementów śledzących, których nie ma jeszcze w bazie danych Exodus Privacy.</string>
+    <string name="action_filter_no_ads">Bez reklam</string>
+    <string name="action_filter_no_gms">Bez usług Google Play</string>
+    <string name="manual_download_version_error">Kod wersji może zawierać tylko cyfry</string>
+    <string name="preparing_to_install">Przygotowywanie do instalacji</string>
+    <plurals name="permissions_required">
+        <item quantity="one">Wymagane uprawnienie</item>
+        <item quantity="few">Wymagane uprawnienia</item>
+        <item quantity="many">Wymagane uprawnienia</item>
+        <item quantity="other">Wymagane uprawnienia</item>
+    </plurals>
 </resources>

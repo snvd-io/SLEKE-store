@@ -31,17 +31,17 @@ import com.aurora.store.data.model.Auth
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_AUTH_DATA
 import com.aurora.store.util.Preferences.PREFERENCE_DISPENSER_URLS
-import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class AuthProvider @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val gson: Gson,
+    private val json: Json,
     private val spoofProvider: SpoofProvider,
     private val httpClient: IHttpClient
 ) {
@@ -59,9 +59,9 @@ class AuthProvider @Inject constructor(
             Log.i(TAG, "Loading saved AuthData")
             val rawAuth: String = Preferences.getString(context, PREFERENCE_AUTH_DATA)
             return if (rawAuth.isNotBlank()) {
-                gson.fromJson(rawAuth, AuthData::class.java)
+                json.decodeFromString<AuthData>(rawAuth)
             } else {
-                null
+                AuthData("BOGUS")
             }
         }
 
@@ -112,11 +112,14 @@ class AuthProvider @Inject constructor(
     suspend fun buildAnonymousAuthData(): Result<AuthData> {
         return withContext(Dispatchers.IO) {
             try {
-                val playResponse = httpClient.getAuth(dispenserURL!!).also {
+                val playResponse = httpClient.postAuth(
+                    dispenserURL!!,
+                    json.encodeToString(spoofProvider.deviceProperties).toByteArray()
+                ).also {
                     if (!it.isSuccessful) throwError(it, context)
                 }
 
-                val auth = gson.fromJson(String(playResponse.responseBytes), Auth::class.java)
+                val auth = json.decodeFromString<Auth>(String(playResponse.responseBytes))
                 return@withContext Result.success(
                     AuthHelper.build(
                         email = auth.email,
@@ -138,7 +141,7 @@ class AuthProvider @Inject constructor(
      * Saves given [AuthData]
      */
     fun saveAuthData(authData: AuthData) {
-        Preferences.putString(context, PREFERENCE_AUTH_DATA, gson.toJson(authData))
+        Preferences.putString(context, PREFERENCE_AUTH_DATA, json.encodeToString(authData))
     }
 
     /**

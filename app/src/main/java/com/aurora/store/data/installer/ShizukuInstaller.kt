@@ -35,8 +35,8 @@ import android.os.IInterface
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.PendingIntentCompat
-import com.sleke.extensions.isOAndAbove
-import com.sleke.extensions.isSAndAbove
+import com.aurora.extensions.isOAndAbove
+import com.aurora.extensions.isSAndAbove
 import com.aurora.store.R
 import com.aurora.store.data.installer.AppInstaller.Companion.ACTION_INSTALL_STATUS
 import com.aurora.store.data.installer.AppInstaller.Companion.EXTRA_DISPLAY_NAME
@@ -129,11 +129,14 @@ class ShizukuInstaller @Inject constructor(
 
     private fun install(
         packageName: String,
-        versionCode: Int,
+        versionCode: Long,
         sharedLibPkgName: String = "",
         displayName: String = ""
     ) {
-        Log.i(TAG, "Received session install request for ${sharedLibPkgName.ifBlank { packageName }}")
+        Log.i(
+            TAG,
+            "Received session install request for ${sharedLibPkgName.ifBlank { packageName }}"
+        )
 
         val (sessionId, session) = kotlin.runCatching {
             val params = SessionParams(SessionParams.MODE_FULL_INSTALL)
@@ -168,7 +171,11 @@ class ShizukuInstaller @Inject constructor(
             Log.i(TAG, "Writing splits to session for ${sharedLibPkgName.ifBlank { packageName }}")
             getFiles(packageName, versionCode, sharedLibPkgName).forEach {
                 it.inputStream().use { input ->
-                    session.openWrite("${sharedLibPkgName.ifBlank { packageName }}_${System.currentTimeMillis()}", 0, -1).use { output ->
+                    session.openWrite(
+                        "${sharedLibPkgName.ifBlank { packageName }}_${System.currentTimeMillis()}",
+                        0,
+                        -1
+                    ).use { output ->
                         input.copyTo(output)
                         session.fsync(output)
                     }

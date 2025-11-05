@@ -29,7 +29,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.aurora.Constants
-import com.sleke.extensions.toast
+import com.aurora.extensions.toast
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.AuroraApp
 import com.aurora.store.R
@@ -43,6 +43,7 @@ import com.aurora.store.view.ui.commons.BaseFragment
 import com.aurora.store.viewmodel.all.InstalledViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 @AndroidEntryPoint
 class AppsGamesFragment : BaseFragment<FragmentGenericWithSearchBinding>() {
@@ -144,8 +145,7 @@ class AppsGamesFragment : BaseFragment<FragmentGenericWithSearchBinding>() {
                             .app(app)
                             .click { _ ->
                                 openDetailsFragment(
-                                    app.packageName,
-                                    app
+                                    app.packageName
                                 )
                             }
                             .longClick { _ ->

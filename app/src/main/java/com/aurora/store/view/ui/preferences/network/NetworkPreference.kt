@@ -25,8 +25,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
-import com.sleke.extensions.runOnUiThread
-import com.sleke.extensions.toast
+import com.aurora.extensions.runOnUiThread
+import com.aurora.extensions.toast
 import com.aurora.store.R
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
@@ -65,8 +65,8 @@ class NetworkPreference : BasePreferenceFragment() {
             }
         }
 
-        findPreference<SwitchPreferenceCompat>(PREFERENCE_MICROG_AUTH)?.isEnabled =
-            PackageUtil.hasSupportedMicroG(requireContext())
+        findPreference<SwitchPreferenceCompat>(PREFERENCE_MICROG_AUTH)?.isVisible =
+            PackageUtil.hasSupportedMicroGVariant(requireContext())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

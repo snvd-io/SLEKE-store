@@ -1,3 +1,9 @@
+#
+# SPDX-FileCopyrightText: 2021-2025 Rahul Kumar Patel <whyorean@gmail.com>
+# SPDX-FileCopyrightText: 2023-2025 The Calyx Institute
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
 # Add project specific ProGuard rules here.
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.kts.
@@ -81,19 +87,30 @@
 -dontwarn retrofit2.KotlinExtensions
 -dontwarn retrofit2.KotlinExtensions$*
 
+#Kovenant
+-dontwarn rx.internal.util.unsafe.**
+-dontwarn nl.komponents.kovenant.unsafe.**
+
 -dontwarn okio.**
 -keep class com.google.**
 -dontwarn com.google.**
 -keep class com.google.gson.Gson {*;}
 
-# Keep data classes
--keep class com.aurora.store.data.room.favourite.ImportExport { *; }
--keep class com.aurora.store.data.room.favourite.Favourite { *; }
-
 # With R8 full mode, it sees no subtypes of Retrofit interfaces since they are created with a Proxy
 # and replaces all potential values with null. Explicitly keeping the interfaces prevents this.
 -if interface * { @retrofit2.http.* <methods>; }
 -keep,allowobfuscation interface <1>
+
+#Event Bus
+-keepattributes *Annotation*
+-keepclassmembers class * {
+   @org.greenrobot.eventbus.Subscribe <methods>;
+}
+-keep enum org.greenrobot.eventbus.ThreadMode { *; }
+
+-keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
+    <init>(java.lang.Throwable);
+}
 
 -keepclassmembers enum * { *; }
 -keep class  com.aurora.store.view.ui.preferences.**
@@ -124,6 +141,12 @@
 -keep class * extends androidx.viewbinding.ViewBinding {
     *;
 }
+
+# Keep Huawei specific classes and methods
+-keep class com.huawei.** { *; }
+-dontwarn com.huawei.**
+-keep class com.hihonor.** { *; }
+-dontwarn com.hihonor.**
 
 # Exclude all from com.sleke.home
 -keep class com.sleke.presentation.** { *; }

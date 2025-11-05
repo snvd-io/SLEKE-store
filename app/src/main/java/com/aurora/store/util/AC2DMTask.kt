@@ -20,9 +20,11 @@
 package com.aurora.store.util
 
 import com.aurora.store.data.network.HttpClient
+import com.sleke.library.util.SlekeConstants
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.collections.mapOf
 
 class AC2DMTask @Inject constructor(private val httpClient: HttpClient) {
 
@@ -49,7 +51,7 @@ class AC2DMTask @Inject constructor(private val httpClient: HttpClient) {
 
         val header = mapOf(
             "app" to "com.google.android.gms",
-            "User-Agent" to "",
+            "User-Agent" to "${SlekeConstants.AURORA_USER_AGENT}",
             "Content-Type" to "application/x-www-form-urlencoded"
         )
 

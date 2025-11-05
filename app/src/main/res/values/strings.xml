@@ -77,6 +77,7 @@
     <string name="action_granted">"Granted"</string>
     <string name="action_ignore">"Ignore"</string>
     <string name="action_install">"Install"</string>
+    <string name="action_install_microG">"Install microG Bundle"</string>
     <string name="action_installations">"Installations"</string>
     <string name="action_installing">"Installing"</string>
     <string name="action_join">"Join"</string>
@@ -129,6 +130,10 @@
     <string name="details_no_updates">"No updates available"</string>
     <string name="details_paid">"Paid"</string>
     <string name="details_permission">"Permission"</string>
+    <string name="details_data_safety_collect">Data that this app may collect</string>
+    <string name="details_data_safety_collect_none">The developer says this app doesn\'t collect user data.</string>
+    <string name="details_data_safety_shared">Data that this app may share</string>
+    <string name="details_data_safety_share_none">The developer says this app doesn\'t share user data with other companies or organizations.</string>
     <string name="details_data_safety_title">Data safety</string>
     <string name="details_data_safety_subtitle">Data privacy and security practices declared by developer</string>
     <string name="details_privacy">"Privacy"</string>
@@ -154,9 +159,11 @@
     <string name="download_resume_all">"Resume all"</string>
     <string name="download_speed_estimating">"Estimating"</string>
     <string name="exodus_no_tracker">"Contains no known trackers"</string>
+    <string name="exodus_tracker_desc">This version of the app may still contain more trackers not present yet in the Exodus Privacy\'s database.</string>
     <string name="exodus_powered">"Powered by Exodus Privacy"</string>
     <string name="exodus_progress">"Checking for trackers…"</string>
     <string name="exodus_substring">known trackers(s) found in</string>
+    <string name="exodus_report_trackers"><xliff:g id="number_of_trackers">%1$d</xliff:g> known trackers(s) found in <xliff:g id="app_version_name">%2$s</xliff:g></string>
     <string name="exodus_view_report">"View report"</string>
     <string name="filter_review_all">"All"</string>
     <string name="filter_latest">"Latest"</string>
@@ -190,28 +197,13 @@
     <string name="device_miui_description">"Please, disable MIUI optimizations to allow installations, otherwise you can choose Root or Services installer."</string>
     <string name="device_miui_extra">"Optionally you can choose Native installer, but then you can not install bundled (split) APKs, so choice is yours."</string>
     <string name="dialog_title_self_update">"New update available"</string>
-    <string name="dialog_desc_native_split">"You can not install bundled(split) apps via Native Installer. Change your installer to Session, Services or Root."</string>
+    <string name="dialog_desc_native_split">"You can not install bundled (split) apps via Native Installer. Change your installer to Session, Services or Root."</string>
     <string name="notification_channel_account">Account-related notification</string>
     <string name="notification_channel_export">App export notification</string>
     <string name="notification_channel_install">Install notification</string>
     <string name="notification_channel_downloads">Downloads notification</string>
-    <string name="onboarding_permission_select">"Store requires following permissions"</string>
-    <string name="onboarding_title_installer">"Installer"</string>
-    <string name="onboarding_title_permissions">"Permissions"</string>
-    <string name="onboarding_title_welcome">"Welcome"</string>
-    <string name="onboarding_welcome_select">"Let's set up a few things at first"</string>
-    <string name="onboarding_permission_esa">"External storage access"</string>
-    <string name="onboarding_permission_esa_desc">To save APK expansion files (OBBs) for large apps &amp; games.</string>
-    <string name="onboarding_permission_esm">"External storage manager"</string>
-    <string name="onboarding_permission_installer">"Installer permission"</string>
-    <string name="onboarding_permission_installer_desc">"Allow installing apps from the Store"</string>
-    <string name="onboarding_permission_installer_legacy_desc">"Allow installation of apps from unknown sources"</string>
-    <string name="onboarding_permission_notifications">"Notifications"</string>
-    <string name="onboarding_permission_notifications_desc">"Send notifications regarding installations status"</string>
-    <string name="onboarding_permission_doze">"Background downloads"</string>
-    <string name="onboarding_permission_doze_desc">"Allow the Store to download and update apps in background"</string>
     <string name="pref_common_extra">"Extras"</string>
-    <string name="pref_filter_fdroid_summary">"Don't check updates for apps downloaded or installed from F-Droid"</string>
+    <string name="pref_filter_fdroid_summary">"Don't check updates for apps installed from F-Droid"</string>
     <string name="pref_filter_fdroid_title">"Filter F-Droid apps"</string>
     <string name="pref_install_delete_summary">Downloaded APKs will be deleted immediately after installation</string>
     <string name="pref_install_delete_title">"Delete APK post-install"</string>
@@ -232,11 +224,10 @@
     <string name="pref_ui_no_for_you">"For you pages"</string>
     <string name="pref_ui_no_for_you_desc">"Display For you pages on home screen"</string>
     <string name="pref_ui_similar_apps">"Similar and related apps"</string>
-    <string name="pref_ui_similar_apps_desc">"Display similar and related clusters on app details page"</string>
-    <string name="pref_updates_incompatible">Incompatible updates</string>
-    <string name="pref_updates_incompatible_desc">Show updates for incompatible or disabled apps that may fail to install</string>
-    <string name="pref_aurora_only">Store apps only</string>
-    <string name="pref_aurora_only_desc">Only check updates for apps installed by the Store</string>
+    <string name="pref_updates_incompatible">Show updates that may fail</string>
+    <string name="pref_updates_incompatible_desc">Display updates for incompatible or disabled apps that may fail to install</string>
+    <string name="pref_aurora_only">Filter apps from other sources</string>
+    <string name="pref_aurora_only_desc">Don\'t check for updates for apps installed from sources outside the Store</string>
     <string name="purchase_failed">"Download failed"</string>
     <string name="purchase_invalid">"App not purchased"</string>
     <string name="purchase_unsupported">"App not supported"</string>
@@ -265,7 +256,7 @@
     <string name="title_account_manager">"Accounts"</string>
     <string name="title_apps">"Apps"</string>
     <string name="title_app_settings">"App settings"</string>
-    <string name="title_apps_games">"My apps"</string>
+    <string name="title_apps_games">"My apps &amp; games"</string>
     <string name="title_apps_library">"Apps in library"</string>
     <string name="title_blacklist_manager">"Blacklist manager"</string>
     <string name="title_favourites_manager">"Favourite apps"</string>
@@ -321,7 +312,7 @@
     <string name="item_required">Required</string>
     <string name="item_optional">Optional</string>
     <string name="permissions_denied">Required permissions were denied. Please grant them in order to continue the action</string>
-    <string name="search_hint">Search for apps</string>
+    <string name="search_hint">Search for apps &amp; games</string>
     <string name="requesting_new_session">Requesting new session</string>
     <string name="server_maintenance">Server down for maintenance</string>
     <string name="downloading_dep">Downloading additional files for <xliff:g id="app">%1$s</xliff:g></string>
@@ -342,7 +333,7 @@
     <string name="failed_to_fetch_report">Failed to fetch privacy report</string>
     <string name="access_denied_using_vpn">Access denied! Are you using VPN or Tor?</string>
     <string name="bad_request">Internal error! Please retry after sometime</string>
-    <string name="login_rate_limited">Oops, You are rate limited</string>
+    <string name="login_rate_limited">You are rate limited</string>
     <string name="server_unreachable">Server unreachable</string>
     <string name="failed_to_generate_session">Could not generate session</string>
     <string name="verifying_new_session">Verifying new session</string>
@@ -359,6 +350,35 @@
     <string name="android_market_desc">Android Market was an online store offering software applications designed for Android devices, retired in 2017.</string>
     <string name="failed_apk_export">Failed to export APKs</string>
     <string name="no_apps_available">No apps available</string>
+    <string name="app_info_downloads">"Downloads"</string>
+    <string name="app_info_updated_on">"Last updated"</string>
+    <string name="app_info_min_android">"Minimum Android Version"</string>
+    <string name="app_info_target_android">"Target API Level"</string>
+
+    <!-- OnBoarding Fragment -->
+    <string name="onboarding_title_installer">"Installer"</string>
+    <string name="onboarding_title_gsf">"App Compatibility"</string>
+    <string name="onboarding_title_gsf_desc">"Missing dependencies"</string>
+    <string name="onboarding_title_permissions">"Permissions"</string>
+    <string name="onboarding_title_welcome">"Welcome"</string>
+    <string name="onboarding_welcome_select">"How you doing?"</string>
+    <string name="onboarding_permission_esa">"External storage access"</string>
+    <string name="onboarding_permission_esa_desc">To save APK expansion files (OBBs) for large apps &amp; games.</string>
+    <string name="onboarding_permission_esm">"External storage manager"</string>
+    <string name="onboarding_permission_installer">"Installer permission"</string>
+    <string name="onboarding_permission_installer_desc">"Allow installing apps from SLEKE. Store"</string>
+    <string name="onboarding_permission_installer_legacy_desc">"Allow installation of apps from unknown sources"</string>
+    <string name="onboarding_permission_notifications">"Notifications"</string>
+    <string name="onboarding_permission_notifications_desc">"Send notifications regarding installations status"</string>
+    <string name="onboarding_permission_doze">"Background downloads"</string>
+    <string name="onboarding_permission_doze_desc">"Allow SLEKE. Store to download and update apps in background"</string>
+    <string name="onboarding_permission_select">"SLEKE. Store requires following permissions"</string>
+    <string name="onboarding_gms_agreement">"I have read and agree to the microG Terms of Service and Privacy Policy"</string>
+    <string name="onboarding_gms_missing">"We couldn't find Google Play Services on your device, several popular apps now require it to function properly!"</string>
+    <string name="onboarding_gms_microg">"microG is a free and open-source implementation that provides similar functionality to run apps dependent on Google Play Services for Android devices through re-implementation.\n\nmicroG enables apps to access those Google APIs, enhancing compatibility for users while offering privacy benefits. \n\nmicroG will run automatically in the background when you open applications dependent on Google Mobile Services."</string>
+    <string name="microg_privacy_policy">Read microG Privacy Policy</string>
+    <string name="microg_license_agreement">Read microG License and Agreement</string>
+    <string name="microg_website">Visit microG Project Website</string>
 
     <!-- InstallerFragment -->
     <string name="session_installer_subtitle">Session based installer for bundled/split APKs</string>
@@ -376,6 +396,7 @@
 
     <!-- ManualDownloadSheet -->
     <string name="manual_download_hint">Enter version code you wish to download</string>
+    <string name="manual_download_version_error">Version code can only contain digits</string>
 
     <!-- WelcomeFragment -->
     <string name="faqs_title" translatable="false">FAQs</string>
@@ -392,7 +413,7 @@
     <string name="version" translatable="false">v<xliff:g id="version_name">%1$s</xliff:g> (<xliff:g id="version_code">%2$d</xliff:g>)</string>
     <string name="about_aurora_store_title">About Store</string>
     <string name="about_aurora_store_subtitle">Learn more about Store</string>
-    <string name="about_aurora_store_summary">Store enables you to search and download apps from the official Google Play Store. You can check app descriptions, screenshots, updates, other users\' comments, and download the APK directly from Google Play to your device. To use Aurora Store, you need to have a Google Play account, and log in to your Google Play account when you first open and configure Aurora Store.\n\nUnlike a traditional app store, Aurora Store does not own, license or distribute any apps. All the apps, app descriptions, screenshots and other content in Aurora Store are directly accessed, downloaded and/or displayed from Google Play. Aurora Store works exactly like a door or a browser, allowing you to log in to your Google Play account and find the apps from Google Play.\n\nPlease note that Aurora Store does not have any approval, sponsorship or authorization from Google, Google Play, any apps downloaded through Aurora Store or any app developers; neither does Aurora Store have any affiliation, cooperation or connection with them.</string>
+    <string name="about_aurora_store_summary">Store enables you to search and download apps from the official Google Play Store. You can check app descriptions, screenshots, updates, other users\' comments, and download the APK directly from Google Play to your device. To use SLEKE. Store, you need to have a Google Play account, and log in to your Google Play account when you first open and configure SLEKE. Store.\n\nUnlike a traditional app store, SLEKE. Store does not own, license or distribute any apps. All the apps, app descriptions, screenshots and other content in SLEKE. Store are directly accessed, downloaded and/or displayed from Google Play. SLEKE. Store works exactly like a door or a browser, allowing you to log in to your Google Play account and find the apps from Google Play.\n\nPlease note that SLEKE. Store does not have any approval, sponsorship or authorization from Google, Google Play, any apps downloaded through Aurora Store or any app developers; neither does Aurora Store have any affiliation, cooperation or connection with them.</string>
 
     <!-- MoreDialogFragment -->
     <string name="title_more">More</string>
@@ -435,7 +456,7 @@
     <string name="export_app_title">File exporter</string>
     <string name="export_app_summary">Hold on, exporting your file</string>
     <string name="export_app_summary_success">Successfully exported app bundle</string>
-    <string name="export_app_summary_fail">Failed to exported app bundle</string>
+    <string name="export_app_summary_fail">Failed to export app bundle</string>
 
     <!-- LogoutDialog -->
     <string name="action_logout_confirmation_title">Log out?</string>
@@ -467,6 +488,12 @@
     <string name="available_spoof">Available</string>
 
     <!-- AppDetailsFragment -->
+    <string name="no_description">No description available</string>
+    <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> permissions</string>
+    <string name="details_more_info">More info</string>
+    <string name="details_more_target_api">Targets</string>
+    <string name="details_more_package_name">Package name</string>
+    <string name="details_more_content_rating">Content rating</string>
     <string name="action_unarchive">Unarchive</string>
     <string name="unable_to_open">Unable to open app</string>
     <string name="version_update" translatable="false"><xliff:g id="installed_version_name">%1$s</xliff:g> (<xliff:g id="installed_version_code">%2$d</xliff:g>) ➔ <xliff:g id="update_version_name">%3$s</xliff:g> (<xliff:g id="update_version_code">%4$d</xliff:g>)</string>
@@ -483,13 +510,18 @@
     <string name="details_compatibility_status_limited">Limited: Works with limited features</string>
     <string name="details_compatibility_status_unsupported">Unsupported: Not functional</string>
     <string name="details_compatibility_status_unknown">Unknown: Not checked yet</string>
+    <string name="preparing_to_install">Preparing to install</string>
+    <plurals name="permissions_required">
+        <item quantity="one">Permission required</item>
+        <item quantity="other">Permissions required</item>
+    </plurals>
 
     <!-- AppsGamesFragment -->
     <string name="installed_apps_size"><xliff:g id="installed_apps_size">%1$d</xliff:g> apps installed</string>
 
     <!-- NetworkPreference -->
-    <string name="pref_network_microg_login_title">Use microG to sign-in to accounts</string>
-    <string name="pref_network_microg_login_desc">Authenticate using microG when signing into Google accounts for a simpler sign-in flow.</string>
+    <string name="pref_network_microg_login_title">Use microG to sign in to accounts</string>
+    <string name="pref_network_microg_login_desc">Authenticate using microG when signing into Google accounts for a simpler sign-in flow</string>
     <string name="set">Set</string>
     <string name="disable">Disable</string>
     <string name="toast_proxy_disabled">Proxy disabled successfully</string>
@@ -497,16 +529,22 @@
     <string name="pref_network_proxy_url_hint" translatable="false">protocol://user:password@host:port</string>
 
     <!-- UpdatesPreferences -->
+    <string name="pref_common_advanced">Advanced</string>
     <string name="pref_updates_restrictions_title">Automatic updates restrictions</string>
-    <string name="pref_updates_restrictions_desc">Configure device restrictions for automated updates.</string>
+    <string name="pref_updates_restrictions_desc">Configure device restrictions for automated updates</string>
     <string name="pref_updates_restrictions_metered">Only on unmetered networks</string>
     <string name="pref_updates_restrictions_idle">When device is idle</string>
     <string name="pref_updates_restrictions_battery">When battery is not low</string>
+    <string name="pref_updates_app_source">App source</string>
 
     <!-- DownloadWorker -->
     <string name="verification_failed">Failed to verify downloaded files</string>
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- SearchScreen -->
+    <string name="select_app_for_details">Select an app for more details</string>
+    <string name="action_filter_no_ads">No advertisements</string>
+    <string name="action_filter_no_gms">No play services</string>
+
     <string name="login_failed">Login failed, please check your credentials</string>
     <string name="title_sleke_apps">SLEKE.</string>
     <string name="enterprise_apps">Enterprise Apps</string>

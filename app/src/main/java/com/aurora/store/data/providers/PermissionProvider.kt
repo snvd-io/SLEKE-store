@@ -12,22 +12,69 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
-import com.sleke.extensions.checkManifestPermission
-import com.sleke.extensions.isDomainVerified
-import com.sleke.extensions.isExternalStorageAccessible
-import com.sleke.extensions.isIgnoringBatteryOptimizations
-import com.sleke.extensions.isMAndAbove
-import com.sleke.extensions.isTAndAbove
-import com.sleke.extensions.toast
+import com.aurora.extensions.checkManifestPermission
+import com.aurora.extensions.isDomainVerified
+import com.aurora.extensions.isExternalStorageAccessible
+import com.aurora.extensions.isIgnoringBatteryOptimizations
+import com.aurora.extensions.isTAndAbove
+import com.aurora.extensions.requiresObbDir
+import com.aurora.extensions.toast
+import com.aurora.gplayapi.data.models.App
 import com.aurora.store.BuildConfig
 import com.aurora.store.R
 import com.aurora.store.data.model.PermissionType
 import com.aurora.store.util.PackageUtil
-import androidx.core.net.toUri
 
 class PermissionProvider(private val fragment: Fragment) :
     ActivityResultCallback<ActivityResult> {
+
+    companion object {
+
+        /**
+         * Checks if Aurora Store has permissions to install the given app
+         */
+        fun isPermittedToInstall(context: Context, app: App): Boolean {
+            if (!isGranted(context, PermissionType.INSTALL_UNKNOWN_APPS)) return false
+            return when {
+                app.fileList.requiresObbDir() -> {
+                    return isGranted(context, PermissionType.STORAGE_MANAGER)
+                }
+
+                else -> true
+            }
+        }
+
+        /**
+         * Checks whether a known permission has been granted
+         */
+        fun isGranted(context: Context, permissionType: PermissionType): Boolean {
+            return when (permissionType) {
+                PermissionType.EXTERNAL_STORAGE,
+                PermissionType.STORAGE_MANAGER -> {
+                    context.isExternalStorageAccessible()
+                }
+
+                PermissionType.INSTALL_UNKNOWN_APPS -> {
+                    PackageUtil.canRequestPackageInstalls(context)
+                }
+
+                PermissionType.POST_NOTIFICATIONS -> {
+                    if (isTAndAbove) {
+                        context.checkManifestPermission(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        true
+                    }
+                }
+
+                PermissionType.DOZE_WHITELIST -> context.isIgnoringBatteryOptimizations()
+
+                PermissionType.APP_LINKS -> context.isDomainVerified("play.google.com") &&
+                        context.isDomainVerified("market.android.com")
+            }
+        }
+    }
 
     private val TAG = PermissionProvider::class.java.simpleName
 
@@ -48,7 +95,7 @@ class PermissionProvider(private val fragment: Fragment) :
         }
 
     override fun onActivityResult(result: ActivityResult) {
-        permissionRequested?.let { permissionCallback(isGranted(it)) }
+        permissionRequested?.let { permissionCallback(isGranted(context, it)) }
     }
 
     fun request(permissionType: PermissionType, callback: (Boolean) -> Unit = {}) {
@@ -68,7 +115,7 @@ class PermissionProvider(private val fragment: Fragment) :
                 }
 
                 PermissionType.STORAGE_MANAGER -> {
-                    if (!isGranted(PermissionType.INSTALL_UNKNOWN_APPS)) {
+                    if (!isGranted(context, PermissionType.INSTALL_UNKNOWN_APPS)) {
                         context.toast(R.string.toast_permission_installer_required)
                     } else {
                         /**
@@ -101,38 +148,12 @@ class PermissionProvider(private val fragment: Fragment) :
         }
     }
 
-    fun isGranted(permissionType: PermissionType): Boolean {
-        return when (permissionType) {
-            PermissionType.EXTERNAL_STORAGE,
-            PermissionType.STORAGE_MANAGER -> {
-                context.isExternalStorageAccessible()
-            }
-
-            PermissionType.INSTALL_UNKNOWN_APPS -> PackageUtil.canRequestPackageInstalls(context)
-
-            PermissionType.POST_NOTIFICATIONS -> {
-                if (isTAndAbove) {
-                    context.checkManifestPermission(Manifest.permission.POST_NOTIFICATIONS)
-                } else {
-                    true
-                }
-            }
-
-            PermissionType.DOZE_WHITELIST -> {
-                if (isMAndAbove) context.isIgnoringBatteryOptimizations() else true
-            }
-
-            PermissionType.APP_LINKS -> context.isDomainVerified("play.google.com") &&
-                    context.isDomainVerified("market.android.com")
-        }
-    }
-
     fun unregister() {
         intentLauncher.unregister()
         permissionLauncher.unregister()
     }
 
-    @SuppressLint("InlinedApi", "BatteryLife")
+    @SuppressLint("InlinedApi")
     private fun knownPermissions(): Map<PermissionType, Intent> {
         return mapOf(
             PermissionType.STORAGE_MANAGER to PackageUtil.getStorageManagerIntent(context),

@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         // Check and run migrations first if required
         // This is needed thanks to OEMs breaking the MY_PACKAGE_REPLACED API
         MigrationReceiver.runMigrationsIfRequired(this)
+
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 

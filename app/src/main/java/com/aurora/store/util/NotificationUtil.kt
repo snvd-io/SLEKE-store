@@ -90,12 +90,13 @@ object NotificationUtil {
     fun getDownloadNotification(
         context: Context,
         download: AuroraDownload,
-        largeIcon: Bitmap? = null
+        largeIcon: Bitmap? = null,
+        message: String? = null
     ): Notification {
         val builder = NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_DOWNLOADS)
         builder.setSmallIcon(R.drawable.ic_notification_outlined)
         builder.setContentTitle(download.displayName)
-        builder.setContentIntent(getContentIntentForDownloads(context))
+        builder.setContentIntent(getContentIntentForDetails(context, download.packageName))
         builder.setLargeIcon(largeIcon)
 
         val cancelIntent = Intent(context, DownloadCancelReceiver::class.java).apply {
@@ -110,7 +111,7 @@ object NotificationUtil {
             false
         )
 
-        when (download.downloadStatus) {
+        when (download.status) {
             DownloadStatus.CANCELLED -> {
                 builder.setSmallIcon(R.drawable.ic_download_cancel)
                 builder.setContentText(context.getString(R.string.download_canceled))
@@ -120,7 +121,7 @@ object NotificationUtil {
 
             DownloadStatus.FAILED -> {
                 builder.setSmallIcon(R.drawable.ic_download_fail)
-                builder.setContentText(context.getString(R.string.download_failed))
+                builder.setContentText(message ?: context.getString(R.string.download_failed))
                 builder.color = Color.RED
                 builder.setCategory(Notification.CATEGORY_ERROR)
             }
@@ -373,17 +374,9 @@ object NotificationUtil {
     private fun getContentIntentForDetails(context: Context, packageName: String): PendingIntent {
         return NavDeepLinkBuilder(context)
             .setGraph(R.navigation.mobile_navigation)
-            .setDestination(R.id.appDetailsFragment)
+            .setDestination(R.id.splashFragment)
             .setComponentName(MainActivity::class.java)
             .setArguments(bundleOf("packageName" to packageName))
-            .createPendingIntent()
-    }
-
-    private fun getContentIntentForDownloads(context: Context): PendingIntent {
-        return NavDeepLinkBuilder(context)
-            .setGraph(R.navigation.mobile_navigation)
-            .setDestination(R.id.downloadFragment)
-            .setComponentName(MainActivity::class.java)
             .createPendingIntent()
     }
 

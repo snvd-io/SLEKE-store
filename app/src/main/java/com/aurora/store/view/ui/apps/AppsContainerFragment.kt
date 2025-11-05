@@ -22,6 +22,7 @@ package com.aurora.store.view.ui.apps
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -30,29 +31,33 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.sleke.presentation.HomeViewModel
+import com.aurora.extensions.navigate
 import com.aurora.store.MobileNavigationDirections
 import com.aurora.store.R
-import com.sleke.presentation.screens.PagedAppsScreen
+import com.aurora.store.compose.navigation.Screen
 import com.aurora.store.compose.theme.AuroraTheme
 import com.aurora.store.databinding.FragmentAppsGamesBinding
+import com.aurora.store.util.Preferences
 import com.aurora.store.view.ui.commons.BaseFragment
 import com.aurora.store.view.ui.commons.CategoryFragment
 import com.aurora.store.view.ui.commons.ForYouFragment
 import com.aurora.store.view.ui.commons.TopChartContainerFragment
 import com.aurora.store.viewmodel.apps.AppsContainerViewModel
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.sleke.library.model.firebase.AppDto
+import com.sleke.presentation.HomeViewModel
 import com.sleke.presentation.screens.EnterpriseAppsPane
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sleke.presentation.screens.PagedAppsScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
 
-    private val containerViewModel: AppsContainerViewModel by viewModels()
+    private val viewModel: AppsContainerViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,12 +73,13 @@ class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
             WindowInsetsCompat.CONSUMED
         }
 
+        // Toolbar
         binding.toolbar.apply {
             title = getString(R.string.title_apps)
             setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.menu_download_manager -> {
-                        findNavController().navigate(R.id.downloadFragment)
+                        requireContext().navigate(Screen.Downloads)
                     }
 
                     R.id.menu_more -> {
@@ -89,7 +95,7 @@ class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
         setupComposeUI()
 
         binding.searchFab.setOnClickListener {
-            findNavController().navigate(R.id.searchSuggestionFragment)
+            requireContext().navigate(Screen.Search)
         }
     }
 
@@ -121,34 +127,11 @@ class AppsContainerFragment : BaseFragment<FragmentAppsGamesBinding>() {
     }
 
     private fun navigateToAppDetails(app: AppDto) {
-        val bundle = Bundle().apply {
-            putString("packageName", app.packageName)
-        }
-        findNavController().navigate(R.id.appDetailsFragment, bundle)
+        openDetailsFragment(app.packageName)
     }
 
-    internal class ViewPagerAdapter(
-        fragment: FragmentManager,
-        lifecycle: Lifecycle,
-        private val isGoogleAccount: Boolean,
-        private val isForYouEnabled: Boolean
-    ) :
-        FragmentStateAdapter(fragment, lifecycle) {
-
-        private val tabFragments: MutableList<Fragment> = mutableListOf<Fragment>().apply {
-            if (isForYouEnabled) {
-                add(ForYouFragment.newInstance(0))
-            }
-            add(TopChartContainerFragment.newInstance(0))
-            add(CategoryFragment.newInstance(0))
-        }
-
-        override fun createFragment(position: Int): Fragment {
-            return tabFragments[position]
-        }
-
-        override fun getItemCount(): Int {
-            return tabFragments.size
-        }
+    override fun onDestroyView() {
+        binding.pager.adapter = null
+        super.onDestroyView()
     }
 }

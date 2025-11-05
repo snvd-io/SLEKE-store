@@ -18,23 +18,23 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-<!--    <item-->
-<!--        android:id="@+id/menu_blacklist_manager"-->
-<!--        android:icon="@drawable/ic_blacklist"-->
-<!--        android:title="@string/title_blacklist_manager" />-->
+    <item
+        android:id="@+id/menu_blacklist_manager"
+        android:icon="@drawable/ic_blacklist"
+        android:title="@string/title_blacklist_manager" />
 
-<!--    <item-->
-<!--        android:id="@+id/menu_spoof_manager"-->
-<!--        android:icon="@drawable/ic_anonymous"-->
-<!--        android:title="@string/title_spoof_manager" />-->
+    <item
+        android:id="@+id/menu_spoof_manager"
+        android:icon="@drawable/ic_anonymous"
+        android:title="@string/title_spoof_manager" />
 
     <item
         android:id="@+id/menu_settings"
         android:icon="@drawable/ic_menu_settings"
         android:title="@string/title_settings" />
 
-<!--    <item-->
-<!--        android:id="@+id/menu_about"-->
-<!--        android:icon="@drawable/ic_menu_about"-->
-<!--        android:title="@string/title_about" />-->
+    <item
+        android:id="@+id/menu_about"
+        android:icon="@drawable/ic_menu_about"
+        android:title="@string/title_about" />
 </menu>

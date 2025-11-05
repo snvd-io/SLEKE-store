@@ -70,7 +70,7 @@ class GoogleFragment : BaseFragment<FragmentGoogleBinding>() {
                     super.onProgressChanged(view, newProgress)
 
                     if (newProgress != 0) {
-                        safeBinding?.progressBar?.also {
+                        binding.progressBar.also {
                             it.isVisible = newProgress < 100
                             it.isIndeterminate = false
                             it.max = 100

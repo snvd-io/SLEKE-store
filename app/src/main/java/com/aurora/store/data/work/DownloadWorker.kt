@@ -19,11 +19,12 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkInfo.Companion.STOP_REASON_CANCELLED_BY_APP
 import androidx.work.WorkInfo.Companion.STOP_REASON_USER
 import androidx.work.WorkerParameters
-import com.sleke.extensions.copyTo
-import com.sleke.extensions.isPAndAbove
-import com.sleke.extensions.isQAndAbove
-import com.sleke.extensions.isSAndAbove
-import com.sleke.extensions.requiresObbDir
+import com.aurora.extensions.copyTo
+import com.aurora.extensions.isPAndAbove
+import com.aurora.extensions.isQAndAbove
+import com.aurora.extensions.isSAndAbove
+import com.aurora.extensions.requiresObbDir
+import com.aurora.gplayapi.data.models.PlayFile
 import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.network.IHttpClient
 import com.aurora.store.AuroraApp
@@ -55,7 +56,6 @@ import java.security.DigestInputStream
 import java.security.MessageDigest
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.properties.Delegates
-import com.aurora.gplayapi.data.models.File as GPlayFile
 
 /**
  * An expedited long-running worker to download and trigger installation for given apps.
@@ -99,11 +99,10 @@ class DownloadWorker @AssistedInject constructor(
             download = downloadDao.getDownload(inputData.getString(DownloadHelper.PACKAGE_NAME)!!)
 
             val response = (httpClient as HttpClient).call(download.iconURL).body
-            if (response != null) {
-                val bitmap =
-                    BitmapFactory.decodeStream(withContext(Dispatchers.IO) { response.byteStream() })
-                icon = bitmap.scale(96, 96)
-            }
+            val bitmap = BitmapFactory.decodeStream(
+                withContext(Dispatchers.IO) { response.byteStream() }
+            )
+            icon = bitmap.scale(96, 96)
         } catch (exception: Exception) {
             return onFailure(exception)
         }
@@ -112,6 +111,7 @@ class DownloadWorker @AssistedInject constructor(
         setForeground(getForegroundInfo())
 
         // Try to purchase the app if file list is empty
+        notifyStatus(DownloadStatus.PURCHASING)
         download.fileList = download.fileList.ifEmpty {
             purchase(download.packageName, download.versionCode, download.offerType)
         }
@@ -127,7 +127,7 @@ class DownloadWorker @AssistedInject constructor(
             PathUtil.getObbDownloadDir(download.packageName).mkdirs()
         }
 
-        val files = mutableListOf<GPlayFile>()
+        val files = mutableListOf<PlayFile>()
 
         // Check if shared libs are present, if yes, handle them first
         if (download.sharedLibs.isNotEmpty()) {
@@ -221,12 +221,15 @@ class DownloadWorker @AssistedInject constructor(
                     }
 
                     else -> {
-                        notifyStatus(DownloadStatus.FAILED)
-                        AuroraApp.events.send(InstallerEvent.Failed(download.packageName).apply {
-                            extra =
-                                exception.message ?: context.getString(R.string.download_failed)
-                            error = exception.stackTraceToString()
-                        })
+                        notifyStatus(status = DownloadStatus.FAILED, exception = exception)
+                        AuroraApp.events.send(
+                            InstallerEvent.Failed(
+                                packageName = download.packageName,
+                                error = exception.stackTraceToString(),
+                                extra = exception.message
+                                    ?: context.getString(R.string.download_failed)
+                            )
+                        )
                     }
                 }
             }
@@ -234,7 +237,7 @@ class DownloadWorker @AssistedInject constructor(
             // Remove all notifications
             notificationManager.cancel(NOTIFICATION_ID)
 
-            return@withContext Result.failure()
+            return@withContext Result.success()
         }
     }
 
@@ -245,7 +248,7 @@ class DownloadWorker @AssistedInject constructor(
      * @param offerType Offer type of the app (free/paid)
      * @return A list of purchased files
      */
-    private fun purchase(packageName: String, versionCode: Int, offerType: Int): List<GPlayFile> {
+    private fun purchase(packageName: String, versionCode: Long, offerType: Int): List<PlayFile> {
         try {
             // Android 9.0+ supports key rotation, so purchase with latest certificate's hash
             return if (isPAndAbove && download.isInstalled) {
@@ -267,10 +270,10 @@ class DownloadWorker @AssistedInject constructor(
     /**
      * Downloads the file from the given request.
      * Failed downloads aren't removed and persists as long as [CacheWorker] doesn't cleans them.
-     * @param gFile A [GPlayFile] to download
+     * @param gFile A [PlayFile] to download
      * @return A [Boolean] indicating whether the file was downloaded or not.
      */
-    private suspend fun downloadFile(packageName: String, gFile: GPlayFile): Boolean {
+    private suspend fun downloadFile(packageName: String, gFile: PlayFile): Boolean {
         return withContext(Dispatchers.IO) {
             Log.i(TAG, "Downloading $packageName @ ${gFile.name}")
             val file = PathUtil.getLocalFile(context, gFile, download)
@@ -388,9 +391,13 @@ class DownloadWorker @AssistedInject constructor(
      * Notifies the user of the current status of the download.
      * @param status Current [DownloadStatus]
      */
-    private suspend fun notifyStatus(status: DownloadStatus, isProgress: Boolean = false) {
+    private suspend fun notifyStatus(
+        status: DownloadStatus,
+        isProgress: Boolean = false,
+        exception: Exception? = null
+    ) {
         // Update status in database
-        download.downloadStatus = status
+        download.status = status
         downloadDao.updateStatus(download.packageName, status)
 
         when (status) {
@@ -406,7 +413,9 @@ class DownloadWorker @AssistedInject constructor(
             else -> {}
         }
 
-        val notification = NotificationUtil.getDownloadNotification(context, download, icon)
+        val notification = NotificationUtil.getDownloadNotification(
+            context, download, icon, exception?.message
+        )
         notificationManager.notify(
             if (isProgress) NOTIFICATION_ID else download.packageName.hashCode(),
             notification
@@ -414,11 +423,11 @@ class DownloadWorker @AssistedInject constructor(
     }
 
     /**
-     * Verifies integrity of a downloaded [GPlayFile].
-     * @param gFile [GPlayFile] to verify
+     * Verifies integrity of a downloaded [PlayFile].
+     * @param gFile [PlayFile] to verify
      */
     @OptIn(ExperimentalStdlibApi::class)
-    private suspend fun verifyFile(gFile: GPlayFile): Boolean {
+    private suspend fun verifyFile(gFile: PlayFile): Boolean {
         val file = PathUtil.getLocalFile(context, gFile, download)
         Log.i(TAG, "Verifying $file")
 
@@ -446,7 +455,7 @@ class DownloadWorker @AssistedInject constructor(
         }
     }
 
-    private fun deleteFile(file: GPlayFile) {
+    private fun deleteFile(file: PlayFile) {
         val apkFile = PathUtil.getLocalFile(context, file, download)
         if (apkFile.exists()) {
             apkFile.delete()

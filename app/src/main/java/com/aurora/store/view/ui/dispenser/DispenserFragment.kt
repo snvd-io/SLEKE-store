@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
-import com.sleke.extensions.copyToClipBoard
+import com.aurora.extensions.copyToClipBoard
 import com.aurora.store.R
 import com.aurora.store.databinding.FragmentDispenserBinding
 import com.aurora.store.util.Preferences

@@ -2,14 +2,16 @@ package com.aurora.store.data.room.download
 
 import android.os.Parcelable
 import com.aurora.gplayapi.data.models.App
-import com.aurora.gplayapi.data.models.File
+import com.aurora.gplayapi.data.models.PlayFile
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Parcelize
 data class SharedLib(
     val packageName: String,
-    val versionCode: Int,
-    var fileList: List<File>
+    val versionCode: Long,
+    var fileList: List<PlayFile>
 ) : Parcelable {
     companion object {
         fun fromApp(app: App): SharedLib {

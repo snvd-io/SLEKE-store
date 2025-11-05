@@ -59,7 +59,7 @@
     <string name="menu_license">Lisenssi</string>
     <string name="dialog_title_self_update">Uusi päivitys saatavilla</string>
     <string name="onboarding_title_welcome">Tervetuloa</string>
-    <string name="pref_filter_fdroid_summary">Älä tarkista päivityksiä F-Droidista ladatuille tai asennetuille sovelluksille</string>
+    <string name="pref_filter_fdroid_summary">Älä tarkista päivityksiä F-Droid:sta asennetuille sovelluksille</string>
     <string name="pref_filter_fdroid_title">Suodata F-Droid-sovellukset</string>
     <string name="pref_ui_no_for_you">Sinulle-sivut</string>
     <string name="pref_ui_similar_apps">Samankaltaiset ja vastaavat sovellukset</string>
@@ -122,7 +122,7 @@
     <string name="details_changelog">Muutosloki</string>
     <string name="details_beta_delay">Ilmoittautuminen voi viedä jonkin aikaa, voit tarkistaa tilan myöhemmin.</string>
     <string name="details_beta_description">Näet uusia ominaisuuksia ja virheitä ennen muuta yleisöä. Anna palautetta kehittäjille, jotta he voivat kehittyä.</string>
-    <string name="details_beta_available">Liity beetaohjelmaan ?</string>
+    <string name="details_beta_available">Liity beetaohjelmaan?</string>
     <string name="details_beta_subscribed">Olet beetatestaaja</string>
     <string name="details_beta">Beetaohjelmisto</string>
     <string name="action_whitelist">Valkoinen lista</string>
@@ -187,7 +187,6 @@
     <string name="insecure_anonymous_apply">Varmista, että kirjaudut uudelleen ja käynnistät sovelluksen uudelleen ottaaksesi muutokset käyttöön.</string>
     <string name="spoof_apply">Varmista, että kirjaudut uudelleen ottaaksesi huijauksen käyttöösi</string>
     <string name="purchase_session_expired">Sessio päättyi, kirjaudu uudelleen uuden session aloittamiseksi.</string>
-    <string name="pref_ui_similar_apps_desc">Näytä sovelluksen lisätietosivulla sen kanssa samankaltaisia ja siihen liittyviä sovelluksia</string>
     <string name="pref_ui_no_for_you_desc">Näytä Sinulle räätälöity-sivut kotinäytöllä</string>
     <string name="pref_ui_layout_tab">Valitse oletusvälilehti</string>
     <string name="pref_ui_layout">Ulkoasu</string>
@@ -274,7 +273,7 @@
     <string name="access_denied_using_vpn">Käyttö estetty! Onko käytössäsi VPN tai Tor\?</string>
     <string name="bad_request">Sisäinen virhe! Yritä uudelleen myöhemmin</string>
     <string name="failed_generating_session">Istunnon luominen epäonnistui, virhekoodi: <xliff:g id="status_code">%1$d</xliff:g></string>
-    <string name="login_rate_limited">Ups, käyttösi on rajoitettu</string>
+    <string name="login_rate_limited">Käyttöäsi on rajoitettu</string>
     <string name="server_unreachable">Palvelimeen ei saada yhteyttä</string>
     <string name="check_connectivity">Tarkista verkkoyhteys</string>
     <string name="app_language">Sovelluksen kieli</string>
@@ -285,7 +284,7 @@
     <string name="google_play_store_desc">Google Play, joka tunnetaan myös nimellä Google Play Store ja entinen Android Market.</string>
     <string name="android_market_desc">Android Market oli vuonna 2017 toimintansa päättänyt verkkokauppa, joka tarjosi sovelluksia Android-laitteille.</string>
     <string name="details_ratings_title_hint">Arvostele sovellus</string>
-    <string name="pref_aurora_only">Vain Aurora Storen sovellukset</string>
+    <string name="pref_aurora_only">Suodata sovellukset muista lähteistä</string>
     <string name="onboarding_permission_doze_desc">Salli Aurora Storen ladata ja päivittää sovelluksia taustalla</string>
     <string name="pref_network_proxy_url">Välityspalvelimen URL-osoite</string>
     <string name="pref_vending_version_title">Google Play -versio</string>
@@ -380,8 +379,8 @@
     <string name="checking_updates">Tarkistetaan päivityksiä</string>
     <string name="authentication_required_unarchive">Kirjaudu sisään Google Play -tiliisi sovelluksen arkistoinnin poistamiseksi!</string>
     <string name="installed_apps_size"><xliff:g id="installed_apps_size">%1$d</xliff:g> sovellusta asennettu</string>
-    <string name="pref_updates_incompatible">Yhteensopimattomat päivitykset</string>
-    <string name="pref_aurora_only_desc">Tarkista päivitykset pelkästään Aurora Storen kautta asennetuille sovelluksille</string>
+    <string name="pref_updates_incompatible">Näytä päivitykset jotka saattavat epäonnistua</string>
+    <string name="pref_aurora_only_desc">Älä tarkista päivityksiä Aurora Store:n ulkopuolelta asennetuille sovelluksille</string>
     <string name="pref_clear_device_owner_title">Tyhjennä laitteen omistaja</string>
     <string name="session_installer_subtitle">Istuntopohjainen asentaja niputetuille/jaetuille APK-paketeille</string>
     <string name="disclaimer_subtitle">Vastuu ja velvollisuus</string>
@@ -417,14 +416,51 @@
     <string name="about_aurora_store_summary">Aurora Store mahdollistaa sovellusten etsimisen ja lataamisen virallisesta Google Play -kaupasta. Voit tutkia sovellusten kuvaksia, kuvankaappauksia, päivityksiä, muiden käyttäjien kommentteja ja ladata sovelluksia suoraan Google Play:stä laitteellesi. Käyttääksesi Aurora Store:a sinulla on oltava Google Play -tili sekä kirjauduttava sisään Google Play -tilillesi kun avaat ja asetat Aurora Store:n.\n\nToisin kuin perinteiset sovelluskaupat, Aurora Store ei omista, lisensoi tai jakele sovelluksia. Kaikki sovellukset, sovellusten kuvaukset, kuvankaappaukset ja muu sisältö Aurora Storessa ovat suoraan haettu, ladattu ja/tai näytetty Google Play -kaupasta. Aurora Store toimii kuten ovi tai selain, mahdollistaen sisäänkirjautumisen Google Play -tilillesi ja sovellusten hakemiseen Google Play -kaupasta.\n\nHuomaa, että Aurora Store ei ole Googlen tai Google Play:n hyväksymä, sponsoroima tai valtuuttama, eikä myöskään minkään Aurora Storen kautta ladatun sovelluksen tai sovelluksien kehittäjien hyväksymä; Aurora Store:lla ei myöskään ole mitään kytköstä, yhteistyötä tai yhteyttä niihin.</string>
     <string name="no_apps_available">Sovelluksia ei saatavilla</string>
     <string name="pref_network_microg_login_title">Käytä microG:tä tileihin sisäänkirjautumiseen</string>
-    <string name="pref_network_microg_login_desc">Todenna käyttäen microG:tä Googlen palveluihin sisäänkirjauduttaessa prosessin yksinkertaistamiseksi.</string>
+    <string name="pref_network_microg_login_desc">Todenna käyttäen microG:tä Googlen palveluihin sisäänkirjauduttaessa prosessin yksinkertaistamiseksi</string>
     <string name="set">Aseta</string>
     <string name="disable">Poista käytöstä</string>
     <string name="toast_proxy_disabled">Välityspalvelin poistettu käytöstä onnistuneesti</string>
     <string name="pref_network_proxy_desc">Katsele ja hallitse välityspalvelinasetuksia</string>
     <string name="pref_updates_restrictions_title">Automaattisten päivitysten rajoitukset</string>
-    <string name="pref_updates_restrictions_desc">Muokkaa rajoituksia automaattisille päivityksille.</string>
+    <string name="pref_updates_restrictions_desc">Muokkaa rajoituksia automaattisille päivityksille</string>
     <string name="pref_updates_restrictions_metered">Vain maksuttomissa verkoissa</string>
     <string name="pref_updates_restrictions_idle">Kun laite on toimeton</string>
     <string name="pref_updates_restrictions_battery">Kun akun varaus ei ole vähäinen</string>
+    <string name="verification_failed">Ladattujen tiedostojen varmentaminen epäonnistui</string>
+    <string name="pref_common_advanced">Edistynyt</string>
+    <string name="pref_updates_app_source">Sovelluslähde</string>
+    <string name="app_info_min_android">Minimi Android-versio</string>
+    <string name="app_info_target_android">API:n kohdetaso</string>
+    <string name="app_info_updated_on">Viimeksi päivitetty</string>
+    <string name="app_info_downloads">Lataukset</string>
+    <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> käyttöoikeutta</string>
+    <string name="action_install_microG">Asenna microG-paketti</string>
+    <string name="onboarding_title_gsf">Sovellusyhteensopivuus</string>
+    <string name="onboarding_title_gsf_desc">Puuttuvat riippuvuudet</string>
+    <string name="onboarding_gms_agreement">Olen lukenut ja hyväksynyt microG:n käyttöehdot ja tietosuojakäytännön</string>
+    <string name="onboarding_gms_missing">Emme löytäneet Google Play Palveluja laitteestasi, useat suositut sovellukset vaativat sitä toimiakseen kunnolla!</string>
+    <string name="microg_privacy_policy">Lue microG:n tietosuojakäytäntö</string>
+    <string name="microg_license_agreement">Lue microG:n lisenssi ja käyttöehdot</string>
+    <string name="microg_website">Vieraile microG-projektin kotisivuilla</string>
+    <string name="onboarding_gms_microg">microG on ilmainen ja avoimen lähdekoodin uudelleentoteutus, joka tarjoaa alkuperäistä vastaavan toiminnallisuuden sovelluksille, jotka tarvitset Google Play Palveluita toimiakseen.\n\nmicroG luo sovelluksille pääsyn kyseisiin Googlen API:in, parantaen yhteensopivuutta käyttäjille sekä tarjoten samalla yksityisyyshyötyjä.\n\nmicroG käynnistyy automaattisesti taustalla kun avaat sovelluksia, jotka ovat riippuvaisia Google Play Palveluista.</string>
+    <string name="details_data_safety_collect">Tiedot, joita tämä sovellus saattaa kerätä</string>
+    <string name="details_data_safety_collect_none">Kehittäjän mukaan tämä sovellus ei kerää käyttäjätietoja.</string>
+    <string name="details_data_safety_shared">Data, jota tämä sovellus saattaa jakaa</string>
+    <string name="details_data_safety_share_none">Kehittäjän mukaan tämä sovellus ei jaa käyttäjätietoja muiden yritysten tai organisaatioden kanssa.</string>
+    <string name="exodus_tracker_desc">Tämä versio sovelluksesta saattaa pitää sisällään seuraimia, joita ei vielä löydy Exodus Privacy:n tietokannasta.</string>
+    <string name="exodus_report_trackers"><xliff:g id="number_of_trackers">%1$d</xliff:g> tunnettu(a) seurain(ta) löydetty kohteesta <xliff:g id="app_version_name">%2$s</xliff:g></string>
+    <string name="manual_download_version_error">Versiokoodi voi pitää sisällään vain numeroita</string>
+    <string name="details_more_info">Lisätietoja</string>
+    <string name="details_more_target_api">Kohteet</string>
+    <string name="details_more_package_name">Paketin nimi</string>
+    <string name="details_more_content_rating">Ikäkohderyhmä</string>
+    <string name="select_app_for_details">Valitse sovellus lisätietojen näyttämiseksi</string>
+    <string name="action_filter_no_ads">Ei mainoksia</string>
+    <string name="action_filter_no_gms">Ei Play-palveluita</string>
+    <string name="no_description">Ei kuvausta saatavilla</string>
+    <string name="preparing_to_install">Valmistaudutaan asentamaan</string>
+    <plurals name="permissions_required">
+        <item quantity="one">Lupa tarvitaan</item>
+        <item quantity="other">Lupia tarvitaan</item>
+    </plurals>
 </resources>

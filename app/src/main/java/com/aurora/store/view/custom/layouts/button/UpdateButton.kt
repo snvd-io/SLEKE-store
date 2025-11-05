@@ -22,7 +22,7 @@ package com.aurora.store.view.custom.layouts.button
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.RelativeLayout
-import com.sleke.extensions.runOnUiThread
+import com.aurora.extensions.runOnUiThread
 import com.aurora.store.R
 import com.aurora.store.data.model.DownloadStatus
 import com.aurora.store.databinding.ViewUpdateButtonBinding

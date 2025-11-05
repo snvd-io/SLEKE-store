@@ -31,9 +31,8 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.crossfade
-import com.aurora.store.BuildConfig
-import com.sleke.extensions.isPAndAbove
-import com.sleke.extensions.setAppTheme
+import com.aurora.extensions.isPAndAbove
+import com.aurora.extensions.setAppTheme
 import com.aurora.store.data.event.EventFlow
 import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.helper.UpdateHelper
@@ -82,13 +81,12 @@ class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Fa
 
     override fun onCreate() {
         super.onCreate()
+        FirebaseApp.initializeApp(this)
+        Timber.plant(Timber.DebugTree())
+
         // Set the app theme
         val themeStyle = Preferences.getInteger(this, Preferences.PREFERENCE_THEME_STYLE)
         setAppTheme(themeStyle)
-
-        Timber.plant(Timber.DebugTree())
-
-        FirebaseApp.initializeApp(this)
 
         // Apply dynamic colors to activities
         DynamicColors.applyToActivitiesIfAvailable(this)

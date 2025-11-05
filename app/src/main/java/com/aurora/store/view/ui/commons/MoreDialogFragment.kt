@@ -55,10 +55,10 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.aurora.Constants
 import com.aurora.Constants.URL_TOS
-import com.sleke.extensions.browse
-import com.sleke.extensions.getStyledAttributeColor
-import com.sleke.extensions.navigate
-import com.sleke.extensions.setAppTheme
+import com.aurora.extensions.browse
+import com.aurora.extensions.getStyledAttributeColor
+import com.aurora.extensions.navigate
+import com.aurora.extensions.setAppTheme
 import com.aurora.store.MR
 import com.aurora.store.R
 import com.aurora.store.compose.navigation.Screen
@@ -318,7 +318,7 @@ class MoreDialogFragment : DialogFragment() {
                 }
             }
             OutlinedButton(
-                onClick = { findNavController().navigate(R.id.accountFragment) },
+                onClick = { requireContext().navigate(Screen.Accounts) },
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     1.dp,
@@ -428,21 +428,23 @@ class MoreDialogFragment : DialogFragment() {
                 icon = R.drawable.ic_apps,
                 destinationID = R.id.appsGamesFragment
             ),
-//            ComposeOption(
-//                title = R.string.title_blacklist_manager,
-//                icon = R.drawable.ic_blacklist,
-//                screen = Screen.Blacklist
-//            ),
-//            ViewOption(
-//                title = R.string.title_favourites_manager,
-//                icon = R.drawable.ic_favorite_unchecked,
-//                destinationID = R.id.favouriteFragment
-//            ),
-//            ViewOption(
-//                title = R.string.title_spoof_manager,
-//                icon = R.drawable.ic_spoof,
-//                destinationID = R.id.spoofFragment
-//            )
+            /*
+            ComposeOption(
+                title = R.string.title_blacklist_manager,
+                icon = R.drawable.ic_blacklist,
+                screen = Screen.Blacklist
+            ),
+            ComposeOption(
+                title = R.string.title_favourites_manager,
+                icon = R.drawable.ic_favorite_unchecked,
+                screen = Screen.Favourite
+            ),
+            ViewOption(
+                title = R.string.title_spoof_manager,
+                icon = R.drawable.ic_spoof,
+                destinationID = R.id.spoofFragment
+            )
+             */
         )
     }
 
@@ -453,11 +455,13 @@ class MoreDialogFragment : DialogFragment() {
                 icon = R.drawable.ic_menu_settings,
                 destinationID = R.id.settingsFragment
             ),
-//            ViewOption(
-//                title = R.string.title_about,
-//                icon = R.drawable.ic_menu_about,
-//                destinationID = R.id.aboutFragment
-//            )
+            /*
+            ComposeOption(
+                title = R.string.title_about,
+                icon = R.drawable.ic_menu_about,
+                screen = Screen.About
+            )
+             */
         )
     }
 }

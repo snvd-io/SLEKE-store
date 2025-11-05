@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.util.Patterns
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
-import com.sleke.extensions.showKeyboard
-import com.sleke.extensions.toast
+import com.aurora.extensions.showKeyboard
+import com.aurora.extensions.toast
 import com.aurora.store.R
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_DISPENSER_URLS

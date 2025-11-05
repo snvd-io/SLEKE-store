@@ -35,24 +35,26 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.graphics.drawable.toBitmap
-import com.sleke.extensions.isHuawei
-import com.sleke.extensions.isOAndAbove
-import com.sleke.extensions.isPAndAbove
-import com.sleke.extensions.isTAndAbove
-import com.sleke.extensions.isVAndAbove
-import com.sleke.extensions.isValidApp
+import androidx.core.net.toUri
+import com.aurora.Constants.PACKAGE_NAME_APP_GALLERY
+import com.aurora.Constants.PACKAGE_NAME_GMS
+import com.aurora.Constants.PACKAGE_NAME_PLAY_STORE
+import com.aurora.extensions.isHuawei
+import com.aurora.extensions.isOAndAbove
+import com.aurora.extensions.isPAndAbove
+import com.aurora.extensions.isTAndAbove
+import com.aurora.extensions.isVAndAbove
+import com.aurora.extensions.isValidApp
 import com.aurora.store.BuildConfig
 import com.aurora.store.R
 import java.util.Locale
-import androidx.core.net.toUri
 
 object PackageUtil {
 
     private const val TAG = "PackageUtil"
 
-    const val PACKAGE_NAME_GMS = "com.google.android.gms"
-    private const val VERSION_CODE_MICRO_G = 240913402
-    private const val VERSION_CODE_MICRO_G_HUAWEI = 240913007
+    private const val VERSION_CODE_MICRO_G: Long = 240913402
+    private const val VERSION_CODE_MICRO_G_HUAWEI: Long = 240913007
 
     fun getAllValidPackages(context: Context): List<PackageInfo> {
         return context.packageManager.getInstalledPackages(PackageManager.GET_META_DATA)
@@ -63,8 +65,39 @@ object PackageUtil {
             }
     }
 
-    fun hasSupportedMicroG(context: Context): Boolean {
-        val isMicroG = CertUtil.isMicroGGMS(context, PACKAGE_NAME_GMS)
+    fun hasSupportedAppGallery(context: Context): Boolean {
+        return try {
+            val result = context.packageManager.checkPermission(
+                android.Manifest.permission.INSTALL_PACKAGES,
+                PACKAGE_NAME_APP_GALLERY
+            )
+
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                Log.w(TAG, "AppGallery does not have INSTALL_PACKAGES permission")
+                return false
+            }
+
+            val packageInfo = context.packageManager.getPackageInfo(
+                PACKAGE_NAME_APP_GALLERY,
+                PackageManager.GET_META_DATA
+            )
+
+            @Suppress("DEPRECATION")
+            val versionCode = if (Build.VERSION.SDK_INT >= 28)
+                packageInfo.longVersionCode
+            else
+                packageInfo.versionCode.toLong()
+
+            Log.i(TAG, "AppGallery - ${packageInfo.versionName} ($versionCode)")
+
+            versionCode >= 15010000L
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    fun hasSupportedMicroGVariant(context: Context): Boolean {
+        val isMicroG = CertUtil.isMicroGGms(context)
 
         // Do not proceed if MicroG variant is not installed
         if (!isMicroG) return false
@@ -76,20 +109,15 @@ object PackageUtil {
         }
     }
 
-    fun isInstalled(context: Context, packageName: String): Boolean {
+    fun isInstalled(context: Context, packageName: String, versionCode: Long? = null): Boolean {
         return try {
-            getPackageInfo(context, packageName, PackageManager.GET_META_DATA)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
-
-    fun isInstalled(context: Context, packageName: String, versionCode: Int): Boolean {
-        return try {
-            val packageInfo = getPackageInfo(context, packageName)
-            return PackageInfoCompat.getLongVersionCode(packageInfo) >= versionCode.toLong()
-        } catch (e: PackageManager.NameNotFoundException) {
+            val packageInfo = getPackageInfo(context, packageName, PackageManager.GET_META_DATA)
+            if (versionCode != null) {
+                PackageInfoCompat.getLongVersionCode(packageInfo) >= versionCode
+            } else {
+                true
+            }
+        } catch (_: PackageManager.NameNotFoundException) {
             false
         }
     }
@@ -110,17 +138,21 @@ object PackageUtil {
         }
     }
 
-    fun isSharedLibraryInstalled(context: Context, packageName: String, versionCode: Int): Boolean {
+    fun isSharedLibraryInstalled(
+        context: Context,
+        packageName: String,
+        versionCode: Long
+    ): Boolean {
         return if (isOAndAbove) {
             val sharedLibraries = getAllSharedLibraries(context)
             if (isPAndAbove) {
                 sharedLibraries.any {
-                    it.name == packageName && it.longVersion == versionCode.toLong()
+                    it.name == packageName && it.longVersion == versionCode
                 }
             } else {
                 sharedLibraries.any {
                     @Suppress("DEPRECATION")
-                    it.name == packageName && it.version == versionCode
+                    it.name == packageName && it.version == versionCode.toInt()
                 }
             }
         } else {
@@ -135,6 +167,16 @@ object PackageUtil {
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
+    }
+
+    fun isMicroGBundleInstalled(context: Context): Boolean {
+        /**
+         * Confirm if MicroG bundle is installed
+         * Considering the following:
+         * 1. GmsCore is installed and it is a microG huawei variant
+         * 2. Play Store is installed - (microG Companion)
+         */
+        return hasSupportedMicroGVariant(context) && isInstalled(context, PACKAGE_NAME_PLAY_STORE)
     }
 
     fun getInstalledVersionName(context: Context, packageName: String): String {

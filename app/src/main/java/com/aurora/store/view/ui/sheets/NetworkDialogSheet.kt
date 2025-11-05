@@ -25,7 +25,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import com.sleke.extensions.isQAndAbove
+import com.aurora.extensions.isQAndAbove
 import com.aurora.store.databinding.SheetNetworkBinding
 import dagger.hilt.android.AndroidEntryPoint
 

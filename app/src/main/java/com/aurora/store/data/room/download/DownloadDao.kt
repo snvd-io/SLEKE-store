@@ -1,12 +1,12 @@
 package com.aurora.store.data.room.download
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.aurora.gplayapi.data.models.File
+import com.aurora.gplayapi.data.models.PlayFile
 import com.aurora.store.data.model.DownloadStatus
-import com.aurora.store.data.room.download.Download
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -19,7 +19,7 @@ interface DownloadDao {
     suspend fun updateStatus(packageName: String, downloadStatus: DownloadStatus)
 
     @Query("UPDATE download SET fileList=:fileList WHERE packageName=:packageName")
-    suspend fun updateFiles(packageName: String, fileList: List<File>)
+    suspend fun updateFiles(packageName: String, fileList: List<PlayFile>)
 
     @Query("UPDATE download SET sharedLibs=:sharedLibs WHERE packageName=:packageName")
     suspend fun updateSharedLibs(packageName: String, sharedLibs: List<SharedLib>)
@@ -40,6 +40,9 @@ interface DownloadDao {
 
     @Query("SELECT * FROM download")
     fun downloads(): Flow<List<Download>>
+
+    @Query("SELECT * FROM download ORDER BY downloadedAt DESC")
+    fun pagedDownloads(): PagingSource<Int, Download>
 
     @Query("SELECT * FROM download WHERE packageName = :packageName")
     suspend fun getDownload(packageName: String): Download

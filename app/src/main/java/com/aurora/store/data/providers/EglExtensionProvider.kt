@@ -20,7 +20,6 @@ package com.aurora.store.data.providers
 
 import android.opengl.GLES10
 import android.text.TextUtils
-import com.google.firebase.firestore.FirebaseFirestore
 import javax.microedition.khronos.egl.EGL10
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.egl.EGLContext

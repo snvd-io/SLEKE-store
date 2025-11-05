@@ -10,7 +10,7 @@
     <string name="details_dev_address">Indirizzo</string>
     <string name="details_dev_email">E-mail</string>
     <string name="toast_clipboard_copied">Copiato negli appunti</string>
-    <string name="toast_apk_whitelisted">Rimossa dalla lista nera</string>
+    <string name="toast_apk_whitelisted">Rimossa da lista nera</string>
     <string name="toast_apk_blacklisted">Messo in lista nera</string>
     <string name="title_updates">Aggiornamenti</string>
     <string name="title_settings">Impostazioni</string>
@@ -45,8 +45,8 @@
     <string name="purchase_not_found">Applicazione non trovata</string>
     <string name="purchase_unsupported">Applicazione non supportata</string>
     <string name="purchase_invalid">Applicazione non acquistata</string>
-    <string name="pref_filter_fdroid_title">Filtra le app da F-Droid</string>
-    <string name="pref_filter_fdroid_summary">Non controllare gli aggiornamenti per le app scaricate o installate da F-Droid</string>
+    <string name="pref_filter_fdroid_title">Escludi le app provenienti da F-Droid</string>
+    <string name="pref_filter_fdroid_summary">Non controllare gli aggiornamenti per le app installate da F-Droid</string>
     <string name="onboarding_permission_installer_desc">Consenti l\'installazione di app da Aurora Store</string>
     <string name="installer_status_failure_incompatible">App incompatibile</string>
     <string name="details_think_this_app">Cosa ne pensi di questa app?</string>
@@ -79,7 +79,7 @@
     <string name="details_beta_available">Partecipare al programma beta?</string>
     <string name="details_beta_subscribed">Sei un beta tester</string>
     <string name="details_beta">Programma beta</string>
-    <string name="action_whitelist">Rimuovi dalla lista nera</string>
+    <string name="action_whitelist">Rimuovi da lista nera</string>
     <string name="action_update_all">Aggiorna tutte</string>
     <string name="action_update">Aggiorna</string>
     <string name="action_uninstall">Disinstalla</string>
@@ -112,7 +112,7 @@
     <string name="action_filter">Filtri</string>
     <string name="action_export">Esporta</string>
     <string name="action_disable">Disabilita</string>
-    <string name="action_copy_link">Copia link</string>
+    <string name="action_copy_link">Copia collegamento</string>
     <string name="action_copy">Copia</string>
     <string name="action_close">Chiudi</string>
     <string name="action_clear">Cancella</string>
@@ -208,7 +208,6 @@
     <string name="toast_purchase_blocked">Gli acquisti di app non sono disponibili sui profili anonimi.</string>
     <string name="insecure_anonymous_apply">Assicurati di effettuare nuovamente l\'accesso e di riavviare l\'app per applicare le modifiche.</string>
     <string name="pref_network_title">Rete</string>
-    <string name="pref_ui_similar_apps_desc">Visualizza i gruppi di app simili e correlate nella pagina dei dettagli dell\'app</string>
     <string name="pref_ui_similar_apps">App simili e correlate</string>
     <string name="pref_ui_no_for_you_desc">Visualizza le pagine «Per te» sulla schermata iniziale</string>
     <string name="pref_ui_no_for_you">Pagine «Per te»</string>
@@ -253,9 +252,9 @@
     <string name="expand">Espandi</string>
     <string name="permissions_denied">I permessi richiesti sono stati negati. Concedili per continuare l\'azione</string>
     <string name="search_hint">Cerca app e giochi</string>
-    <string name="download_eta_hrs">%1$d o %2$d min %3$d s rimasti</string>
-    <string name="download_eta_min">%1$d min %2$d s rimasti</string>
-    <string name="download_eta_sec">%1$d s rimasti</string>
+    <string name="download_eta_hrs">%1$d oo %2$d mm %3$d ss rimanenti</string>
+    <string name="download_eta_min">%1$d mm %2$d ss rimanenti</string>
+    <string name="download_eta_sec">%1$d ss rimanenti</string>
     <string name="session_enjoy">Accedi e divertiti.</string>
     <string name="session_good">Wow! Tutto bene.</string>
     <string name="session_init">Preparazione in corso…</string>
@@ -277,7 +276,7 @@
     <string name="bad_request">Errore interno! Riprova più tardi</string>
     <string name="failed_generating_session">Errore nella generazione della sessione, codice: <xliff:g id="status_code">%1$d</xliff:g></string>
     <string name="check_connectivity">Controlla la tua connessione ad internet</string>
-    <string name="app_language">Lingua app</string>
+    <string name="app_language">Lingua dell\'app</string>
     <string name="app_links_desc">Consenti a Aurora Store di aprire i collegamenti supportati</string>
     <string name="failed_to_generate_session">Impossibile generare la sessione</string>
     <string name="verifying_new_session">Verifica della nuova sessione</string>
@@ -293,10 +292,10 @@
     <string name="toast_proxy_failed">È stato impossibile impostare il proxy</string>
     <string name="pref_vending_version_device">Predefinito/a (dalla configurazione del dispositivo)</string>
     <string name="pref_vending_version_title">Versione di Google Play</string>
-    <string name="pref_aurora_only">Solo app da Aurora Store</string>
+    <string name="pref_aurora_only">Escludi le app provenienti da altre fonti</string>
     <string name="onboarding_permission_doze">Scaricamenti in background</string>
     <string name="toast_proxy_invalid">URL proxy non valido, controlla il formato!</string>
-    <string name="pref_aurora_only_desc">Controlla gli aggiornamenti solo per le app installate da Aurora Store</string>
+    <string name="pref_aurora_only_desc">Non controllare gli aggiornamenti per app installate da altre fonti</string>
     <string name="onboarding_permission_doze_desc">Consenti ad Aurora Store di scaricare e aggiornare le app in background</string>
     <string name="pref_updates_auto">Aggiornamenti automatici</string>
     <string name="pref_updates_auto_notify">Controlla e segnala gli aggiornamenti disponibili</string>
@@ -306,7 +305,7 @@
     <string name="action_request_analysis">Richiedi nuova analisi</string>
     <string name="failed_apk_export">Esportazioni degli APK fallita</string>
     <string name="download_clear_finished">Rimuovi completati</string>
-    <string name="pref_updates_incompatible">Aggiornamenti incompatibili</string>
+    <string name="pref_updates_incompatible">Mostra aggiornamenti che potrebbero fallire</string>
     <string name="pref_updates_incompatible_desc">Mostra gli aggiornamenti per le app incompatibili o disabilitate che potrebbero non essere installabili</string>
     <string name="action_home_screen">Aggiungi alla pagina principale</string>
     <string name="manual_download_hint">Inserisci il codice della versione che vuoi scaricare</string>
@@ -426,6 +425,22 @@
     <string name="details_compatibility_no_gms">Senza Google Play Services</string>
     <string name="details_compatibility_status_unsupported">Non supportato: incompatibile</string>
     <string name="verification_failed">Verifica dei file scaricati non riuscita</string>
-    <string name="pref_network_microg_login_desc">Effettua l\'autenticazione agli account Google usando microG per semplificare la procedura di accesso.</string>
+    <string name="pref_network_microg_login_desc">Effettua l\'autenticazione agli account Google usando microG per semplificare la procedura di accesso</string>
     <string name="details_compatibility_status_limited">Limitato: Funzionante ma con funzionalità limitate</string>
+    <string name="app_info_min_android">Versione minima di Android</string>
+    <string name="app_info_updated_on">Ultimo aggiornamento</string>
+    <string name="app_info_downloads">Download</string>
+    <string name="pref_updates_app_source">Fonti delle app</string>
+    <string name="app_info_target_android">Livello API target</string>
+    <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> autorizzazioni</string>
+    <string name="pref_common_advanced">Avanzate</string>
+    <string name="action_install_microG">Installa pacchetto microG</string>
+    <string name="onboarding_title_gsf">Compatibilità delle app</string>
+    <string name="onboarding_title_gsf_desc">Componenti mancanti</string>
+    <string name="onboarding_gms_agreement">Ho letto e accetto i Termini di servizio e l\'Informativa sulla privacy di microG</string>
+    <string name="onboarding_gms_missing">Non abbiamo trovare Google Play Services sul tuo dispositivo, molte applicazioni popolari lo richiedono per funzionare correttamente!</string>
+    <string name="onboarding_gms_microg">microG è un\'implementazione gratuita e open-source che fornisce funzionalità simili per l\'esecuzione di applicazioni che dipendono da Google Play Services per dispositivi Android attraverso una re-implementazione.\n\nmicroG consente alle app di accedere alle API di Google, migliorando la compatibilità per gli utenti e offrendo vantaggi in termini di privacy.\n\nmicroG viene eseguito automaticamente in background quando si aprono applicazioni che dipendono da Google Mobile Services.</string>
+    <string name="microg_privacy_policy">Leggi l\'informativa sulla privacy di microG</string>
+    <string name="microg_license_agreement">Leggi la licenza e il l\'accordo di microG</string>
+    <string name="microg_website">Visita il sito web del progetto microG</string>
 </resources>

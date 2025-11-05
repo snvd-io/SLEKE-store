@@ -24,6 +24,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import com.aurora.store.BuildConfig
 
 object Preferences {
 
@@ -34,7 +35,6 @@ object Preferences {
     const val PREFERENCE_THEME_STYLE = "PREFERENCE_THEME_STYLE"
     const val PREFERENCE_FOR_YOU = "PREFERENCE_FOR_YOU"
     const val PREFERENCE_DEFAULT_SELECTED_TAB = "PREFERENCE_DEFAULT_SELECTED_TAB"
-    const val PREFERENCE_SIMILAR = "PREFERENCE_SIMILAR"
     const val PREFERENCE_INTRO = "PREFERENCE_INTRO"
 
     const val PREFERENCE_FILTER_FDROID = "PREFERENCE_FILTER_FDROID"
@@ -65,10 +65,17 @@ object Preferences {
     private var prefs: SharedPreferences? = null
 
     fun getPrefs(context: Context): SharedPreferences {
-        if (prefs == null) {
-            prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        return when (BuildConfig.FLAVOR) {
+            "vanilla" -> {
+                prefs ?: PreferenceManager.getDefaultSharedPreferences(context).also { prefs = it }
+            }
+
+            else -> {
+                val prefName = "${context.packageName}_${BuildConfig.FLAVOR}_preferences"
+                prefs ?: context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+                    .also { prefs = it }
+            }
         }
-        return prefs!!
     }
 
     fun remove(context: Context, key: String) {

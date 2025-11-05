@@ -29,12 +29,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.aurora.Constants
-import com.sleke.extensions.browse
-import com.sleke.extensions.requiresObbDir
+import com.aurora.extensions.browse
+import com.aurora.extensions.navigate
+import com.aurora.extensions.requiresObbDir
 import com.aurora.store.MobileNavigationDirections
 import com.aurora.store.R
+import com.aurora.store.compose.navigation.Screen
 import com.aurora.store.data.model.MinimalApp
 import com.aurora.store.data.model.PermissionType
+import com.aurora.store.data.providers.PermissionProvider.Companion.isGranted
 import com.aurora.store.data.room.download.Download
 import com.aurora.store.data.room.update.Update
 import com.aurora.store.databinding.FragmentUpdatesBinding
@@ -72,7 +75,7 @@ class UpdatesFragment : BaseFragment<FragmentUpdatesBinding>() {
         binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.menu_download_manager -> {
-                    findNavController().navigate(R.id.downloadFragment)
+                    requireContext().navigate(Screen.Downloads)
                 }
 
                 R.id.menu_more -> {
@@ -111,7 +114,7 @@ class UpdatesFragment : BaseFragment<FragmentUpdatesBinding>() {
         }
 
         binding.searchFab.setOnClickListener {
-            findNavController().navigate(R.id.searchSuggestionFragment)
+            requireContext().navigate(Screen.Search)
         }
     }
 
@@ -192,7 +195,7 @@ class UpdatesFragment : BaseFragment<FragmentUpdatesBinding>() {
 
     private fun updateSingle(update: Update) {
         if (update.fileList.requiresObbDir()) {
-            if (permissionProvider.isGranted(PermissionType.STORAGE_MANAGER)) {
+            if (isGranted(requireContext(), PermissionType.STORAGE_MANAGER)) {
                 viewModel.download(update)
             } else {
                 permissionProvider.request(PermissionType.STORAGE_MANAGER) {
@@ -207,7 +210,7 @@ class UpdatesFragment : BaseFragment<FragmentUpdatesBinding>() {
     private fun updateAll() {
         viewModel.updateAllEnqueued = true
         if (viewModel.updates.value?.any { it.fileList.requiresObbDir() } == true) {
-            if (permissionProvider.isGranted(PermissionType.STORAGE_MANAGER)) {
+            if (isGranted(requireContext(), PermissionType.STORAGE_MANAGER)) {
                 viewModel.downloadAll()
             } else {
                 permissionProvider.request(PermissionType.STORAGE_MANAGER) {

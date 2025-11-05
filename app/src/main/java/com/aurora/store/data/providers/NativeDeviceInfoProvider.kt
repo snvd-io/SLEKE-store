@@ -23,7 +23,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import androidx.core.content.getSystemService
-import com.sleke.extensions.isHuawei
+import com.aurora.extensions.isHuawei
 import java.util.Properties
 
 object NativeDeviceInfoProvider {

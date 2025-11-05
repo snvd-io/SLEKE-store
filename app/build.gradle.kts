@@ -1,26 +1,16 @@
 /*
- * Aurora Store
- *  Copyright (C) 2021, Rahul Kumar Patel <whyorean@gmail.com>
- *  Copyright (C) 2022, The Calyx Institute
- *  Copyright (C) 2023, grrfe <grrfe@420blaze.it>
- *
- *  Aurora Store is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  Aurora Store is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Aurora Store.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2021-2025 Rahul Kumar Patel <whyorean@gmail.com>
+ * SPDX-FileCopyrightText: 2022-2025 The Calyx Institute
+ * SPDX-FileCopyrightText: 2023 grrfe <grrfe@420blaze.it>
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+@file:OptIn(KspExperimental::class)
+
+import com.google.devtools.ksp.KspExperimental
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -31,13 +21,26 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.androidx.navigation)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.googleServices)
+    alias(libs.plugins.google.services)
     alias(libs.plugins.rikka.tools.refine.plugin)
     alias(libs.plugins.hilt.android.plugin)
 }
 
 kotlin {
     jvmToolchain(21)
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
+        freeCompilerArgs.addAll(
+            "-Xannotation-default-target=param-property"
+        )
+        optIn.addAll(
+            "androidx.compose.material3.ExperimentalMaterial3Api",
+            "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
+            "androidx.compose.foundation.layout.ExperimentalLayoutApi",
+            "androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi",
+            "coil3.annotation.ExperimentalCoilApi"
+        )
+    }
 }
 
 android {
@@ -49,13 +52,15 @@ android {
         minSdk = 26
         targetSdk = 36
 
-        versionCode = 68
-        versionName = "4.7.2"
+        versionCode = 71
+        versionName = "4.7.5"
 
         testInstrumentationRunner = "com.aurora.store.HiltInstrumentationTestRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
 
         buildConfigField("String", "EXODUS_API_KEY", "\"bbe6ebae4ad45a9cbacb17d69739799b8df2c7ae\"")
+
+        missingDimensionStrategy("device", "vanilla")
     }
 
     packaging {
@@ -114,6 +119,26 @@ android {
         }
     }
 
+    flavorDimensions += "device"
+
+    productFlavors {
+        create("vanilla") {
+            isDefault = true
+            dimension = "device"
+        }
+
+        create("huawei") {
+            dimension = "device"
+            versionNameSuffix = "-hw"
+        }
+
+        // This flavor is only for preloaded devices / users who push the app to system
+        create("preload") {
+            dimension = "device"
+            versionNameSuffix = "-preload"
+        }
+    }
+
     buildFeatures {
         buildConfig = true
         viewBinding = true
@@ -149,8 +174,18 @@ android {
     }
 }
 
+androidComponents {
+    beforeVariants(selector().all()) { variant ->
+        val flavour = variant.flavorName
+        if ((flavour == "huawei" || flavour == "preload") && variant.buildType == "nightly") {
+            variant.enable = false
+        }
+    }
+}
+
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
+    useKsp2 = false // TODO: Drop after getting rid of epoxy
 }
 
 configurations.all {
@@ -159,28 +194,32 @@ configurations.all {
     }
 }
 
-
 dependencies {
     implementation(project(":sleke"))
 
-    implementation(libs.coil)
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation("androidx.room:room-paging:2.8.3")
     //Google's Goodies
     implementation(libs.google.android.material)
-    implementation(libs.google.gson)
     api(libs.google.protobuf.javalite)
 
     //AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.browser)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.lifecycle.navigation3)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.paging.runtime)
 
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.adaptive.core)
+    implementation(libs.androidx.adaptive.navigation)
+    implementation(libs.androidx.adaptive.layout)
+    implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
@@ -194,7 +233,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
 
     // Paging Compose
-    implementation("androidx.paging:paging-compose:3.3.0")
+    implementation("androidx.paging:paging-compose:3.3.6")
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
@@ -215,7 +254,7 @@ dependencies {
 
     //HTTP Clients
     implementation(libs.squareup.okhttp)
-    implementation(libs.squareup.okhttp.logging.interceptor)
+    implementation(libs.squareup.okhttp.logging)
 
     //Lib-SU
     implementation(libs.github.topjohnwu.libsu)
@@ -255,6 +294,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
 
     implementation(libs.process.phoenix)
+
+//    "huaweiImplementation"(libs.huawei.hms.coreservice)
 
     // LeakCanary
     debugImplementation(libs.squareup.leakcanary.android)

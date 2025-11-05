@@ -26,15 +26,11 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
-import com.sleke.extensions.getUpdateOwnerPackageNameCompat
-import com.sleke.extensions.isOAndAbove
-import com.sleke.extensions.isPAndAbove
-import com.sleke.extensions.isSAndAbove
+import com.aurora.extensions.getUpdateOwnerPackageNameCompat
+import com.aurora.extensions.isOAndAbove
+import com.aurora.extensions.isPAndAbove
+import com.aurora.extensions.isSAndAbove
 import com.aurora.store.BuildConfig
-import com.aurora.store.data.installer.AMInstaller
-import com.aurora.store.data.installer.RootInstaller
-import com.aurora.store.data.installer.ServiceInstaller
-import com.aurora.store.data.installer.ShizukuInstaller
 import com.aurora.store.data.installer.base.IInstaller
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
@@ -45,7 +41,6 @@ import com.topjohnwu.superuser.Shell
 import dagger.hilt.android.qualifiers.ApplicationContext
 import rikka.shizuku.Shizuku
 import rikka.sui.Sui
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -68,21 +63,17 @@ class AppInstaller @Inject constructor(
         const val EXTRA_DISPLAY_NAME = "com.aurora.store.data.installer.AppInstaller.EXTRA_DISPLAY_NAME"
 
         fun getCurrentInstaller(context: Context): Installer {
-            val index = Preferences.getInteger(context, PREFERENCE_INSTALLER_ID)
-            val installer = Installer.entries.getOrElse(index) {
-                Installer.NATIVE
-            }
-            Timber.tag("AppInstaller").i("getCurrentInstaller → index=$index, installer=$installer")
-            return installer
+            return Installer.entries[Preferences.getInteger(context, PREFERENCE_INSTALLER_ID)]
         }
+
         fun getAvailableInstallersInfo(context: Context): List<InstallerInfo> {
             return listOfNotNull(
                 SessionInstaller.installerInfo,
-                NativeInstaller.Companion.installerInfo,
-                if (hasRootAccess()) RootInstaller.Companion.installerInfo else null,
-                if (hasAuroraService(context)) ServiceInstaller.Companion.installerInfo else null,
-                if (hasAppManager(context)) AMInstaller.Companion.installerInfo else null,
-                if (hasShizukuOrSui(context)) ShizukuInstaller.Companion.installerInfo else null
+                NativeInstaller.installerInfo,
+                if (hasRootAccess()) RootInstaller.installerInfo else null,
+                if (hasAuroraService(context)) ServiceInstaller.installerInfo else null,
+                if (hasAppManager(context)) AMInstaller.installerInfo else null,
+                if (hasShizukuOrSui(context)) ShizukuInstaller.installerInfo else null
             )
         }
 
@@ -102,6 +93,7 @@ class AppInstaller @Inject constructor(
 
                     // Ensure app being installed satisfies Android's requirement for targetSdk level
                     when (Build.VERSION.SDK_INT) {
+                        Build.VERSION_CODES.BAKLAVA -> targetSdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
                         Build.VERSION_CODES.VANILLA_ICE_CREAM -> targetSdk >= Build.VERSION_CODES.TIRAMISU
                         Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> targetSdk >= Build.VERSION_CODES.S
                         Build.VERSION_CODES.TIRAMISU -> targetSdk >= Build.VERSION_CODES.R
@@ -125,7 +117,7 @@ class AppInstaller @Inject constructor(
             return try {
                 val packageInfo = PackageUtil.getPackageInfo(
                     context,
-                    ServiceInstaller.Companion.PRIVILEGED_EXTENSION_PACKAGE_NAME
+                    ServiceInstaller.PRIVILEGED_EXTENSION_PACKAGE_NAME
                 )
                 val version = PackageInfoCompat.getLongVersionCode(packageInfo)
 
@@ -136,14 +128,14 @@ class AppInstaller @Inject constructor(
         }
 
         fun hasAppManager(context: Context): Boolean {
-            return PackageUtil.isInstalled(context, AMInstaller.Companion.AM_PACKAGE_NAME) or
-                    PackageUtil.isInstalled(context, AMInstaller.Companion.AM_DEBUG_PACKAGE_NAME)
+            return PackageUtil.isInstalled(context, AMInstaller.AM_PACKAGE_NAME) or
+                    PackageUtil.isInstalled(context, AMInstaller.AM_DEBUG_PACKAGE_NAME)
         }
 
         fun hasShizukuOrSui(context: Context): Boolean {
             return isOAndAbove && (PackageUtil.isInstalled(
                 context,
-                ShizukuInstaller.Companion.SHIZUKU_PACKAGE_NAME
+                ShizukuInstaller.SHIZUKU_PACKAGE_NAME
             ) || Sui.isSui())
         }
 

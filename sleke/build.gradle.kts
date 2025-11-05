@@ -65,12 +65,12 @@ dependencies {
     api(platform(libs.firebase.bom))
     api(libs.firebase.auth)
     api(libs.firebase.firestore)
-    api(libs.firebase.ui.firestore)
+    api(libs.firebase.firestore.ui)
     api(libs.firebase.ui.auth)
     api(libs.firebase.core)
 
     // Paging
-    api("androidx.paging:paging-runtime-ktx:3.3.0")
+    api("androidx.paging:paging-runtime-ktx:3.3.6")
 
     // Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)

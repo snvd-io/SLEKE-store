@@ -26,17 +26,16 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.sleke.extensions.isMAndAbove
-import com.sleke.extensions.isOAndAbove
-import com.sleke.extensions.isRAndAbove
-import com.sleke.extensions.isSAndAbove
-import com.sleke.extensions.isTAndAbove
+import com.aurora.extensions.isOAndAbove
+import com.aurora.extensions.isRAndAbove
+import com.aurora.extensions.isSAndAbove
+import com.aurora.extensions.isTAndAbove
 import com.aurora.store.R
 import com.aurora.store.data.model.Permission
 import com.aurora.store.data.model.PermissionType
+import com.aurora.store.data.providers.PermissionProvider.Companion.isGranted
 import com.aurora.store.databinding.FragmentOnboardingPermissionsBinding
 import com.aurora.store.view.epoxy.views.TextDividerViewModel_
-import com.aurora.store.view.epoxy.views.preference.PermissionState
 import com.aurora.store.view.epoxy.views.preference.PermissionViewModel_
 import com.aurora.store.view.ui.commons.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -77,6 +76,12 @@ class PermissionsFragment : BaseFragment<FragmentOnboardingPermissionsBinding>()
                 } else {
                     getString(R.string.onboarding_permission_installer_legacy_desc)
                 }
+            ),
+            Permission(
+                PermissionType.DOZE_WHITELIST,
+                getString(R.string.onboarding_permission_doze),
+                getString(R.string.onboarding_permission_doze_desc),
+                true
             )
         )
 
@@ -96,17 +101,6 @@ class PermissionsFragment : BaseFragment<FragmentOnboardingPermissionsBinding>()
                     getString(R.string.onboarding_permission_esa),
                     getString(R.string.onboarding_permission_esa_desc),
                     false
-                )
-            )
-        }
-
-        if (isMAndAbove) {
-            permissions.add(
-                Permission(
-                    PermissionType.DOZE_WHITELIST,
-                    getString(R.string.onboarding_permission_doze),
-                    getString(R.string.onboarding_permission_doze_desc),
-                    true
                 )
             )
         }
@@ -166,13 +160,8 @@ class PermissionsFragment : BaseFragment<FragmentOnboardingPermissionsBinding>()
     private fun renderPermissionView(permission: Permission): PermissionViewModel_ {
         return PermissionViewModel_()
             .id(permission.type.name)
-            .isGranted(
-                PermissionState(
-                    permission.type,
-                    permissionProvider.isGranted(permission.type),
-                )
-            )
             .permission(permission)
+            .isGranted(isGranted(requireContext(), permission.type))
             .click { _ ->
                 permissionProvider.request(permission.type) {
                     if (it) updateController()

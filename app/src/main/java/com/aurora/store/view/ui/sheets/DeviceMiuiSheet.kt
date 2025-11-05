@@ -26,7 +26,7 @@ import android.view.View
 import coil3.load
 import coil3.request.transformations
 import coil3.transform.CircleCropTransformation
-import com.sleke.extensions.toast
+import com.aurora.extensions.toast
 import com.aurora.store.R
 import com.aurora.store.databinding.SheetDeviceMiuiBinding
 import dagger.hilt.android.AndroidEntryPoint

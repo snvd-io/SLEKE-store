@@ -7,7 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageInstaller.EXTRA_UNARCHIVE_PACKAGE_NAME
 import android.util.Log
 import androidx.core.content.getSystemService
-import com.sleke.extensions.isVAndAbove
+import com.aurora.extensions.isVAndAbove
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.store.AuroraApp
 import com.aurora.store.data.helper.DownloadHelper

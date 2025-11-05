@@ -6,25 +6,48 @@
 package com.aurora.store.compose.navigation
 
 import android.os.Parcelable
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import com.aurora.store.R
+import androidx.navigation3.runtime.NavKey
+import com.aurora.store.data.model.PermissionType
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 /**
- * Destination (Screen) for navigation in compose
- * @param label Label of the screen
- * @param icon Optional icon for the screen; Must not be null if screen is a top-level destination
+ * Destinations for navigation in compose
  */
 @Parcelize
 @Serializable
-sealed class Screen(@StringRes val label: Int, @DrawableRes val icon: Int? = null): Parcelable {
+sealed class Screen : NavKey, Parcelable {
 
     companion object {
         const val PARCEL_KEY = "SCREEN"
     }
 
     @Serializable
-    data object Blacklist : Screen(label = R.string.title_blacklist_manager)
+    data object Blacklist : Screen()
+
+    @Serializable
+    data class DevProfile(val developerId: String): Screen()
+
+    @Serializable
+    data class AppDetails(val packageName: String) : Screen()
+
+    @Serializable
+    data object Search : Screen()
+
+    @Serializable
+    data class PermissionRationale(
+        val requiredPermissions: Set<PermissionType> = emptySet()
+    ) : Screen()
+
+    @Serializable
+    data object Downloads : Screen()
+
+    @Serializable
+    data object Accounts : Screen()
+
+    @Serializable
+    data object About : Screen()
+
+    @Serializable
+    data object Favourite : Screen()
 }

@@ -25,12 +25,12 @@
         app:summary="@string/pref_dispenser_summary"
         app:title="@string/pref_dispenser_title" />
 
-<!--    <Preference-->
-<!--        app:disableDependentsState="false"-->
-<!--        app:iconSpaceReserved="false"-->
-<!--        app:key="PREFERENCE_PROXY_URL"-->
-<!--        app:summary="@string/pref_network_proxy_desc"-->
-<!--        app:title="@string/pref_network_proxy_url" />-->
+    <Preference
+        app:disableDependentsState="false"
+        app:iconSpaceReserved="false"
+        app:key="PREFERENCE_PROXY_URL"
+        app:summary="@string/pref_network_proxy_desc"
+        app:title="@string/pref_network_proxy_url" />
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
@@ -41,6 +41,7 @@
         app:defaultValue="true"
         app:disableDependentsState="false"
         app:iconSpaceReserved="false"
+        app:isPreferenceVisible="false"
         app:key="PREFERENCE_MICROG_AUTH"
         app:summary="@string/pref_network_microg_login_desc"
         app:title="@string/pref_network_microg_login_title" />

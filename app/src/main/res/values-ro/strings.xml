@@ -4,7 +4,7 @@
     <string name="about_libera_summary">Devino patron pe Liberapay</string>
     <string name="about_bitcoin_btc_summary">Donează prin Bitcoin (BTC)</string>
     <string name="about_bhim_summary">Donează prin UPI</string>
-    <string name="about_bitcoin_bch">Bitcoin Cash</string>
+    <string name="about_bitcoin_bch">Numerar Bitcoin</string>
     <string name="about_fdroid_summary">Obține Aurora Store prin intermediul F-Droid.</string>
     <string name="about_bhim">BHIM - UPI</string>
     <string name="about_bitcoin_bch_summary">Donează prin Bitcoin Cash (BCH)</string>
@@ -163,7 +163,7 @@
     <string name="about_paypal">PayPal</string>
     <string name="about_telegram">Telegram</string>
     <string name="account_google">Google</string>
-    <string name="pref_filter_fdroid_summary">Nu se verifică actualizările pentru aplicațiile descărcate sau instalate de pe F-Droid</string>
+    <string name="pref_filter_fdroid_summary">Nu se verifică actualizările pentru aplicațiile instalate de pe F-Droid</string>
     <string name="pref_filter_fdroid_title">Filtrează aplicațiile F-Droid</string>
     <string name="pref_install_delete_summary">APK-urile descărcate vor fi șterse imediat după instalare</string>
     <string name="pref_install_delete_title">Șterge fișierul APK după instalare</string>
@@ -207,7 +207,6 @@
     <string name="toast_clipboard_copied">Copiat în clipboard</string>
     <string name="pref_install_mode_session">Instalator sesiune</string>
     <string name="pref_install_mode_title">Metoda de instalare</string>
-    <string name="pref_ui_similar_apps_desc">Afișare grupuri similare și asociate pe pagina de detalii a aplicației</string>
     <string name="pref_network_title">Rețea</string>
     <string name="session_good">Vai! Toate bune.</string>
     <string name="title_purchase_history">Istoricul achizițiilor</string>
@@ -275,7 +274,7 @@
     <string name="failed_to_fetch_report">Nu s-a reușit preluarea raportului de confidențialitate</string>
     <string name="access_denied_using_vpn">Acces refuzat! Utilizezi VPN sau Tor\?</string>
     <string name="bad_request">Eroare internă! Încearcă din nou mai târziu</string>
-    <string name="login_rate_limited">Hopa, ești limitat</string>
+    <string name="login_rate_limited">Ești limitat</string>
     <string name="server_unreachable">Server inaccesibil</string>
     <string name="failed_generating_session">Nu s-a reușit generarea sesiunii, cod de eroare: <xliff:g id="status_code">%1$d</xliff:g></string>
     <string name="pref_vending_version_device">Implicit (din configurația dispozitivului)</string>
@@ -284,10 +283,10 @@
     <string name="details_ratings_title_hint">Titlul recenziei</string>
     <string name="pref_network_proxy_url">Adresa URL proxy</string>
     <string name="pref_updates_check_frequency_desc">Configurează intervale pentru actualizări, în ore.</string>
-    <string name="pref_aurora_only">Numai aplicațiile Aurora Store</string>
+    <string name="pref_aurora_only">Filtrează aplicațiile din alte surse</string>
     <string name="app_links_desc">Permite magazinului Aurora să deschidă linkuri acceptate</string>
     <string name="toast_proxy_invalid">Adresa URL proxy nevalidă, verifică formatul!</string>
-    <string name="pref_aurora_only_desc">Se verifică doar actualizările pentru aplicațiile instalate de Aurora Store</string>
+    <string name="pref_aurora_only_desc">Nu se verifică actualizările pentru aplicațiile instalate din surse din afara magazinului Aurora</string>
     <string name="toast_proxy_success">Proxy setat cu succes</string>
     <string name="app_links_title">Link-urile aplicațiilor</string>
     <string name="google_play_store_desc">Google Play, cunoscut și ca Google Play Store și anterior Android Market.</string>
@@ -307,8 +306,8 @@
     <string name="failed_apk_export">Fișierele APK nu au putut fi exportate</string>
     <string name="download_clear_finished">Curățare finalizată</string>
     <string name="action_home_screen">Adaugă la ecranul de pornire</string>
-    <string name="pref_updates_incompatible">Actualizări incompatibile</string>
-    <string name="pref_updates_incompatible_desc">Afișează actualizări pentru aplicațiile incompatibile sau dezactivate care nu pot fi instalate</string>
+    <string name="pref_updates_incompatible">Afișează actualizările ce pot eșua</string>
+    <string name="pref_updates_incompatible_desc">Afișează actualizări pentru aplicațiile incompatibile sau dezactivate pentru care ar putea eșua instalarea</string>
     <string name="faqs_subtitle">Ai întrebări? Află răspunsurile</string>
     <string name="source_code_title">Cod sursă</string>
     <string name="source_code_subtitle">Află ce se află înăuntru</string>
@@ -350,7 +349,7 @@
     <string name="no_dispensers_available">Nu există distribuitoare disponibile</string>
     <string name="add_dispenser_title">Adaugă distribuitor</string>
     <string name="remove_dispenser_title">Elimină distribuitorul</string>
-    <string name="toast_app_unavailable">Aplicația nu este disponibila pentru dispozitivul dvs.</string>
+    <string name="toast_app_unavailable">Aplicația nu este disponibilă pentru acest dispozitiv</string>
     <string name="action_favourite">Favorit</string>
     <string name="details_no_favourites">Nu s-a găsit nici-o aplicație favorită</string>
     <string name="title_favourites_manager">Aplicații favorite</string>
@@ -425,7 +424,39 @@
     <string name="pref_updates_restrictions_title">Restricții actualizări automate</string>
     <string name="toast_proxy_disabled">Proxy dezactivat cu succes</string>
     <string name="pref_updates_restrictions_idle">Când dispozitivul este inactiv</string>
-    <string name="pref_network_microg_login_desc">Autentifică-te folosind microG atunci când te conectezi la conturile Google, pentru un proces simplificat de conectare.</string>
+    <string name="pref_network_microg_login_desc">Autentifică-te folosind microG atunci când te conectezi la conturile Google, pentru un proces simplificat de conectare</string>
     <string name="pref_network_microg_login_title">Utilizează microG pentru a te conecta la conturi</string>
     <string name="set">Setează</string>
+    <string name="pref_common_advanced">Avansat</string>
+    <string name="pref_updates_app_source">Sursa aplicației</string>
+    <string name="app_info_downloads">Descărcări</string>
+    <string name="app_info_min_android">Versiune Android minimă</string>
+    <string name="app_info_target_android">Nivelul API țintă</string>
+    <string name="app_info_updated_on">Ultima actualizare</string>
+    <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> permisiuni</string>
+    <string name="action_install_microG">Instalează pachetul microG</string>
+    <string name="onboarding_title_gsf">Compatibilitatea aplicațiilor</string>
+    <string name="onboarding_title_gsf_desc">Dependențe lipsă</string>
+    <string name="onboarding_gms_agreement">Am citit și sunt de acord cu Termenii și Politica de confidențialitate microG</string>
+    <string name="onboarding_gms_missing">Nu am putut găsi serviciile Google Play pe dispozitiv, mai multe aplicații populare necesită prezența lor ca să funcționeze corect!</string>
+    <string name="onboarding_gms_microg">microG este o implementare gratuită și open-source, care oferă funcționalitate similară pentru a rula aplicații dependente de serviciile Google Play pentru dispozitivele Android prin reimplementare.\n\nmicroG permite aplicațiilor să acceseze acele API-uri Google, îmbunătățind compatibilitatea pentru utilizatori, oferind în același timp beneficii de confidențialitate.\n\nmicroG va rula automat în fundal atunci când deschizi aplicații dependente de Serviciile Google Mobile.</string>
+    <string name="microg_privacy_policy">Citește Politica de confidențialitate microG</string>
+    <string name="microg_license_agreement">Citește Licența și Acordul microG</string>
+    <string name="microg_website">Accesează pagina web a proiectului microG</string>
+    <string name="details_data_safety_collect">Date pe care această aplicație le poate colecta</string>
+    <string name="details_data_safety_collect_none">Dezvoltatorul spune că această aplicație nu colectează datele utilizatorilor.</string>
+    <string name="details_data_safety_shared">Date pe care această aplicație le poate partaja</string>
+    <string name="details_data_safety_share_none">Dezvoltatorul spune că această aplicație nu partajează datele utilizatorilor altor companii sau organizații.</string>
+    <string name="exodus_tracker_desc">Această versiune a aplicației poate conține mai mulți urmăritori care nu sunt încă prezenți în baza de date a confidențialității Exodus.</string>
+    <string name="exodus_report_trackers"><xliff:g id="number_of_trackers">%1$d</xliff:g> urmăritori cunoscuți găsiți în <xliff:g id="app_version_name">%2$s</xliff:g></string>
+    <string name="no_description">Fără descriere</string>
+    <string name="details_more_info">Mai multe informații</string>
+    <string name="details_more_target_api">Obiective</string>
+    <string name="details_more_package_name">Numele pachetului</string>
+    <string name="details_more_content_rating">Evaluare conținut</string>
+    <string name="select_app_for_details">Selectează o aplicație pentru mai multe detalii</string>
+    <string name="action_filter_no_ads">Fără publicitate</string>
+    <string name="action_filter_no_gms">Fără serviciile Play</string>
+    <string name="manual_download_version_error">Codul versiunii poate conține doar cifre</string>
+    <string name="preparing_to_install">Se pregătește instalarea</string>
 </resources>

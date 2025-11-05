@@ -21,14 +21,15 @@ package com.aurora.store.data.installer
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.util.Log
-import com.sleke.extensions.runOnUiThread
+import com.aurora.extensions.runOnUiThread
 import com.aurora.store.R
 import com.aurora.store.data.installer.base.InstallerBase
 import com.aurora.store.data.model.BuildType
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
-import com.sleke.library.util.SlekeConstants
 import com.aurora.store.data.room.download.Download
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -62,31 +63,26 @@ class NativeInstaller @Inject constructor(
             Log.i(TAG, "${download.packageName} already queued")
         } else {
             Log.i(TAG, "Received native install request for ${download.packageName}")
-
-            getFiles(download.packageName, download.versionCode).forEach { file ->
-
-                Log.d(
-                    TAG, "Found APK to install: name='${file.name}', " +
-                            "extension='${file.extension}', " +
-                            "path='${file.absolutePath}'"
-                )
-
-                xInstall(file)
-            }
+            getFiles(download.packageName, download.versionCode).forEach { xInstall(it) }
         }
     }
 
     private fun xInstall(file: File) {
-        val intent: Intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(getUri(file), "application/vnd.android.package-archive")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            putExtra(SlekeConstants.EXTRA_IS_CUSTOM_STORE, true)
-            putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-            putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, context.packageName)
+        val intent: Intent
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            @Suppress("DEPRECATION")
+            intent = Intent(Intent.ACTION_INSTALL_PACKAGE)
+            intent.data = getUri(file)
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+        } else {
+            intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive")
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
 
-        Log.d("NativeInstaller", "xInstall: Intent extra EXTRA_IS_CUSTOM_STORE set to true")
+        intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+        intent.putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, context.packageName)
         runOnUiThread { context.startActivity(intent) }
     }
 }

@@ -28,7 +28,7 @@ import androidx.core.content.getSystemService
 import androidx.navigation.fragment.findNavController
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.sleke.extensions.showDialog
+import com.aurora.extensions.showDialog
 import com.aurora.store.R
 import com.aurora.store.util.Preferences.PREFERENCE_INSTALLATION_DEVICE_OWNER
 import com.aurora.store.util.Preferences.PREFERENCE_INSTALLER_ID

@@ -1,5 +1,7 @@
 package com.aurora.store.view.ui.splash
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -39,6 +40,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,11 +58,59 @@ import androidx.compose.ui.unit.dp
 import com.aurora.store.R
 import com.aurora.store.compose.theme.AuroraTheme
 import com.aurora.store.data.model.AuthState
+import com.aurora.store.viewmodel.auth.AuthViewModel
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.google.firebase.auth.FirebaseAuth
 import com.sleke.library.ui.GoogleLogo
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SplashScreen(
+    authViewModel: AuthViewModel,
+    statusText: String,
+    showAnonymousButton: Boolean = false,
+    onSettingsClick: () -> Unit,
+    onGoogleLogin: () -> Unit,
+    onAnonymousLogin: () -> Unit
+) {
+    val context = LocalContext.current
+    val authState by authViewModel.authState.collectAsState()
+    val emailSignInLauncher =
+        rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
+            if (res.resultCode == android.app.Activity.RESULT_OK) {
+                val response = res.idpResponse
+                val user = FirebaseAuth.getInstance().currentUser
+                user?.let {
+                    authViewModel.onEmailSignIn(it.uid, it.email.orEmpty())
+                } ?: run {
+                    Toast.makeText(context, R.string.login_failed, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+    SplashScreenContent(
+        authState = authState,
+        statusText = statusText,
+        onGoogleLogin = onGoogleLogin,
+        onEmailLogin = {
+            val providers = listOf(AuthUI.IdpConfig.EmailBuilder().build())
+            val intent = AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setTheme(R.style.FirebaseUITheme)
+                .setLogo(R.drawable.sync)
+                .setAvailableProviders(providers)
+                .build()
+            emailSignInLauncher.launch(intent)
+        },
+        onAnonymousLogin = onAnonymousLogin,
+        onSettingsClick = onSettingsClick,
+        showAnonymousButton = showAnonymousButton
+    )
+}
+
+@Composable
+fun SplashScreenContent(
     authState: AuthState,
     statusText: String,
     onGoogleLogin: () -> Unit,
@@ -142,7 +193,7 @@ fun SplashScreen(
 
                 Spacer(modifier = Modifier.height(40.dp))
 
-                if (authState == AuthState.Unavailable || authState == AuthState.SignedOut) {
+                if (authState == AuthState.Unavailable || authState == AuthState.SignedOut || authState is AuthState.Failed) {
                     Spacer(modifier = Modifier.height(24.dp))
 
                     LoginOptionsContent(
@@ -369,7 +420,7 @@ private fun GoogleLoginWarningDialog(
 @Composable
 fun SplashScreenPreview() {
     AuroraTheme {
-        SplashScreen(
+        SplashScreenContent(
             authState = AuthState.Unavailable,
             statusText = stringResource(R.string.log_in_to_continue),
             onGoogleLogin = {},

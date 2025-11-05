@@ -156,7 +156,7 @@
     <string name="onboarding_permission_installer">Leje instaluesi</string>
     <string name="onboarding_permission_installer_desc">Lejo instalim aplikacionesh prej Shitores Aurora</string>
     <string name="pref_common_extra">Ekstra</string>
-    <string name="pref_filter_fdroid_summary">Mos kërko përditësime për shkarkues aplikacionesh, ose të instaluar nga F-Droid</string>
+    <string name="pref_filter_fdroid_summary">Mos kontrollo për përditësime për aplikacione të instaluar nga F-Droid</string>
     <string name="pref_filter_fdroid_title">Filtro aplikacione F-Droid</string>
     <string name="pref_install_delete_summary">APK-të e shkarkuara do të fshihen menjëherë pas instalimit</string>
     <string name="pref_install_delete_title">Fshije APK-në pas instalimit</string>
@@ -173,7 +173,6 @@
     <string name="pref_ui_no_for_you">Faqe “Për ju”</string>
     <string name="pref_ui_no_for_you_desc">Shfaq te skena e kreut faqe “Për ju”</string>
     <string name="pref_ui_similar_apps">Aplikacione të ngjashme dhe të afërta</string>
-    <string name="pref_ui_similar_apps_desc">Shfaq te faqja e hollësive të aplikacionit grumbuj të ngjashëm dhe të afërt</string>
     <string name="purchase_failed">Shkarkimi dështoi</string>
     <string name="purchase_invalid">Aplikacion jo i blerë</string>
     <string name="purchase_unsupported">Aplikacioni nuk mbulohet</string>
@@ -236,8 +235,8 @@
     <string name="onboarding_permission_notifications">Njoftime</string>
     <string name="pref_vending_version_device">Parazgjedhje (nga formësim pajisjeje)</string>
     <string name="pref_network_proxy_url">URL ndërmjetësi</string>
-    <string name="pref_updates_incompatible">Përditësime jo të përputhshme</string>
-    <string name="pref_aurora_only">Vetëm aplikacione Shitoreje Aurora</string>
+    <string name="pref_updates_incompatible">Shfaq përditësime që mund të dështojnë</string>
+    <string name="pref_aurora_only">Filtro aplikacione nga burime të tjera</string>
     <string name="session_enjoy">Bëni hyrjen dhe shijojeni.</string>
     <string name="toast_import_failed">S’u importua dot formësim pajisjeje</string>
     <string name="downloading_dep">Po shkarkohen kartela shtesë për <xliff:g id="app">%1$s</xliff:g></string>
@@ -292,7 +291,7 @@
     <string name="download_eta_sec">Edhe %1$ds</string>
     <string name="onboarding_permission_notifications_desc">Dërgo njoftime lidhur me gjendje instalimesh</string>
     <string name="pref_updates_incompatible_desc">Shfaq përditësime për aplikacione të papërputhshëm, ose të çaktivizuar, për të cilët mund të dështojë instalimi</string>
-    <string name="pref_aurora_only_desc">Kërko për përditësime vetëm për aplikacione të instaluar me Shitoren Aurora</string>
+    <string name="pref_aurora_only_desc">Mos kontrollo për përditësime për aplikacione të instaluar nga burime jashtë Shitores Aurora</string>
     <string name="session_good">Hyaaa! Gjithçka në rregull.</string>
     <string name="session_verifying_google">Po verifikohet sesion Google</string>
     <string name="title_search_suggestion">Sugjerim kërkimi</string>
@@ -410,7 +409,7 @@
     <string name="plexus_progress">Po shihet përputhshmëria…</string>
     <string name="details_compatibility_gms_required_subtitle">Mund t’ju duhet të instaloni bibliotekë pronësore të Google-it, ose një risendërtim FOSS, fjala vjen, microG.</string>
     <string name="pref_network_microg_login_title">Përdor microG për të bërë hyrje në llogari</string>
-    <string name="pref_network_microg_login_desc">Bëni mirëfilltësimin duke përdorur microG, kur bëhet hyrje në llogari Google, për një rrjedhë më të thjeshtë pune me hyrjen.</string>
+    <string name="pref_network_microg_login_desc">Bëni mirëfilltësimin duke përdorur microG, kur bëhet hyrje në llogari Google, për një rrjedhë më të thjeshtë pune me hyrjen</string>
     <string name="disclaimer_subtitle">Dhënie llogarie dhe përgjegjësi</string>
     <string name="no_apps_available">S’ka aplikacione</string>
     <string name="toast_proxy_disabled">Ndërmjetësi u çaktivizua me sukses</string>
@@ -422,4 +421,10 @@
     <string name="pref_updates_restrictions_battery">Kur bateria s’është e pakët</string>
     <string name="pref_updates_restrictions_idle">Kur pajisja është e plogësht</string>
     <string name="verification_failed">S’u arrit të verifikohen kartelat e shkarkuara</string>
+    <string name="app_info_min_android">Version Android Minimum</string>
+    <string name="app_info_target_android">Nivel API i synuar</string>
+    <string name="app_info_updated_on">Përditësuar së fundi më</string>
+    <string name="app_info_downloads">Shkarkime</string>
+    <string name="pref_common_advanced">Të mëtejshme</string>
+    <string name="pref_updates_app_source">Burim aplikacioni</string>
 </resources>

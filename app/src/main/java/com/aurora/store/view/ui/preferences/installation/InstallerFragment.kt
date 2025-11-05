@@ -24,10 +24,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.navigation.fragment.findNavController
-import com.sleke.extensions.isMIUI
-import com.sleke.extensions.isMiuiOptimizationDisabled
-import com.sleke.extensions.isOAndAbove
-import com.sleke.extensions.showDialog
+import com.aurora.extensions.isMIUI
+import com.aurora.extensions.isMiuiOptimizationDisabled
+import com.aurora.extensions.isOAndAbove
+import com.aurora.extensions.showDialog
 import com.aurora.store.R
 import com.aurora.store.data.installer.AppInstaller
 import com.aurora.store.databinding.FragmentInstallerBinding

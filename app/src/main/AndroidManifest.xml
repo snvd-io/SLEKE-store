@@ -65,7 +65,7 @@
         android:required="false" />
 
     <application
-        android:name="com.aurora.store.AuroraApp"
+        android:name=".AuroraApp"
         android:allowBackup="true"
         android:banner="@drawable/ic_tv_banner"
         android:dataExtractionRules="@xml/backup_rules"
@@ -81,21 +81,8 @@
         android:theme="@style/AppTheme"
         tools:targetApi="tiramisu">
 
-        <!-- START  Sleke store  -->
-
-        <receiver
-            android:name="com.sleke.library.essential.DownloadCompletedReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
-            </intent-filter>
-        </receiver>
-
-        <!-- END  Sleke store  -->
-
         <activity
-            android:name="com.aurora.store.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -117,13 +104,14 @@
                 <action android:name="android.intent.action.SHOW_APP_INFO" />
             </intent-filter>
 
-            <!--            <nav-graph android:value="@navigation/mobile_navigation" />-->
+            <nav-graph android:value="@navigation/mobile_navigation" />
         </activity>
 
         <!-- Activity to host composable screens -->
         <activity
-            android:name="com.aurora.store.ComposeActivity"
-            android:exported="false" />
+            android:name=".ComposeActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Notification Action (Download Complete) -->
         <activity

@@ -59,7 +59,7 @@
     <string name="purchase_unsupported">App wird nicht unterstützt</string>
     <string name="purchase_invalid">App nicht gekauft</string>
     <string name="pref_filter_fdroid_title">F-Droid-Apps filtern</string>
-    <string name="pref_filter_fdroid_summary">Keine Updates für Apps, die von F-Droid heruntergeladen oder installiert wurden</string>
+    <string name="pref_filter_fdroid_summary">Keine Updates für Apps, die von F-Droid installiert wurden</string>
     <string name="onboarding_permission_installer_desc">Erforderlich für die Installation von Apps aus dem Aurora Store</string>
     <string name="installer_status_failure_incompatible">Inkompatible App</string>
     <string name="details_more_about_app">Mehr über die App</string>
@@ -208,7 +208,6 @@
     <string name="toast_purchase_blocked">App-Käufe sind für anonyme Konten nicht verfügbar.</string>
     <string name="insecure_anonymous_apply">Bitte neu anmelden und die App neu starten, um die Änderungen zu übernehmen.</string>
     <string name="pref_network_title">Netzwerk</string>
-    <string name="pref_ui_similar_apps_desc">Ähnliche und verwandte Apps in der App-Detailansicht anzeigen</string>
     <string name="pref_ui_similar_apps">Ähnliche Apps</string>
     <string name="pref_ui_no_for_you_desc">„Für dich“-Tab auf der Startseite anzeigen</string>
     <string name="pref_ui_no_for_you">„Für dich“-Tab</string>
@@ -269,7 +268,7 @@
     <string name="notification_updates_available"><xliff:g id="apps_count">%1$d</xliff:g> vorhandene Updates</string>
     <string name="notification_updates_available_desc_2"><xliff:g id="app_one_name">%1$s</xliff:g> und <xliff:g id="app_two_name">%2$s</xliff:g></string>
     <string name="access_denied_using_vpn">Zugriff verweigert! Verwendest du ein VPN oder Tor\?</string>
-    <string name="login_rate_limited">Hoppla, deine Anfragehäufigkeit ist begrenzt</string>
+    <string name="login_rate_limited">Deine Anfragehäufigkeit ist begrenzt</string>
     <string name="failed_to_fetch_report">Datenschutzbericht konnte nicht abgerufen werden</string>
     <string name="title_search_suggestion">Suchvorschlag</string>
     <string name="title_search_results">Suchergebnisse</string>
@@ -287,8 +286,8 @@
     <string name="details_ratings_title_hint">Titel bewerten</string>
     <string name="title_app_settings">App-Einstellungen</string>
     <string name="pref_updates_check_frequency_desc">Zeitintervall (in Stunden) für automatische Updates konfigurieren.</string>
-    <string name="pref_aurora_only">Nur Aurora-Store-Apps</string>
-    <string name="pref_aurora_only_desc">Nur nach Updates für Apps suchen, die von Aurora Store installiert wurden</string>
+    <string name="pref_aurora_only">Apps aus anderen Quellen ausfiltern</string>
+    <string name="pref_aurora_only_desc">Nicht nach Updates für Apps suchen, die aus Quellen außerhalb des Aurora Store installiert wurden</string>
     <string name="pref_updates_check_frequency">Häufigkeit der automatischen Updates</string>
     <string name="pref_network_proxy_url">URL des Proxyservers</string>
     <string name="toast_proxy_invalid">Ungültige Proxy-URL, bitte Aufbau der URL überprüfen!</string>
@@ -306,7 +305,7 @@
     <string name="action_request_analysis">Neue Analyse anfordern</string>
     <string name="failed_apk_export">Exportieren der APKs fehlgeschlagen</string>
     <string name="download_clear_finished">Fertige löschen</string>
-    <string name="pref_updates_incompatible">Inkompatible Updates</string>
+    <string name="pref_updates_incompatible">Updates anzeigen, die fehlschlagen könnten</string>
     <string name="pref_updates_incompatible_desc">Updates für inkompatible oder deaktivierte Apps anzeigen, die möglicherweise nicht installiert werden können</string>
     <string name="action_home_screen">Zur Startseite hinzufügen</string>
     <string name="source_code_title">Quellcode</string>
@@ -417,15 +416,51 @@
     <string name="details_compatibility_status_unknown">Unbekannt: Noch nicht geprüft</string>
     <string name="no_apps_available">Keine Apps verfügbar</string>
     <string name="pref_network_microg_login_title">microG zur Anmeldung bei Konten verwenden</string>
-    <string name="pref_network_microg_login_desc">Um den Anmeldevorgang bei Google-Konten zu vereinfachen, authentifiziere dich dort mit microG.</string>
+    <string name="pref_network_microg_login_desc">Um den Anmeldevorgang bei Google-Konten zu vereinfachen, authentifiziere dich dort mit microG</string>
     <string name="set">Übernehmen</string>
     <string name="toast_proxy_disabled">Proxy erfolgreich deaktiviert</string>
     <string name="pref_network_proxy_desc">Proxy-Konfiguration anzeigen und verwalten</string>
     <string name="pref_updates_restrictions_title">Einschränkungen für automatische Updates</string>
     <string name="pref_updates_restrictions_idle">Wenn das Gerät inaktiv ist</string>
     <string name="pref_updates_restrictions_metered">Nur in nicht getakteten Netzen</string>
-    <string name="pref_updates_restrictions_desc">Konfigurieren von Geräteeinschränkungen für automatische Updates.</string>
+    <string name="pref_updates_restrictions_desc">Konfigurieren von Geräteeinschränkungen für automatische Updates</string>
     <string name="disable">Deaktivieren</string>
     <string name="pref_updates_restrictions_battery">Wenn der Akkustand nicht niedrig ist</string>
     <string name="verification_failed">Heruntergeladene Dateien konnten nicht überprüft werden</string>
+    <string name="pref_updates_app_source">App-Quelle</string>
+    <string name="pref_common_advanced">Erweitert</string>
+    <string name="app_info_updated_on">Zuletzt aktualisiert</string>
+    <string name="app_info_downloads">Downloads</string>
+    <string name="app_info_min_android">Erforderliche Android-Version</string>
+    <string name="app_info_target_android">Ziel-API-Level</string>
+    <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> Berechtigungen</string>
+    <string name="action_install_microG">microG-Paket installieren</string>
+    <string name="onboarding_title_gsf">App-Kompatibilität</string>
+    <string name="onboarding_title_gsf_desc">Fehlende Abhängigkeiten</string>
+    <string name="onboarding_gms_agreement">Ich habe die Nutzungsbedingungen und Datenschutzerklärung von microG gelesen und stimme ihnen zu</string>
+    <string name="onboarding_gms_missing">Es konnten keine Google-Play-Dienste auf deinem Gerät gefunden werden. Mehrere beliebte Apps benötigen sie mittlerweile, um ordnungsgemäß zu funktionieren!</string>
+    <string name="onboarding_gms_microg">microG ist eine kostenlose Open-Source-Implementierung, die ähnliche Funktionen bereitstellt, um Apps, die von Google-Play-Diensten für Android-Geräte abhängig sind, durch Neuimplementierung auszuführen. \n\nmicroG ermöglicht Apps den Zugriff auf diese Google-APIs, verbessert die Kompatibilität für Nutzer und bietet gleichzeitig Vorteile für den Datenschutz. \n\nmicroG wird automatisch im Hintergrund ausgeführt, wenn Anwendungen geöffnet werden, die von Google Mobile Services abhängig sind.</string>
+    <string name="microg_privacy_policy">Datenschutzerklärung von microG lesen</string>
+    <string name="microg_license_agreement">microG-Lizenzvereinbarung lesen</string>
+    <string name="microg_website">microG-Projektwebsite besuchen</string>
+    <string name="details_data_safety_shared">Daten, die mit anderen Unternehmen oder Organisationen geteilt werden können</string>
+    <string name="details_data_safety_collect">Daten, die diese App erfassen darf</string>
+    <string name="details_data_safety_collect_none">Der Entwickler gibt an, dass diese App keine Nutzerdaten erfasst.</string>
+    <string name="details_data_safety_share_none">Der Entwickler gibt an, dass diese App keine Nutzerdaten an andere Unternehmen oder Organisationen weitergibt.</string>
+    <string name="exodus_tracker_desc">Diese Version der App kann noch weitere Tracker enthalten, die noch nicht in der Datenbank von Exodus Privacy vorhanden sind.</string>
+    <string name="exodus_report_trackers"><xliff:g id="number_of_trackers">%1$d</xliff:g> bekannte Tracker in <xliff:g id="app_version_name">%2$s</xliff:g> gefunden</string>
+    <string name="no_description">Keine Beschreibung verfügbar</string>
+    <string name="details_more_info">Weitere Infos</string>
+    <string name="details_more_target_api">Ziel-API</string>
+    <string name="details_more_package_name">Paketname</string>
+    <string name="details_more_content_rating">Altersfreigabe</string>
+    <string name="select_app_for_details">Eine App auswählen, um weitere Details anzuzeigen</string>
+    <string name="action_filter_no_ads">Ohne Werbung</string>
+    <string name="action_filter_no_gms">Ohne Play-Dienste</string>
+    <string name="manual_download_version_error">Der Versionscode darf nur Ziffern enthalten</string>
+    <string name="preparing_to_install">Vorbereiten zur Installation</string>
+    <plurals name="permissions_required">
+        <item quantity="one">Berechtigung erforderlich</item>
+        <item quantity="other">Berechtigungen erforderlich</item>
+    </plurals>
 </resources>

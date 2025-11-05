@@ -10,7 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aurora.store.compose.theme.AuroraTheme
-import com.aurora.store.util.FragmentThemeUtils.hideActionBar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.apply
 
@@ -19,7 +18,6 @@ import kotlin.apply
 class SlekeAppsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        hideActionBar()
     }
 
     override fun onCreateView(

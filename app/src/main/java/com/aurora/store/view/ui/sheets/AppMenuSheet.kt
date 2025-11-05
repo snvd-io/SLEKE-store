@@ -26,8 +26,8 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.sleke.extensions.openInfo
-import com.sleke.extensions.toast
+import com.aurora.extensions.openInfo
+import com.aurora.extensions.toast
 import com.aurora.store.AuroraApp
 import com.aurora.store.R
 import com.aurora.store.data.event.BusEvent

@@ -8,8 +8,8 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.sleke.extensions.showKeyboard
-import com.sleke.extensions.toast
+import com.aurora.extensions.showKeyboard
+import com.aurora.extensions.toast
 import com.aurora.store.R
 import com.aurora.store.util.CommonUtil
 import com.aurora.store.util.Preferences
@@ -79,7 +79,7 @@ class ProxyURLDialog: DialogFragment() {
         val proxyInfo = CommonUtil.parseProxyUrl(url)
         if (proxyInfo != null) {
             save(PREFERENCE_PROXY_URL, url)
-            save(PREFERENCE_PROXY_INFO, viewModel.gson.toJson(proxyInfo))
+            save(PREFERENCE_PROXY_INFO, viewModel.json.encodeToString(proxyInfo))
             toast(R.string.toast_proxy_success)
             findNavController().navigate(R.id.forceRestartDialog)
             return
