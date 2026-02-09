@@ -23,7 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aurora.store.R
@@ -36,7 +36,6 @@ import com.sleke.library.ui.components.SimpleAppItem
 import com.sleke.library.ui.components.toSimpleApp
 import com.sleke.presentation.enterprise.EnterpriseAppsUiState
 import com.sleke.presentation.enterprise.EnterpriseAppsViewModel
-import com.topjohnwu.superuser.internal.Utils.context
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)

@@ -68,6 +68,8 @@ class InstalledViewModel @Inject constructor(
                     .filterNot { blacklistProvider.isBlacklisted(it.packageName) }
                     .filter { firebasePackageNames.contains(it.packageName) }
 
+                val allApps = webAppDetailsHelper.getAppDetails(packages.map { it.packageName })
+
                 _apps.emit(allApps)
             } catch (exception: Exception) {
                 Log.e(TAG, "Failed to fetch apps", exception)

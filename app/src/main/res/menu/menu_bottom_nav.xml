@@ -30,9 +30,6 @@
 <!--        android:title="@string/title_games" />-->
 
     <item
-        android:id="@id/gamesContainerFragment"
-        android:icon="@drawable/ic_games"
-        android:title="@string/title_games" />
         android:id="@id/slekeAppsContainerFragment"
         android:icon="@drawable/ic_server"
         android:title="@string/title_sleke_apps" />

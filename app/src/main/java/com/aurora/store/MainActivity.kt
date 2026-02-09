@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
 
         // Handle quick exit from back actions
         val defaultTab = when (Preferences.getInteger(this, PREFERENCE_DEFAULT_SELECTED_TAB)) {
-            1 -> R.id.gamesContainerFragment
+//            1 -> R.id.gamesContainerFragment
 //            2 -> R.id.updatesFragment
             else -> R.id.appsContainerFragment
         }

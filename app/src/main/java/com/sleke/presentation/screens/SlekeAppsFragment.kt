@@ -6,19 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import com.aurora.store.compose.theme.AuroraTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.apply
 
 
 @AndroidEntryPoint
 class SlekeAppsFragment : Fragment() {
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,29 +25,33 @@ class SlekeAppsFragment : Fragment() {
     ): View = ComposeView(requireContext()).apply {
         setContent {
             AuroraTheme {
-                val navController = rememberNavController()
-                NavHost(
-                    navController = navController,
-                    startDestination = SlekeNavigation.SlekeApps
-                ) {
-                    composable<SlekeNavigation.SlekeApps> {
-                        SlekeAppsScreen(
-                            onNavigateToEnterprise = {
-                                navController.navigate(SlekeNavigation.SlekeEnterprise)
-                            }
-                        )
-                    }
+                val backStack = rememberNavBackStack(SlekeNavigation.SlekeApps)
 
-                    composable<SlekeNavigation.SlekeEnterprise> {
-                        EnterpriseAppsPane(
-                            upPress = {
-                            navController.popBackStack<SlekeNavigation.SlekeApps>(
-                                inclusive = false
+                NavDisplay(
+                    backStack = backStack,
+                    onBack = { backStack.removeLastOrNull() },
+                    entryDecorators = listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator()
+                    ),
+                    entryProvider = entryProvider {
+                        entry<SlekeNavigation.SlekeApps> {
+                            SlekeAppsScreen(
+                                onNavigateToEnterprise = {
+                                    backStack.add(SlekeNavigation.SlekeEnterprise)
+                                }
                             )
-                        })
-                    }
-                }
+                        }
 
+                        entry<SlekeNavigation.SlekeEnterprise> {
+                            EnterpriseAppsPane(
+                                upPress = {
+                                    backStack.removeLastOrNull()
+                                }
+                            )
+                        }
+                    }
+                )
             }
         }
     }
