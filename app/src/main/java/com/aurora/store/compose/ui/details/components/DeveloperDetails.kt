@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
@@ -21,8 +20,8 @@ import com.aurora.extensions.copyToClipBoard
 import com.aurora.extensions.mailTo
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Header
-import com.aurora.store.compose.composable.Info
+import com.aurora.store.compose.composables.HeaderComposable
+import com.aurora.store.compose.composables.InfoComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
 
 /**
@@ -36,31 +35,31 @@ import com.aurora.store.compose.preview.AppPreviewProvider
 fun DeveloperDetails(address: String, website: String, email: String) {
     val context = LocalContext.current
 
-    Header(title = stringResource(R.string.details_dev_details))
+    HeaderComposable(title = stringResource(R.string.details_dev_details))
     Column {
         if (website.isNotBlank()) {
-            Info(
+            InfoComposable(
                 title = AnnotatedString(text = stringResource(R.string.details_dev_website)),
                 description = AnnotatedString(text = website),
-                painter = painterResource(R.drawable.ic_network),
+                icon = R.drawable.ic_network,
                 onClick = { context.browse(website) }
             )
         }
 
         if (email.isNotBlank()) {
-            Info(
+            InfoComposable(
                 title = AnnotatedString(text = stringResource(R.string.details_dev_email)),
                 description = AnnotatedString(text = email),
-                painter = painterResource(R.drawable.ic_mail),
+                icon = R.drawable.ic_mail,
                 onClick = { context.mailTo(email) }
             )
         }
 
         if (address.isNotBlank()) {
-            Info(
+            InfoComposable(
                 title = AnnotatedString(text = stringResource(R.string.details_dev_address)),
                 description = AnnotatedString.fromHtml(htmlString = address),
-                painter = painterResource(R.drawable.ic_person_location),
+                icon = R.drawable.ic_person_location,
                 onClick = { context.copyToClipBoard(address) }
             )
         }

@@ -37,7 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -46,7 +46,7 @@ import com.aurora.Constants.URL_LICENSE
 import com.aurora.Constants.URL_TOS
 import com.aurora.extensions.browse
 import com.aurora.store.R
-import com.aurora.store.compose.composable.TopAppBar
+import com.aurora.store.compose.composables.TopAppBarComposable
 import com.aurora.store.data.providers.AccountProvider
 import com.aurora.store.viewmodel.accounts.AccountsViewModel
 
@@ -106,7 +106,7 @@ private fun ScreenContent(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBarComposable(
                 title = stringResource(R.string.title_account_manager),
                 onNavigateUp = onNavigateUp
             )

@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,8 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Header
-import com.aurora.store.compose.composable.Info
+import com.aurora.store.compose.composables.HeaderComposable
+import com.aurora.store.compose.composables.InfoComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
 
 /**
@@ -36,15 +35,15 @@ import com.aurora.store.compose.preview.AppPreviewProvider
  */
 @Composable
 fun Testing(isSubscribed: Boolean, onTestingSubscriptionChange: (subscribe: Boolean) -> Unit = {}) {
-    Header(title = stringResource(R.string.details_beta))
+    HeaderComposable(title = stringResource(R.string.details_beta))
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
     ) {
-        Info(
+        InfoComposable(
             modifier = Modifier.weight(1F),
-            painter = painterResource(R.drawable.ic_experiment),
+            icon = R.drawable.ic_experiment,
             title = AnnotatedString(
                 text = if (isSubscribed) {
                     stringResource(R.string.details_beta_subscribed)

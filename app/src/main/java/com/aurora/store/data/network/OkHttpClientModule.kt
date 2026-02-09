@@ -62,15 +62,9 @@ object OkHttpClientModule {
 
     @Provides
     @Singleton
-    fun providesOkHttpClientInstance(
-        certificatePinner: CertificatePinner,
-        proxy: Proxy?,
-        cache: Cache
-    ): OkHttpClient {
+    fun providesOkHttpClientInstance(certPinner: CertificatePinner, proxy: Proxy?): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient().newBuilder()
-            .cache(cache)
             .proxy(proxy)
-            
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = if (BuildConfig.DEBUG) {
                     HttpLoggingInterceptor.Level.BODY
@@ -86,7 +80,7 @@ object OkHttpClientModule {
             .followSslRedirects(true)
 
         if (!BuildConfig.DEBUG) {
-            okHttpClientBuilder.certificatePinner(certificatePinner)
+            okHttpClientBuilder.certificatePinner(certPinner)
         }
 
         return okHttpClientBuilder.build()
@@ -136,15 +130,6 @@ object OkHttpClientModule {
             Log.i(TAG, "Proxy is disabled")
             return null
         }
-    }
-
-    @Provides
-    @Singleton
-    fun providesCacheDir(@ApplicationContext context: Context): Cache {
-        return Cache(
-            directory = File(context.cacheDir, "http_cache"),
-            maxSize = 100L * 1024 * 1024
-        )
     }
 
     private fun getGoogleRootCertHashes(context: Context): List<String> {

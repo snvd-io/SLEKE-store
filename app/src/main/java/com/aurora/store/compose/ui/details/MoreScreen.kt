@@ -29,17 +29,17 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.LocalAsyncImagePreviewHandler
 import com.aurora.extensions.adaptiveNavigationIcon
 import com.aurora.extensions.isWindowCompact
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Header
-import com.aurora.store.compose.composable.Info
-import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.composable.app.AppListItem
+import com.aurora.store.compose.composables.HeaderComposable
+import com.aurora.store.compose.composables.InfoComposable
+import com.aurora.store.compose.composables.TopAppBarComposable
+import com.aurora.store.compose.composables.app.AppComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.coilPreviewProvider
 import com.aurora.store.viewmodel.details.AppDetailsViewModel
@@ -85,7 +85,7 @@ private fun ScreenContent(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBarComposable(
                 title = topAppBarTitle,
                 navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon,
                 onNavigateUp = onNavigateUp
@@ -99,7 +99,7 @@ private fun ScreenContent(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_medium))
         ) {
-            Header(title = stringResource(R.string.details_description))
+            HeaderComposable(title = stringResource(R.string.details_description))
             Text(
                 modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium)),
                 text = AnnotatedString.fromHtml(
@@ -128,15 +128,15 @@ private fun AppDependencies(
     dependencies: List<App>,
     onNavigateToAppDetails: (packageName: String) -> Unit
 ) {
-    Header(title = stringResource(R.string.details_dependencies))
+    HeaderComposable(title = stringResource(R.string.details_dependencies))
     if (dependencies.isEmpty()) {
-        Info(
+        InfoComposable(
             title = AnnotatedString(text = stringResource(R.string.details_no_dependencies))
         )
     } else {
         LazyRow(modifier = Modifier.fillMaxWidth()) {
             items(items = dependencies, key = { item -> item.id }) { app ->
-                AppListItem(
+                AppComposable(
                     app = app,
                     onClick = { onNavigateToAppDetails(app.packageName) }
                 )
@@ -150,22 +150,22 @@ private fun AppDependencies(
  */
 @Composable
 private fun AppInfoMore(app: App) {
-    Header(title = stringResource(R.string.details_more_info))
-    Info(
+    HeaderComposable(title = stringResource(R.string.details_more_info))
+    InfoComposable(
         title = AnnotatedString(
             text = stringResource(R.string.details_more_package_name)
         ),
         description = AnnotatedString(text = app.packageName)
     )
 
-    Info(
+    InfoComposable(
         title = AnnotatedString(
             text = stringResource(R.string.details_more_target_api)
         ),
         description = AnnotatedString(text = "API ${app.targetSdk}")
     )
 
-    Info(
+    InfoComposable(
         title = AnnotatedString(
             text = stringResource(R.string.details_more_content_rating)
         ),
@@ -173,7 +173,7 @@ private fun AppInfoMore(app: App) {
     )
 
     app.appInfo.appInfoMap.forEach { (title, subtitle) ->
-        Info(
+        InfoComposable(
             title = AnnotatedString(
                 text = title.replace("_", " ")
                     .lowercase(Locale.getDefault())

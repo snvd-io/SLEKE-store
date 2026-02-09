@@ -30,10 +30,10 @@ import coil3.compose.LocalAsyncImagePreviewHandler
 import com.aurora.extensions.adaptiveNavigationIcon
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Error
-import com.aurora.store.compose.composable.ContainedLoadingIndicator
-import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.composable.app.LargeAppListItem
+import com.aurora.store.compose.composables.ErrorComposable
+import com.aurora.store.compose.composables.ProgressComposable
+import com.aurora.store.compose.composables.TopAppBarComposable
+import com.aurora.store.compose.composables.app.AppListComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.coilPreviewProvider
 import com.aurora.store.viewmodel.details.DevProfileViewModel
@@ -88,7 +88,7 @@ private fun ScreenContent(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBarComposable(
                 title = topAppBarTitle,
                 navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon,
                 onNavigateUp = onNavigateUp
@@ -96,12 +96,12 @@ private fun ScreenContent(
         }
     ) { paddingValues ->
         when (apps.loadState.refresh) {
-            is LoadState.Loading -> ContainedLoadingIndicator()
+            is LoadState.Loading -> ProgressComposable()
 
             is LoadState.Error -> {
-                Error(
+                ErrorComposable(
                     modifier = Modifier.padding(paddingValues),
-                    painter = painterResource(R.drawable.ic_disclaimer),
+                    icon = painterResource(R.drawable.ic_disclaimer),
                     message = stringResource(R.string.error)
                 )
             }
@@ -115,7 +115,7 @@ private fun ScreenContent(
                 ) {
                     items(count = apps.itemCount, key = apps.itemKey { it.id }) { index ->
                         apps[index]?.let { app ->
-                            LargeAppListItem(
+                            AppListComposable(
                                 app = app,
                                 onClick = { onNavigateToAppDetails(app.packageName) }
                             )

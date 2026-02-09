@@ -64,13 +64,13 @@ import coil3.compose.LocalAsyncImagePreviewHandler
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Error
-import com.aurora.store.compose.composable.ContainedLoadingIndicator
-import com.aurora.store.compose.composable.SearchSuggestionListItem
-import com.aurora.store.compose.composable.app.LargeAppListItem
+import com.aurora.store.compose.composables.ErrorComposable
+import com.aurora.store.compose.composables.ProgressComposable
+import com.aurora.store.compose.composables.SearchSuggestionComposable
+import com.aurora.store.compose.composables.app.AppListComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.coilPreviewProvider
-import com.aurora.extensions.emptyPagingItems
+import com.aurora.store.compose.preview.emptyPagingItems
 import com.aurora.store.compose.ui.details.AppDetailsScreen
 import com.aurora.store.data.model.SearchFilter
 import com.aurora.store.viewmodel.search.SearchViewModel
@@ -181,7 +181,7 @@ private fun ScreenContent(
         AppBarWithSearch(state = searchBarState, inputField = inputField)
         ExpandedDockedSearchBar(state = searchBarState, inputField = inputField) {
             suggestions.forEach { suggestion ->
-                SearchSuggestionListItem(
+                SearchSuggestionComposable(
                     searchSuggestEntry = suggestion,
                     onClick = { query -> onRequestSearch(query) },
                     onAction = { query -> textFieldState.setTextAndPlaceCursorAtEnd(query.trim()) }
@@ -206,21 +206,21 @@ private fun ScreenContent(
                 )
 
                 when (results.loadState.refresh) {
-                    is LoadState.Loading -> ContainedLoadingIndicator()
+                    is LoadState.Loading -> ProgressComposable()
 
                     is LoadState.Error -> {
-                        Error(
+                        ErrorComposable(
                             modifier = Modifier.padding(paddingValues),
-                            painter = painterResource(R.drawable.ic_disclaimer),
+                            icon = painterResource(R.drawable.ic_disclaimer),
                             message = stringResource(R.string.error)
                         )
                     }
 
                     else -> {
                         if (isSearching && results.itemCount == 0) {
-                            Error(
+                            ErrorComposable(
                                 modifier = Modifier.padding(paddingValues),
-                                painter = painterResource(R.drawable.ic_disclaimer),
+                                icon = painterResource(R.drawable.ic_disclaimer),
                                 message = stringResource(R.string.no_apps_available)
                             )
                         } else {
@@ -230,7 +230,7 @@ private fun ScreenContent(
                                     key = results.itemKey { it.id }
                                 ) { index ->
                                     results[index]?.let { app ->
-                                        LargeAppListItem(
+                                        AppListComposable(
                                             app = app,
                                             onClick = { showDetailPane(app.packageName) }
                                         )
@@ -261,8 +261,8 @@ private fun ScreenContent(
 
                 else -> {
                     if (isSearching && results.itemCount > 0) {
-                        Error(
-                            painter = painterResource(R.drawable.ic_round_search),
+                        ErrorComposable(
+                            icon = painterResource(R.drawable.ic_round_search),
                             message = stringResource(R.string.select_app_for_details)
                         )
                     }

@@ -45,7 +45,6 @@ app/nightly/*
 app/vanilla/*
 app/huawei/*
 app/preload/*
-app/google-services.json
 
 
 #Exclude signing configurations & keystore
@@ -54,6 +53,3 @@ signing.properties
 
 
 .kotlin/*
-
-.kotlin/*app/google-services.json
-/app/google-services.json

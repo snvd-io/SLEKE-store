@@ -26,6 +26,10 @@ plugins {
     alias(libs.plugins.hilt.android.plugin)
 }
 
+val lastCommitHash = providers.exec {
+    commandLine("git", "rev-parse", "--short", "HEAD")
+}.standardOutput.asText.map { it.trim() }
+
 kotlin {
     jvmToolchain(21)
     compilerOptions {
@@ -111,6 +115,7 @@ android {
             isDebuggable = true
             initWith(getByName("release"))
             applicationIdSuffix = ".nightly"
+            versionNameSuffix = "-${lastCommitHash.get()}"
         }
 
         debug {
@@ -201,7 +206,7 @@ dependencies {
     implementation("androidx.room:room-paging:2.8.3")
     //Google's Goodies
     implementation(libs.google.android.material)
-    api(libs.google.protobuf.javalite)
+    implementation(libs.google.protobuf.javalite)
 
     //AndroidX
     implementation(libs.androidx.core.ktx)
@@ -281,7 +286,7 @@ dependencies {
     //Hilt
     ksp(libs.hilt.android.compiler)
     ksp(libs.hilt.androidx.compiler)
-    implementation(libs.androidx.hilt.navigation)
+    implementation(libs.androidx.hilt.viewmodel)
     implementation(libs.hilt.android.core)
     implementation(libs.hilt.androidx.work)
 
@@ -292,6 +297,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.paging)
 
     implementation(libs.process.phoenix)
 

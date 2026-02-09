@@ -41,7 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import coil3.compose.LocalAsyncImagePreviewHandler
@@ -55,11 +55,11 @@ import com.aurora.extensions.toast
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Review
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Error
-import com.aurora.store.compose.composable.Header
-import com.aurora.store.compose.composable.ContainedLoadingIndicator
-import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.composable.app.LargeAppListItem
+import com.aurora.store.compose.composables.ErrorComposable
+import com.aurora.store.compose.composables.HeaderComposable
+import com.aurora.store.compose.composables.ProgressComposable
+import com.aurora.store.compose.composables.TopAppBarComposable
+import com.aurora.store.compose.composables.app.AppListComposable
 import com.aurora.store.compose.navigation.Screen
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.coilPreviewProvider
@@ -135,7 +135,7 @@ fun AppDetailsScreen(
                 exodusReport = exodusReport,
                 onNavigateUp = onNavigateUp,
                 onNavigateToAppDetails = onNavigateToAppDetails,
-                onDownload = { requestedApp -> viewModel.enqueueDownload(requestedApp) },
+                onDownload = { viewModel.purchase(app!!) },
                 onFavorite = { viewModel.toggleFavourite(app!!) },
                 onCancelDownload = { viewModel.cancelDownload(app!!) },
                 onUninstall = { AppInstaller.uninstall(context, packageName) },
@@ -163,9 +163,9 @@ fun AppDetailsScreen(
 @Composable
 private fun ScreenContentLoading(onNavigateUp: () -> Unit = {}) {
     Scaffold(
-        topBar = { TopAppBar(onNavigateUp = onNavigateUp) }
+        topBar = { TopAppBarComposable(onNavigateUp = onNavigateUp) }
     ) { paddingValues ->
-        ContainedLoadingIndicator(modifier = Modifier.padding(paddingValues))
+        ProgressComposable(modifier = Modifier.padding(paddingValues))
     }
 }
 
@@ -175,11 +175,11 @@ private fun ScreenContentLoading(onNavigateUp: () -> Unit = {}) {
 @Composable
 private fun ScreenContentError(onNavigateUp: () -> Unit = {}, message: String? = null) {
     Scaffold(
-        topBar = { TopAppBar(onNavigateUp = onNavigateUp) }
+        topBar = { TopAppBarComposable(onNavigateUp = onNavigateUp) }
     ) { paddingValues ->
-        Error(
+        ErrorComposable(
             modifier = Modifier.padding(paddingValues),
-            painter = painterResource(R.drawable.ic_apps_outage),
+            icon = painterResource(R.drawable.ic_apps_outage),
             message = message ?: stringResource(R.string.toast_app_unavailable)
         )
     }
@@ -201,7 +201,7 @@ private fun ScreenContentApp(
     exodusReport: Report? = null,
     onNavigateUp: () -> Unit = {},
     onNavigateToAppDetails: (packageName: String) -> Unit = {},
-    onDownload: (requestedApp: App) -> Unit = {},
+    onDownload: () -> Unit = {},
     onFavorite: () -> Unit = {},
     onCancelDownload: () -> Unit = {},
     onUninstall: () -> Unit = {},
@@ -239,9 +239,9 @@ private fun ScreenContentApp(
         }
     }
 
-    fun onInstall(requestedApp: App = app) {
+    fun onInstall() {
         if (isPermittedToInstall(context, app)) {
-            onDownload(requestedApp)
+            onDownload()
             onNavigateBack()
         } else {
             val requiredPermissions = setOfNotNull(
@@ -255,11 +255,7 @@ private fun ScreenContentApp(
 
     @Composable
     fun SetupMenu() {
-        AppDetailsMenu(
-            isInstalled = app.isInstalled,
-            isFavorite = isFavorite,
-            state = state
-        ) { menuItem ->
+        AppDetailsMenu(isInstalled = app.isInstalled, isFavorite = isFavorite) { menuItem ->
             when (menuItem) {
                 MenuItem.FAVORITE -> onFavorite()
                 MenuItem.MANUAL_DOWNLOAD -> {
@@ -278,14 +274,14 @@ private fun ScreenContentApp(
     @Composable
     fun SetupActions() {
         when (state) {
-            is AppState.Queued,
             is AppState.Purchasing,
             is AppState.Downloading -> {
                 Actions(
                     primaryActionDisplayName = stringResource(R.string.action_open),
                     secondaryActionDisplayName = stringResource(R.string.action_cancel),
                     isPrimaryActionEnabled = false,
-                    onSecondaryAction = onCancelDownload
+                    onSecondaryAction = onCancelDownload,
+                    isSecondaryActionEnabled = state !is AppState.Purchasing
                 )
             }
 
@@ -303,9 +299,7 @@ private fun ScreenContentApp(
                     primaryActionDisplayName = stringResource(R.string.action_open),
                     secondaryActionDisplayName = stringResource(R.string.action_uninstall),
                     onPrimaryAction = onOpen,
-                    onSecondaryAction = onUninstall,
-                    isPrimaryActionEnabled = PackageUtil
-                        .getLaunchIntent(context, app.packageName) != null
+                    onSecondaryAction = onUninstall
                 )
             }
 
@@ -330,7 +324,7 @@ private fun ScreenContentApp(
     fun MainPane() {
         Scaffold(
             topBar = {
-                TopAppBar(
+                TopAppBarComposable(
                     onNavigateUp = onNavigateUp,
                     actions = { if (shouldShowMenuOnMainPane) SetupMenu() }
                 )
@@ -354,7 +348,7 @@ private fun ScreenContentApp(
 
                 Tags(app = app)
                 Changelog(changelog = app.changes)
-                Header(
+                HeaderComposable(
                     title = stringResource(R.string.details_more_about_app),
                     subtitle = app.shortDescription,
                     onClick = { showExtraPane(ExtraScreen.More) }
@@ -380,7 +374,7 @@ private fun ScreenContentApp(
 
                 Compatibility(needsGms = app.requiresGMS(), plexusScores = plexusScores)
 
-                Header(
+                HeaderComposable(
                     title = stringResource(R.string.details_permission),
                     subtitle = if (app.permissions.isNotEmpty()) {
                         stringResource(R.string.permissions_requested, app.permissions.size)
@@ -420,7 +414,7 @@ private fun ScreenContentApp(
     fun SupportingPane() {
         Scaffold(
             topBar = {
-                TopAppBar(actions = { if (!shouldShowMenuOnMainPane) SetupMenu() })
+                TopAppBarComposable(actions = { if (!shouldShowMenuOnMainPane) SetupMenu() })
             }
         ) { paddingValues ->
             Column(
@@ -436,7 +430,7 @@ private fun ScreenContentApp(
                         painter = painterResource(R.drawable.ic_suggestions),
                         contentDescription = null
                     )
-                    Header(title = stringResource(R.string.pref_ui_similar_apps))
+                    HeaderComposable(title = stringResource(R.string.pref_ui_similar_apps))
                 }
                 LazyColumn(
                     modifier = Modifier
@@ -444,7 +438,7 @@ private fun ScreenContentApp(
                         .padding(vertical = dimensionResource(R.dimen.padding_medium))
                 ) {
                     items(items = suggestions, key = { item -> item.id }) { app ->
-                        LargeAppListItem(
+                        AppListComposable(
                             app = app,
                             onClick = { onNavigateToAppDetails(app.packageName) }
                         )
@@ -486,8 +480,7 @@ private fun ScreenContentApp(
 
             is ExtraScreen.ManualDownload -> ManualDownloadScreen(
                 packageName = app.packageName,
-                onNavigateUp = ::onNavigateBack,
-                onRequestInstall = { requestedApp -> onInstall(requestedApp) }
+                onNavigateUp = ::onNavigateBack
             )
 
             is Screen.DevProfile -> DevProfileScreen(

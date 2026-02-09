@@ -13,13 +13,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.app.TagListItem
+import com.aurora.store.compose.composables.app.AppTagComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.util.CommonUtil
 
@@ -62,7 +61,7 @@ fun Tags(app: App) {
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
     ) {
         items(items = tags.keys.toList()) { label ->
-            TagListItem(label = label!!, painter = painterResource(tags.getValue(label)))
+            AppTagComposable(label = label!!, icon = tags.getValue(label))
         }
     }
 }

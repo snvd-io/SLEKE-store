@@ -87,30 +87,19 @@
 -dontwarn retrofit2.KotlinExtensions
 -dontwarn retrofit2.KotlinExtensions$*
 
-#Kovenant
--dontwarn rx.internal.util.unsafe.**
--dontwarn nl.komponents.kovenant.unsafe.**
-
 -dontwarn okio.**
 -keep class com.google.**
 -dontwarn com.google.**
 -keep class com.google.gson.Gson {*;}
 
+# Keep data classes
+-keep class com.aurora.store.data.room.favourite.ImportExport { *; }
+-keep class com.aurora.store.data.room.favourite.Favourite { *; }
+
 # With R8 full mode, it sees no subtypes of Retrofit interfaces since they are created with a Proxy
 # and replaces all potential values with null. Explicitly keeping the interfaces prevents this.
 -if interface * { @retrofit2.http.* <methods>; }
 -keep,allowobfuscation interface <1>
-
-#Event Bus
--keepattributes *Annotation*
--keepclassmembers class * {
-   @org.greenrobot.eventbus.Subscribe <methods>;
-}
--keep enum org.greenrobot.eventbus.ThreadMode { *; }
-
--keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
-    <init>(java.lang.Throwable);
-}
 
 -keepclassmembers enum * { *; }
 -keep class  com.aurora.store.view.ui.preferences.**

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,8 +20,8 @@ import com.aurora.gplayapi.data.models.datasafety.Entry
 import com.aurora.gplayapi.data.models.datasafety.EntryType
 import com.aurora.gplayapi.data.models.datasafety.Report
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Header
-import com.aurora.store.compose.composable.Info
+import com.aurora.store.compose.composables.HeaderComposable
+import com.aurora.store.compose.composables.InfoComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
 
 /**
@@ -35,7 +34,7 @@ import com.aurora.store.compose.preview.AppPreviewProvider
 fun DataSafety(report: Report, privacyPolicyUrl: String) {
     val context = LocalContext.current
 
-    Header(
+    HeaderComposable(
         title = stringResource(R.string.details_data_safety_title),
         subtitle = stringResource(R.string.details_data_safety_subtitle),
         onClick = { context.browse(privacyPolicyUrl) }
@@ -44,8 +43,8 @@ fun DataSafety(report: Report, privacyPolicyUrl: String) {
     report.entries.groupBy { it.type }.forEach { (type, entries) ->
         when (type) {
             EntryType.DATA_COLLECTED -> {
-                Info(
-                    painter = painterResource(R.drawable.ic_cloud_upload),
+                InfoComposable(
+                    icon = R.drawable.ic_cloud_upload,
                     title = AnnotatedString(
                         text = stringResource(R.string.details_data_safety_collect)
                     ),
@@ -59,8 +58,8 @@ fun DataSafety(report: Report, privacyPolicyUrl: String) {
             }
 
             EntryType.DATA_SHARED -> {
-                Info(
-                    painter = painterResource(R.drawable.ic_share),
+                InfoComposable(
+                    icon = R.drawable.ic_share,
                     title = AnnotatedString(
                         text = stringResource(R.string.details_data_safety_shared)
                     ),

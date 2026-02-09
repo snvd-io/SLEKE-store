@@ -12,12 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -36,9 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
@@ -49,16 +45,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aurora.extensions.adaptiveNavigationIcon
 import com.aurora.extensions.isWindowCompact
+import com.aurora.extensions.toast
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Info
-import com.aurora.store.compose.composable.TopAppBar
+import com.aurora.store.compose.composables.InfoComposable
+import com.aurora.store.compose.composables.TopAppBarComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.data.model.AppState
 import com.aurora.store.viewmodel.details.AppDetailsViewModel
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
@@ -67,23 +63,33 @@ import kotlinx.coroutines.launch
 fun ManualDownloadScreen(
     packageName: String,
     onNavigateUp: () -> Unit,
-    onRequestInstall: (requestedApp: App) -> Unit,
     viewModel: AppDetailsViewModel = hiltViewModel(key = packageName),
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
 ) {
+    val context = LocalContext.current
+
     val app by viewModel.app.collectAsStateWithLifecycle()
-    val state by viewModel.state.collectAsStateWithLifecycle()
     val topAppBarTitle = when {
         windowAdaptiveInfo.isWindowCompact -> app!!.displayName
         else -> stringResource(R.string.title_manual_download)
     }
 
+    LaunchedEffect(key1 = Unit) {
+        viewModel.purchaseStatus.collect { success ->
+            if (success) {
+                context.toast(R.string.toast_manual_available)
+                onNavigateUp()
+            } else {
+                context.toast(R.string.toast_manual_unavailable)
+            }
+        }
+    }
+
     ScreenContent(
-        state = state,
         topAppBarTitle = topAppBarTitle,
         currentVersionCode = app!!.versionCode,
         onNavigateUp = onNavigateUp,
-        onRequestInstall = { versionCode ->
+        onDownload = { versionCode ->
             val requestedApp = app!!.copy(
                 versionCode = versionCode,
                 dependencies = app!!.dependencies.copy(
@@ -92,18 +98,17 @@ fun ManualDownloadScreen(
                     }
                 )
             )
-            onRequestInstall(requestedApp)
+            viewModel.purchase(requestedApp)
         }
     )
 }
 
 @Composable
 private fun ScreenContent(
-    state: AppState = AppState.Unavailable,
     topAppBarTitle: String? = null,
     currentVersionCode: Long = 0L,
     onNavigateUp: () -> Unit = {},
-    onRequestInstall: (versionCode: Long) -> Unit = {},
+    onDownload: (versionCode: Long) -> Unit = {},
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
 ) {
 
@@ -111,7 +116,6 @@ private fun ScreenContent(
     val snackBarHostState = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.manual_download_version_error)
 
-    val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     var versionCode by remember {
         val initText = currentVersionCode.toString()
@@ -126,7 +130,7 @@ private fun ScreenContent(
     Scaffold(
         modifier = Modifier.imePadding(),
         topBar = {
-            TopAppBar(
+            TopAppBarComposable(
                 title = topAppBarTitle,
                 navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon,
                 onNavigateUp = onNavigateUp
@@ -145,15 +149,14 @@ private fun ScreenContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_medium))
             ) {
-                Info(
-                    painter = painterResource(R.drawable.ic_download_manager),
+                InfoComposable(
+                    icon = R.drawable.ic_download_manager,
                     title = AnnotatedString(text = stringResource(R.string.manual_download_hint))
                 )
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
-                    enabled = !state.inProgress(),
                     value = versionCode,
                     onValueChange = {
                         if (it.text.isDigitsOnly()) {
@@ -164,16 +167,9 @@ private fun ScreenContent(
                     },
                     shape = RoundedCornerShape(10.dp),
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                    trailingIcon = {
-                        if (state.inProgress()) {
-                            ContainedLoadingIndicator(
-                                modifier = Modifier
-                                    .requiredSize(dimensionResource(R.dimen.icon_size_default))
-                            )
-                        }
-                    }
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    )
                 )
             }
 
@@ -186,7 +182,7 @@ private fun ScreenContent(
                     onClick = onNavigateUp
                 ) {
                     Text(
-                        text = stringResource(R.string.action_close),
+                        text = stringResource(R.string.action_cancel),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -194,12 +190,7 @@ private fun ScreenContent(
 
                 Button(
                     modifier = Modifier.weight(1F),
-                    enabled = !state.inProgress(),
-                    onClick = {
-                        onRequestInstall(versionCode.text.toLong())
-                        focusManager.clearFocus()
-                    }
-                ) {
+                    onClick = { onDownload(versionCode.text.toLong()) }) {
                     Text(
                         text = stringResource(R.string.action_install),
                         maxLines = 1,
@@ -213,7 +204,9 @@ private fun ScreenContent(
 
 @Preview
 @Composable
-private fun ManualDownloadScreenPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
+private fun ManualDownloadScreenPreview(
+    @PreviewParameter(AppPreviewProvider::class) app: App
+) {
     ScreenContent(
         topAppBarTitle = app.displayName,
         currentVersionCode = app.versionCode

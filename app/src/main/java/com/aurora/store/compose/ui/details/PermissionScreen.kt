@@ -29,8 +29,8 @@ import com.aurora.extensions.adaptiveNavigationIcon
 import com.aurora.extensions.isWindowCompact
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Info
-import com.aurora.store.compose.composable.TopAppBar
+import com.aurora.store.compose.composables.InfoComposable
+import com.aurora.store.compose.composables.TopAppBarComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.viewmodel.details.AppDetailsViewModel
 import com.aurora.store.viewmodel.details.PermissionViewModel
@@ -67,7 +67,7 @@ fun PermissionScreen(
 @Composable
 private fun ScreenContent(
     topAppBarTitle: String? = null,
-    permissionsInfo: Map<String, PermissionInfo> = emptyMap(),
+    permissionsInfo: Map<String, PermissionInfo?> = emptyMap(),
     onNavigateUp: () -> Unit = {},
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
 ) {
@@ -75,7 +75,7 @@ private fun ScreenContent(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBarComposable(
                 title = topAppBarTitle,
                 navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon,
                 onNavigateUp = onNavigateUp
@@ -90,9 +90,10 @@ private fun ScreenContent(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_medium))
         ) {
             items(items = permissionsInfo.keys.toList(), key = { it }) { permission ->
-                val permissionInfo = permissionsInfo.getValue(permission)
+                // Bail out if this is not a known permission for the OS
+                val permissionInfo = permissionsInfo.getValue(permission) ?: return@items
 
-                Info(
+                InfoComposable(
                     title = AnnotatedString(
                         text = permissionInfo.loadLabel(packageManager)
                             .toString()

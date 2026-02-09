@@ -17,6 +17,7 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Review
 import com.aurora.gplayapi.data.models.details.TestingProgramStatus
 import com.aurora.gplayapi.helpers.AppDetailsHelper
+import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.ReviewsHelper
 import com.aurora.gplayapi.helpers.web.WebDataSafetyHelper
 import com.aurora.gplayapi.network.IHttpClient
@@ -40,8 +41,11 @@ import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_EXTENDED
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
@@ -59,6 +63,7 @@ import com.aurora.gplayapi.data.models.datasafety.Report as DataSafetyReport
 class AppDetailsViewModel @Inject constructor(
     val authProvider: AuthProvider,
     @ApplicationContext private val context: Context,
+    private val purchaseHelper: PurchaseHelper,
     private val appDetailsHelper: AppDetailsHelper,
     private val reviewsHelper: ReviewsHelper,
     private val webDataSafetyHelper: WebDataSafetyHelper,
@@ -99,6 +104,9 @@ class AppDetailsViewModel @Inject constructor(
 
     private val _favourite = MutableStateFlow(false)
     val favourite = _favourite.asStateFlow()
+
+    private val _purchaseStatus = MutableSharedFlow<Boolean>()
+    val purchaseStatus = _purchaseStatus.asSharedFlow()
 
     private val download = combine(app, downloadHelper.downloadsList) { a, list ->
         if (a?.packageName.isNullOrBlank()) return@combine null
@@ -212,9 +220,20 @@ class AppDetailsViewModel @Inject constructor(
         }
     }
 
-    fun enqueueDownload(app: App) {
+    fun purchase(app: App) {
         viewModelScope.launch(Dispatchers.IO) {
-            downloadHelper.enqueueApp(app)
+            try {
+                _state.value = AppState.Purchasing
+                val files = purchaseHelper.purchase(app.packageName, app.versionCode, app.offerType)
+                _purchaseStatus.emit(files.isNotEmpty())
+                if (files.isNotEmpty()) {
+                    downloadHelper.enqueueApp(app.copy(fileList = files.toMutableList()))
+                }
+            } catch (exception: Exception) {
+                _state.value = defaultAppState
+                _purchaseStatus.emit(false)
+                Log.e(TAG, "Failed to purchase the app", exception)
+            }
         }
     }
 
@@ -253,15 +272,13 @@ class AppDetailsViewModel @Inject constructor(
             }.launchIn(viewModelScope)
 
         download.filterNotNull().onEach {
-            _state.value = when (it.status) {
-                DownloadStatus.DOWNLOADING -> AppState.Downloading(
+            _state.value = when {
+                it.isRunning -> AppState.Downloading(
                     it.progress.toFloat(),
                     it.speed,
                     it.timeRemaining
                 )
 
-                DownloadStatus.QUEUED -> AppState.Queued
-                DownloadStatus.PURCHASING -> AppState.Purchasing
                 else -> defaultAppState
             }
         }.launchIn(viewModelScope)

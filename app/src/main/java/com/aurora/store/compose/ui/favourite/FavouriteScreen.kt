@@ -31,11 +31,11 @@ import androidx.paging.compose.itemKey
 import com.aurora.Constants.JSON_MIME_TYPE
 import com.aurora.extensions.toast
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Error
-import com.aurora.store.compose.composable.FavouriteListItem
-import com.aurora.store.compose.composable.ContainedLoadingIndicator
-import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.extensions.emptyPagingItems
+import com.aurora.store.compose.composables.ErrorComposable
+import com.aurora.store.compose.composables.FavouriteComposable
+import com.aurora.store.compose.composables.ProgressComposable
+import com.aurora.store.compose.composables.TopAppBarComposable
+import com.aurora.store.compose.preview.emptyPagingItems
 import com.aurora.store.compose.ui.favourite.menu.FavouriteMenu
 import com.aurora.store.compose.ui.favourite.menu.MenuItem
 import com.aurora.store.data.room.favourite.Favourite
@@ -120,7 +120,7 @@ private fun ScreenContent(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBarComposable(
                 title = stringResource(R.string.title_favourites_manager),
                 onNavigateUp = onNavigateUp,
                 actions = { if (favourites.itemCount != 0) SetupMenu() }
@@ -135,16 +135,16 @@ private fun ScreenContent(
         ) {
             when {
                 favourites.loadState.refresh is LoadState.Loading && initialLoad -> {
-                    ContainedLoadingIndicator()
+                    ProgressComposable()
                 }
 
                 else -> {
                     initialLoad = false
 
                     if (favourites.itemCount == 0) {
-                        Error(
+                        ErrorComposable(
                             modifier = Modifier.padding(paddingValues),
-                            painter = painterResource(R.drawable.ic_favorite_unchecked),
+                            icon = painterResource(R.drawable.ic_favorite_unchecked),
                             message = stringResource(R.string.details_no_favourites)
                         )
                     } else {
@@ -154,7 +154,7 @@ private fun ScreenContent(
                                 key = favourites.itemKey { it.packageName }
                             ) { index ->
                                 favourites[index]?.let { favourite ->
-                                    FavouriteListItem(
+                                    FavouriteComposable(
                                         modifier = Modifier.animateItem(),
                                         favourite = favourite,
                                         onClick = { onNavigateToAppDetails(favourite.packageName) },

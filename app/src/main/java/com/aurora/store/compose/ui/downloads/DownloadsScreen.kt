@@ -30,11 +30,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.aurora.extensions.toast
 import com.aurora.store.R
-import com.aurora.store.compose.composable.DownloadListItem
-import com.aurora.store.compose.composable.Error
-import com.aurora.store.compose.composable.ContainedLoadingIndicator
-import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.extensions.emptyPagingItems
+import com.aurora.store.compose.composables.DownloadComposable
+import com.aurora.store.compose.composables.ErrorComposable
+import com.aurora.store.compose.composables.ProgressComposable
+import com.aurora.store.compose.composables.TopAppBarComposable
+import com.aurora.store.compose.preview.emptyPagingItems
 import com.aurora.store.compose.ui.downloads.menu.DownloadsMenu
 import com.aurora.store.compose.ui.downloads.menu.MenuItem
 import com.aurora.store.data.room.download.Download
@@ -116,7 +116,7 @@ private fun ScreenContent(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBarComposable(
                 title = stringResource(R.string.title_download_manager),
                 onNavigateUp = onNavigateUp,
                 actions = { if (downloads.itemCount != 0) SetupMenu() }
@@ -131,16 +131,16 @@ private fun ScreenContent(
         ) {
             when {
                 downloads.loadState.refresh is LoadState.Loading && initialLoad -> {
-                    ContainedLoadingIndicator()
+                    ProgressComposable()
                 }
 
                 else -> {
                     initialLoad = false
 
                     if (downloads.itemCount == 0) {
-                        Error(
+                        ErrorComposable(
                             modifier = Modifier.padding(paddingValues),
-                            painter = painterResource(R.drawable.ic_download_manager),
+                            icon = painterResource(R.drawable.ic_download_manager),
                             message = stringResource(R.string.download_none)
                         )
                     } else {
@@ -150,7 +150,7 @@ private fun ScreenContent(
                                 key = downloads.itemKey { it.packageName }
                             ) { index ->
                                 downloads[index]?.let { download ->
-                                    DownloadListItem(
+                                    DownloadComposable(
                                         modifier = Modifier.animateItem(),
                                         download = download,
                                         onClick = { onNavigateToAppDetails(download.packageName) },

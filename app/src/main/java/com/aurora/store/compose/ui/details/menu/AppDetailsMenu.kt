@@ -23,9 +23,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.TopAppBar
+import com.aurora.store.compose.composables.TopAppBarComposable
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.data.model.AppState
 
 /**
  * Menu for the app details screen
@@ -37,7 +36,6 @@ import com.aurora.store.data.model.AppState
 @Composable
 fun AppDetailsMenu(
     modifier: Modifier = Modifier,
-    state: AppState = AppState.Unavailable,
     isInstalled: Boolean = false,
     isFavorite: Boolean = false,
     isExpanded: Boolean = false,
@@ -77,8 +75,7 @@ fun AppDetailsMenu(
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.title_manual_download)) },
-                onClick = { onClick(MenuItem.MANUAL_DOWNLOAD) },
-                enabled = !state.inProgress()
+                onClick = { onClick(MenuItem.MANUAL_DOWNLOAD) }
             )
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.title_download_playstore)) },
@@ -103,7 +100,7 @@ fun AppDetailsMenu(
 @Preview(showBackground = true)
 @Composable
 private fun AppDetailsMenuPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    TopAppBar(
+    TopAppBarComposable(
         actions = {
             AppDetailsMenu(
                 isInstalled = app.isInstalled,

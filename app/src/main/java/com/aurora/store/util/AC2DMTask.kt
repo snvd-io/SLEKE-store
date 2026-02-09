@@ -20,10 +20,12 @@
 package com.aurora.store.util
 
 import com.aurora.store.data.network.HttpClient
-import com.sleke.library.util.SlekeConstants
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Locale
 import javax.inject.Inject
+import com.aurora.store.data.network.HttpClient
+import com.sleke.library.util.SlekeConstants
+import okhttp3.RequestBody.Companion.toRequestBody
 import kotlin.collections.mapOf
 
 class AC2DMTask @Inject constructor(private val httpClient: HttpClient) {

@@ -34,7 +34,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.FloatingWindow
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.aurora.store.R
 import com.aurora.store.data.model.NetworkStatus
 import com.aurora.store.data.receiver.MigrationReceiver
 import com.aurora.store.databinding.ActivityMainBinding

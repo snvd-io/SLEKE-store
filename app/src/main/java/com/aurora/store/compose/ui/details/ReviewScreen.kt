@@ -43,13 +43,13 @@ import com.aurora.extensions.adaptiveNavigationIcon
 import com.aurora.extensions.isWindowCompact
 import com.aurora.gplayapi.data.models.Review
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Error
-import com.aurora.store.compose.composable.ContainedLoadingIndicator
-import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.composable.details.ReviewListItem
+import com.aurora.store.compose.composables.ErrorComposable
+import com.aurora.store.compose.composables.ProgressComposable
+import com.aurora.store.compose.composables.TopAppBarComposable
+import com.aurora.store.compose.composables.details.ReviewComposable
 import com.aurora.store.compose.preview.ReviewPreviewProvider
 import com.aurora.store.compose.preview.coilPreviewProvider
-import com.aurora.extensions.emptyPagingItems
+import com.aurora.store.compose.preview.emptyPagingItems
 import com.aurora.store.viewmodel.details.AppDetailsViewModel
 import com.aurora.store.viewmodel.details.ReviewViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -95,7 +95,7 @@ private fun ScreenContent(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            TopAppBarComposable(
                 title = topAppBarTitle,
                 navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon,
                 onNavigateUp = onNavigateUp
@@ -111,12 +111,12 @@ private fun ScreenContent(
             FilterHeader { filter -> onFilter(filter) }
 
             when (reviews.loadState.refresh) {
-                is LoadState.Loading -> ContainedLoadingIndicator()
+                is LoadState.Loading -> ProgressComposable()
 
                 is LoadState.Error -> {
-                    Error(
+                    ErrorComposable(
                         modifier = Modifier.padding(paddingValues),
-                        painter = painterResource(R.drawable.ic_disclaimer),
+                        icon = painterResource(R.drawable.ic_disclaimer),
                         message = stringResource(R.string.error)
                     )
                 }
@@ -127,7 +127,7 @@ private fun ScreenContent(
                             count = reviews.itemCount,
                             key = reviews.itemKey { it.commentId }
                         ) { index ->
-                            reviews[index]?.let { review -> ReviewListItem(review = review) }
+                            reviews[index]?.let { review -> ReviewComposable(review = review) }
                         }
                     }
                 }

@@ -34,16 +34,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aurora.extensions.adaptiveNavigationIcon
 import com.aurora.extensions.isTAndAbove
 import com.aurora.extensions.toast
 import com.aurora.store.BuildConfig
 import com.aurora.store.R
-import com.aurora.store.compose.composable.PermissionListItem
-import com.aurora.store.compose.composable.TextDividerComposable
-import com.aurora.store.compose.composable.TopAppBar
+import com.aurora.store.compose.composables.PermissionComposable
+import com.aurora.store.compose.composables.TextDividerComposable
+import com.aurora.store.compose.composables.TopAppBarComposable
 import com.aurora.store.data.model.Permission
 import com.aurora.store.data.model.PermissionType
 import com.aurora.store.data.providers.PermissionProvider.Companion.isGranted
@@ -163,7 +163,7 @@ private fun ScreenContent(
     Scaffold(
         topBar = {
             if (!isOnboarding) {
-                TopAppBar(
+                TopAppBarComposable(
                     title = pluralStringResource(R.plurals.permissions_required, permissions.size),
                     navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon,
                     onNavigateUp = onNavigateUp
@@ -191,7 +191,7 @@ private fun ScreenContent(
                     }
 
                     items(items = value, key = { p -> p.type.name }) { permission ->
-                        PermissionListItem(
+                        PermissionComposable(
                             permission = permission,
                             onAction = { requestPermission(permission.type) }
                         )
