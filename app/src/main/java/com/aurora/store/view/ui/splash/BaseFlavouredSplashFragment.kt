@@ -21,6 +21,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.aurora.Constants.PACKAGE_NAME_PLAY_STORE
+import com.aurora.extensions.TAG
 import com.aurora.extensions.getPackageName
 import com.aurora.extensions.navigate
 import com.aurora.gplayapi.helpers.AuthHelper
@@ -42,11 +43,10 @@ import com.aurora.store.viewmodel.auth.AuthViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 abstract class BaseFlavouredSplashFragment : BaseFragment<FragmentSplashBinding>() {
-
-    private val TAG = BaseFlavouredSplashFragment::class.java.simpleName
 
     val viewModel: AuthViewModel by activityViewModels()
 
@@ -54,7 +54,7 @@ abstract class BaseFlavouredSplashFragment : BaseFragment<FragmentSplashBinding>
 
     val canLoginWithMicroG: Boolean
         get() = PackageUtil.hasSupportedMicroGVariant(requireContext()) &&
-                Preferences.getBoolean(requireContext(), PREFERENCE_MICROG_AUTH, true)
+            Preferences.getBoolean(requireContext(), PREFERENCE_MICROG_AUTH, true)
 
     val startForAccount =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -104,9 +104,8 @@ abstract class BaseFlavouredSplashFragment : BaseFragment<FragmentSplashBinding>
         super.onViewCreated(view, savedInstanceState)
 
         if (!Preferences.getBoolean(requireContext(), PREFERENCE_INTRO)) {
-            findNavController().navigate(
-                SplashFragmentDirections.actionSplashFragmentToOnboardingFragment()
-            )
+            requireContext().navigate(Screen.Onboarding)
+            activity?.finish()
             return
         }
 
@@ -118,9 +117,7 @@ abstract class BaseFlavouredSplashFragment : BaseFragment<FragmentSplashBinding>
 //                        requireContext().navigate(Screen.Blacklist)
 //                    }
 //
-//                    R.id.menu_spoof_manager -> {
-//                        findNavController().navigate(R.id.spoofFragment)
-//                    }
+//                    R.id.menu_spoof_manager -> requireContext().navigate(Screen.Spoof)
 //
 //                    R.id.menu_settings -> {
 //                        findNavController().navigate(R.id.settingsFragment)
@@ -130,6 +127,7 @@ abstract class BaseFlavouredSplashFragment : BaseFragment<FragmentSplashBinding>
 //                }
 //                true
 //            }
+//        }
 //        }
 //
 //        attachActions()
@@ -219,7 +217,9 @@ abstract class BaseFlavouredSplashFragment : BaseFragment<FragmentSplashBinding>
                 }
 
                 1 -> SplashFragmentDirections.actionSplashFragmentToGamesContainerFragment()
+
                 2 -> SplashFragmentDirections.actionSplashFragmentToUpdatesFragment()
+
                 else -> SplashFragmentDirections.actionSplashFragmentToNavigationApps()
             }
         requireActivity().viewModelStore.clear() // Clear ViewModelStore to avoid bugs with logout

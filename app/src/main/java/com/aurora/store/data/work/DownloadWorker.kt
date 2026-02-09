@@ -19,6 +19,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkInfo.Companion.STOP_REASON_CANCELLED_BY_APP
 import androidx.work.WorkInfo.Companion.STOP_REASON_USER
 import androidx.work.WorkerParameters
+import com.aurora.extensions.TAG
 import com.aurora.extensions.copyTo
 import com.aurora.extensions.isPAndAbove
 import com.aurora.extensions.isQAndAbove
@@ -41,12 +42,10 @@ import com.aurora.store.data.room.download.Download
 import com.aurora.store.data.room.download.DownloadDao
 import com.aurora.store.util.CertUtil
 import com.aurora.store.util.NotificationUtil
+import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.PathUtil
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.net.SocketException
@@ -56,6 +55,9 @@ import java.security.DigestInputStream
 import java.security.MessageDigest
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.properties.Delegates
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 /**
  * An expedited long-running worker to download and trigger installation for given apps.
@@ -73,6 +75,10 @@ class DownloadWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters
 ) : AuthWorker(authProvider, context, workerParams) {
 
+    companion object {
+        private const val NOTIFICATION_ID: Int = 200
+    }
+
     private lateinit var download: Download
 
     private val notificationManager = context.getSystemService<NotificationManager>()!!
@@ -82,14 +88,14 @@ class DownloadWorker @AssistedInject constructor(
     private var totalProgress = 0
     private var downloadedBytes = 0L
 
-    private val TAG = DownloadWorker::class.java.simpleName
-    private val NOTIFICATION_ID: Int = 200
-
     inner class NoNetworkException : Exception(context.getString(R.string.title_no_network))
     inner class NothingToDownloadException : Exception(context.getString(R.string.purchase_no_file))
     inner class DownloadFailedException : Exception(context.getString(R.string.download_failed))
-    inner class DownloadCancelledException : Exception(context.getString(R.string.download_canceled))
-    inner class VerificationFailedException : Exception(context.getString(R.string.verification_failed))
+    inner class DownloadCancelledException :
+        Exception(context.getString(R.string.download_canceled))
+
+    inner class VerificationFailedException :
+        Exception(context.getString(R.string.verification_failed))
 
     override suspend fun doWork(): Result {
         super.doWork()
@@ -111,6 +117,7 @@ class DownloadWorker @AssistedInject constructor(
         setForeground(getForegroundInfo())
 
         // Try to purchase the app if file list is empty
+        notifyStatus(DownloadStatus.PURCHASING)
         download.fileList = download.fileList.ifEmpty {
             purchase(download.packageName, download.versionCode, download.offerType)
         }
@@ -250,7 +257,7 @@ class DownloadWorker @AssistedInject constructor(
     private fun purchase(packageName: String, versionCode: Long, offerType: Int): List<PlayFile> {
         try {
             // Android 9.0+ supports key rotation, so purchase with latest certificate's hash
-            return if (isPAndAbove && download.isInstalled) {
+            return if (isPAndAbove && PackageUtil.isInstalled(context, download.packageName)) {
                 purchaseHelper.purchase(
                     packageName,
                     versionCode,
@@ -300,7 +307,7 @@ class DownloadWorker @AssistedInject constructor(
                     headers["Range"] = "bytes=${tmpFile.length()}-"
                 }
 
-                okHttpClient.call(gFile.url, headers).body?.byteStream()?.use { input ->
+                okHttpClient.call(gFile.url, headers).body.byteStream().use { input ->
                     FileOutputStream(tmpFile, !isNewFile).use {
                         input.copyTo(it, gFile.size).collect { info -> onProgress(info) }
                     }
@@ -413,7 +420,10 @@ class DownloadWorker @AssistedInject constructor(
         }
 
         val notification = NotificationUtil.getDownloadNotification(
-            context, download, icon, exception?.message
+            context,
+            download,
+            icon,
+            exception?.message
         )
         notificationManager.notify(
             if (isProgress) NOTIFICATION_ID else download.packageName.hashCode(),
@@ -441,7 +451,10 @@ class DownloadWorker @AssistedInject constructor(
                 file.inputStream().use { fis ->
                     DigestInputStream(fis, messageDigest).use { dis ->
                         val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                        while (dis.read(buffer) != -1) { /* Just read, digest updates automatically */
+                        while (dis.read(buffer) !=
+                            -1
+                        ) {
+                            /* Just read, digest updates automatically */
                         }
                     }
                 }

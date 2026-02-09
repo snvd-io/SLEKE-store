@@ -62,8 +62,13 @@ object OkHttpClientModule {
 
     @Provides
     @Singleton
-    fun providesOkHttpClientInstance(certPinner: CertificatePinner, proxy: Proxy?): OkHttpClient {
+    fun providesOkHttpClientInstance(
+        certificatePinner: CertificatePinner,
+        proxy: Proxy?,
+        cache: Cache
+    ): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient().newBuilder()
+            .cache(cache)
             .proxy(proxy)
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = if (BuildConfig.DEBUG) {
@@ -80,7 +85,7 @@ object OkHttpClientModule {
             .followSslRedirects(true)
 
         if (!BuildConfig.DEBUG) {
-            okHttpClientBuilder.certificatePinner(certPinner)
+            okHttpClientBuilder.certificatePinner(certificatePinner)
         }
 
         return okHttpClientBuilder.build()
@@ -93,13 +98,13 @@ object OkHttpClientModule {
         val googleRootCerts = getGoogleRootCertHashes(context).map { "sha256/$it" }
             .toTypedArray()
 
-        return  CertificatePinner.Builder()
+        return CertificatePinner.Builder()
             .add("*.googleapis.com", *googleRootCerts)
             .add("*.google.com", *googleRootCerts)
-            .add("auroraoss.com", "sha256/mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c=") // GTS Root R4
-            .add("*.exodus-privacy.eu.org", "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=") // ISRG Root X1
-            .add("gitlab.com", "sha256/x4QzPSC810K5/cMjb05Qm4k3Bw5zBn4lTdO/nEW/Td4=") // USERTrust RSA Certification Authority
-            .add("plexus.techlore.tech", "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=") // ISRG Root X1
+            .add("auroraoss.com", "sha256/mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c=")
+            .add("*.exodus-privacy.eu.org", "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=")
+            .add("gitlab.com", "sha256/x4QzPSC810K5/cMjb05Qm4k3Bw5zBn4lTdO/nEW/Td4=")
+            .add("plexus.techlore.tech", "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=")
             .build()
     }
 
@@ -111,7 +116,11 @@ object OkHttpClientModule {
             val proxyInfo = json.decodeFromString<ProxyInfo>(proxyInfoString)
 
             val proxy = Proxy(
-                if (proxyInfo.protocol.removeSuffix("5") == "SOCKS") Proxy.Type.SOCKS else Proxy.Type.HTTP,
+                if (proxyInfo.protocol.removeSuffix("5") == "SOCKS") {
+                    Proxy.Type.SOCKS
+                } else {
+                    Proxy.Type.HTTP
+                },
                 InetSocketAddress.createUnresolved(proxyInfo.host, proxyInfo.port)
             )
 
@@ -120,9 +129,8 @@ object OkHttpClientModule {
 
             if (!proxyUser.isNullOrBlank() && !proxyPassword.isNullOrBlank()) {
                 Authenticator.setDefault(object : Authenticator() {
-                    override fun getPasswordAuthentication(): PasswordAuthentication {
-                        return PasswordAuthentication(proxyUser, proxyPassword.toCharArray())
-                    }
+                    override fun getPasswordAuthentication(): PasswordAuthentication =
+                        PasswordAuthentication(proxyUser, proxyPassword.toCharArray())
                 })
             }
             return proxy
@@ -132,18 +140,24 @@ object OkHttpClientModule {
         }
     }
 
-    private fun getGoogleRootCertHashes(context: Context): List<String> {
-        return try {
-            val certs = getX509Certificates(context.resources.openRawResource(R.raw.google_roots_ca))
-            certs.map {
-                val messageDigest = MessageDigest.getInstance(Algorithm.SHA256.value)
-                messageDigest.update(it.publicKey.encoded)
-                Base64.encodeToString(messageDigest.digest(), Base64.NO_WRAP)
-            }
-        } catch (exception: Exception) {
-            Log.e(TAG, "Failed to get SHA256 certificate hash", exception)
-            emptyList()
+    @Provides
+    @Singleton
+    fun providesCacheDir(@ApplicationContext context: Context): Cache = Cache(
+        directory = File(context.cacheDir, "http_cache"),
+        maxSize = 100L * 1024 * 1024
+    )
+
+    private fun getGoogleRootCertHashes(context: Context): List<String> = try {
+        val certs =
+            getX509Certificates(context.resources.openRawResource(R.raw.google_roots_ca))
+        certs.map {
+            val messageDigest = MessageDigest.getInstance(Algorithm.SHA256.value)
+            messageDigest.update(it.publicKey.encoded)
+            Base64.encodeToString(messageDigest.digest(), Base64.NO_WRAP)
         }
+    } catch (exception: Exception) {
+        Log.e(TAG, "Failed to get SHA256 certificate hash", exception)
+        emptyList()
     }
 
     private fun getX509Certificates(inputStream: InputStream): List<X509Certificate> {

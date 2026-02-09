@@ -23,6 +23,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aurora.extensions.TAG
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.contracts.StreamContract
@@ -30,18 +31,16 @@ import com.aurora.gplayapi.helpers.web.WebStreamHelper
 import com.aurora.store.HomeStash
 import com.aurora.store.data.model.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
 
 @HiltViewModel
 class StreamViewModel @Inject constructor(
     private val webStreamHelper: WebStreamHelper
 ) : ViewModel() {
-
-    private val TAG = StreamViewModel::class.java.simpleName
 
     val liveData: MutableLiveData<ViewState> = MutableLiveData()
 
@@ -70,7 +69,6 @@ class StreamViewModel @Inject constructor(
                     }
 
                     if (!bundle.hasCluster() || bundle.hasNext()) {
-
                         // Fetch new stream bundle
                         val newBundle = if (bundle.hasCluster()) {
                             streamContract.nextStreamBundle(
@@ -158,7 +156,8 @@ class StreamViewModel @Inject constructor(
         stash[category] = bundle.copy(streamClusters = updatedClusters)
     }
 
-    private fun targetBundle(category: StreamContract.Category): StreamBundle {
-        return stash.getOrPut(category) { StreamBundle() }
-    }
+    private fun targetBundle(category: StreamContract.Category): StreamBundle =
+        stash.getOrPut(category) {
+            StreamBundle()
+        }
 }

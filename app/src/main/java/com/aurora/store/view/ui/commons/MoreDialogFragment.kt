@@ -80,7 +80,7 @@ class MoreDialogFragment : DialogFragment() {
 
     private abstract class Option(
         @StringRes open val title: Int,
-        @DrawableRes open val icon: Int,
+        @DrawableRes open val icon: Int
     )
 
     private data class ViewOption(
@@ -95,76 +95,59 @@ class MoreDialogFragment : DialogFragment() {
         val screen: Screen
     ) : Option(title, icon)
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return MaterialAlertDialogBuilder(requireContext())
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        MaterialAlertDialogBuilder(requireContext())
             .setView(customDialogView(requireContext()))
             .create()
-    }
 
-    private fun customDialogView(context: Context): ComposeView {
-        return ComposeView(context).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                AuroraTheme {
-                    primaryColor =
-                        Color(requireContext().getStyledAttributeColor(MR.colorSurface))
-                    onPrimaryColor =
-                        Color(requireContext().getStyledAttributeColor(MR.colorOnSurface))
-                    secondaryColor =
-                        Color(requireContext().getStyledAttributeColor(MR.colorSecondaryContainer))
-                    onSecondaryColor =
-                        Color(requireContext().getStyledAttributeColor(MR.colorOnSecondaryContainer))
+    private fun customDialogView(context: Context): ComposeView = ComposeView(context).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            AuroraTheme {
+                primaryColor =
+                    Color(requireContext().getStyledAttributeColor(MR.colorSurface))
+                onPrimaryColor =
+                    Color(requireContext().getStyledAttributeColor(MR.colorOnSurface))
+                secondaryColor =
+                    Color(requireContext().getStyledAttributeColor(MR.colorSecondaryContainer))
+                onSecondaryColor =
+                    Color(
+                        requireContext().getStyledAttributeColor(MR.colorOnSecondaryContainer)
+                    )
 
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = primaryColor)
+                        .verticalScroll(rememberScrollState())
+                        .padding(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(
+                        4.dp,
+                        Alignment.CenterVertically
+                    )
+                ) {
+                    AppBar(onBackgroundColor = onPrimaryColor)
+                    AccountHeader(
+                        backgroundColor = secondaryColor,
+                        onBackgroundColor = onSecondaryColor
+                    )
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(color = primaryColor)
-                            .verticalScroll(rememberScrollState())
-                            .padding(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(
-                            4.dp,
-                            Alignment.CenterVertically
-                        )
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 2.dp,
+                                    topEnd = 2.dp,
+                                    bottomStart = 25.dp,
+                                    bottomEnd = 25.dp
+                                )
+                            )
+                            .background(color = secondaryColor)
                     ) {
-                        AppBar(onBackgroundColor = onPrimaryColor)
-                        AccountHeader(
-                            backgroundColor = secondaryColor,
-                            onBackgroundColor = onSecondaryColor
-                        )
-                        Column(
-                            modifier = Modifier
-                                .clip(
-                                    RoundedCornerShape(
-                                        topStart = 2.dp,
-                                        topEnd = 2.dp,
-                                        bottomStart = 25.dp,
-                                        bottomEnd = 25.dp
-                                    )
-                                )
-                                .background(color = secondaryColor)
-                        ) {
-                            getOptions().fastForEach { option ->
-                                OptionItem(
-                                    option = option,
-                                    tintColor = onPrimaryColor,
-                                    textColor = onSecondaryColor,
-                                    onClick = {
-                                        when (option) {
-                                            is ViewOption -> {
-                                                findNavController().navigate(option.destinationID)
-                                            }
-
-                                            is ComposeOption -> context.navigate(option.screen)
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        getExtraOptions().fastForEach { option ->
+                        getOptions().fastForEach { option ->
                             OptionItem(
                                 option = option,
                                 tintColor = onPrimaryColor,
-                                textColor = onPrimaryColor,
+                                textColor = onSecondaryColor,
                                 onClick = {
                                     when (option) {
                                         is ViewOption -> {
@@ -176,8 +159,25 @@ class MoreDialogFragment : DialogFragment() {
                                 }
                             )
                         }
-//                        Footer(onPrimaryColor)
                     }
+                    getExtraOptions().fastForEach { option ->
+                        OptionItem(
+                            option = option,
+                            tintColor = onPrimaryColor,
+                            textColor = onPrimaryColor,
+                            onClick = {
+                                when (option) {
+                                    is ViewOption -> {
+                                        findNavController().navigate(option.destinationID)
+                                    }
+
+                                        is ComposeOption -> context.navigate(option.screen)
+                                    }
+                                }
+                            )
+                        }
+//                        Footer(onPrimaryColor)
+
                 }
             }
         }
@@ -322,7 +322,11 @@ class MoreDialogFragment : DialogFragment() {
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(
                     1.dp,
-                    Color(requireContext().getStyledAttributeColor(androidx.appcompat.R.attr.colorControlHighlight))
+                    Color(
+                        requireContext().getStyledAttributeColor(
+                            androidx.appcompat.R.attr.colorControlHighlight
+                        )
+                    )
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -331,7 +335,7 @@ class MoreDialogFragment : DialogFragment() {
                     color = onBackgroundColor,
                     fontWeight = FontWeight.Normal,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -372,9 +376,7 @@ class MoreDialogFragment : DialogFragment() {
     }
 
     @Composable
-    fun ThreeStateIconButton(
-        tint: Color = Color.White
-    ) {
+    fun ThreeStateIconButton(tint: Color = Color.White) {
         var currentState by remember {
             mutableStateOf(
                 Preferences.getInteger(
@@ -418,15 +420,15 @@ class MoreDialogFragment : DialogFragment() {
     enum class State(val value: Int) {
         Auto(0),
         Light(1),
-        Dark(2),
+        Dark(2)
     }
 
     private fun getOptions(): List<Option> {
         return listOf(
-            ViewOption(
+            ComposeOption(
                 title = R.string.title_apps_games,
                 icon = R.drawable.ic_apps,
-                destinationID = R.id.appsGamesFragment
+                screen = Screen.Installed
             ),
             /*
             ComposeOption(
@@ -439,10 +441,10 @@ class MoreDialogFragment : DialogFragment() {
                 icon = R.drawable.ic_favorite_unchecked,
                 screen = Screen.Favourite
             ),
-            ViewOption(
-                title = R.string.title_spoof_manager,
-                icon = R.drawable.ic_spoof,
-                destinationID = R.id.spoofFragment
+           ComposeOption(
+            title = R.string.title_spoof_manager,
+            icon = R.drawable.ic_spoof,
+            screen = Screen.Spoof
             )
              */
         )

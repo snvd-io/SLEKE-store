@@ -28,7 +28,6 @@ import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.NavigableSupportingPaneScaffold
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,37 +43,35 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
-import coil3.compose.LocalAsyncImagePreviewHandler
-import com.aurora.Constants.SHARE_URL
 import com.aurora.extensions.appInfo
-import com.aurora.extensions.browse
 import com.aurora.extensions.requiresGMS
 import com.aurora.extensions.requiresObbDir
 import com.aurora.extensions.share
 import com.aurora.extensions.toast
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Review
+import com.aurora.gplayapi.data.models.datasafety.Report as DataSafetyReport
 import com.aurora.store.R
-import com.aurora.store.compose.composables.ErrorComposable
-import com.aurora.store.compose.composables.HeaderComposable
-import com.aurora.store.compose.composables.ProgressComposable
-import com.aurora.store.compose.composables.TopAppBarComposable
-import com.aurora.store.compose.composables.app.AppListComposable
+import com.aurora.store.compose.composable.ContainedLoadingIndicator
+import com.aurora.store.compose.composable.Error
+import com.aurora.store.compose.composable.Header
+import com.aurora.store.compose.composable.TopAppBar
+import com.aurora.store.compose.composable.app.LargeAppListItem
 import com.aurora.store.compose.navigation.Screen
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.compose.preview.coilPreviewProvider
+import com.aurora.store.compose.preview.PreviewTemplate
 import com.aurora.store.compose.ui.commons.PermissionRationaleScreen
-import com.aurora.store.compose.ui.details.components.Actions
-import com.aurora.store.compose.ui.details.components.Changelog
-import com.aurora.store.compose.ui.details.components.Compatibility
-import com.aurora.store.compose.ui.details.components.DataSafety
-import com.aurora.store.compose.ui.details.components.Details
-import com.aurora.store.compose.ui.details.components.DeveloperDetails
-import com.aurora.store.compose.ui.details.components.Privacy
-import com.aurora.store.compose.ui.details.components.RatingAndReviews
-import com.aurora.store.compose.ui.details.components.Screenshots
-import com.aurora.store.compose.ui.details.components.Tags
-import com.aurora.store.compose.ui.details.components.Testing
+import com.aurora.store.compose.ui.details.composable.Actions
+import com.aurora.store.compose.ui.details.composable.Changelog
+import com.aurora.store.compose.ui.details.composable.Compatibility
+import com.aurora.store.compose.ui.details.composable.DataSafety
+import com.aurora.store.compose.ui.details.composable.Details
+import com.aurora.store.compose.ui.details.composable.DeveloperDetails
+import com.aurora.store.compose.ui.details.composable.Privacy
+import com.aurora.store.compose.ui.details.composable.RatingAndReviews
+import com.aurora.store.compose.ui.details.composable.Screenshots
+import com.aurora.store.compose.ui.details.composable.Tags
+import com.aurora.store.compose.ui.details.composable.Testing
 import com.aurora.store.compose.ui.details.menu.AppDetailsMenu
 import com.aurora.store.compose.ui.details.menu.MenuItem
 import com.aurora.store.compose.ui.details.navigation.ExtraScreen
@@ -85,12 +82,12 @@ import com.aurora.store.data.model.PermissionType
 import com.aurora.store.data.model.Report
 import com.aurora.store.data.model.Scores
 import com.aurora.store.data.providers.PermissionProvider.Companion.isPermittedToInstall
+import com.aurora.store.util.FlavouredUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.ShortcutManagerUtil
 import com.aurora.store.viewmodel.details.AppDetailsViewModel
-import kotlinx.coroutines.launch
 import kotlin.random.Random
-import com.aurora.gplayapi.data.models.datasafety.Report as DataSafetyReport
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppDetailsScreen(
@@ -115,6 +112,7 @@ fun AppDetailsScreen(
 
     when (state) {
         is AppState.Loading -> ScreenContentLoading(onNavigateUp = onNavigateUp)
+
         is AppState.Error -> {
             ScreenContentError(
                 onNavigateUp = onNavigateUp,
@@ -135,7 +133,7 @@ fun AppDetailsScreen(
                 exodusReport = exodusReport,
                 onNavigateUp = onNavigateUp,
                 onNavigateToAppDetails = onNavigateToAppDetails,
-                onDownload = { viewModel.purchase(app!!) },
+                onDownload = { requestedApp -> viewModel.enqueueDownload(requestedApp) },
                 onFavorite = { viewModel.toggleFavourite(app!!) },
                 onCancelDownload = { viewModel.cancelDownload(app!!) },
                 onUninstall = { AppInstaller.uninstall(context, packageName) },
@@ -163,9 +161,9 @@ fun AppDetailsScreen(
 @Composable
 private fun ScreenContentLoading(onNavigateUp: () -> Unit = {}) {
     Scaffold(
-        topBar = { TopAppBarComposable(onNavigateUp = onNavigateUp) }
+        topBar = { TopAppBar(onNavigateUp = onNavigateUp) }
     ) { paddingValues ->
-        ProgressComposable(modifier = Modifier.padding(paddingValues))
+        ContainedLoadingIndicator(modifier = Modifier.padding(paddingValues))
     }
 }
 
@@ -175,11 +173,11 @@ private fun ScreenContentLoading(onNavigateUp: () -> Unit = {}) {
 @Composable
 private fun ScreenContentError(onNavigateUp: () -> Unit = {}, message: String? = null) {
     Scaffold(
-        topBar = { TopAppBarComposable(onNavigateUp = onNavigateUp) }
+        topBar = { TopAppBar(onNavigateUp = onNavigateUp) }
     ) { paddingValues ->
-        ErrorComposable(
+        Error(
             modifier = Modifier.padding(paddingValues),
-            icon = painterResource(R.drawable.ic_apps_outage),
+            painter = painterResource(R.drawable.ic_apps_outage),
             message = message ?: stringResource(R.string.toast_app_unavailable)
         )
     }
@@ -201,7 +199,7 @@ private fun ScreenContentApp(
     exodusReport: Report? = null,
     onNavigateUp: () -> Unit = {},
     onNavigateToAppDetails: (packageName: String) -> Unit = {},
-    onDownload: () -> Unit = {},
+    onDownload: (requestedApp: App) -> Unit = {},
     onFavorite: () -> Unit = {},
     onCancelDownload: () -> Unit = {},
     onUninstall: () -> Unit = {},
@@ -239,10 +237,17 @@ private fun ScreenContentApp(
         }
     }
 
-    fun onInstall() {
+    fun onInstall(requestedApp: App = app, ignoreMicroG: Boolean = false) {
         if (isPermittedToInstall(context, app)) {
-            onDownload()
-            onNavigateBack()
+            val shouldPromptMicroGInstall = app.requiresGMS() &&
+                FlavouredUtil.promptMicroGInstall(context)
+
+            if (shouldPromptMicroGInstall && !ignoreMicroG) {
+                showExtraPane(ExtraScreen.MicroG)
+            } else {
+                onDownload(requestedApp)
+                onNavigateBack()
+            }
         } else {
             val requiredPermissions = setOfNotNull(
                 PermissionType.INSTALL_UNKNOWN_APPS,
@@ -255,15 +260,18 @@ private fun ScreenContentApp(
 
     @Composable
     fun SetupMenu() {
-        AppDetailsMenu(isInstalled = app.isInstalled, isFavorite = isFavorite) { menuItem ->
+        AppDetailsMenu(isFavorite = isFavorite, state = state) { menuItem ->
             when (menuItem) {
                 MenuItem.FAVORITE -> onFavorite()
+
                 MenuItem.MANUAL_DOWNLOAD -> {
                     showExtraPane(ExtraScreen.ManualDownload)
                 }
+
                 MenuItem.SHARE -> context.share(app.displayName, app.packageName)
+
                 MenuItem.APP_INFO -> context.appInfo(app.packageName)
-                MenuItem.PLAY_STORE -> context.browse("$SHARE_URL${app.packageName}")
+
                 MenuItem.ADD_TO_HOME -> {
                     ShortcutManagerUtil.requestPinShortcut(context, app.packageName)
                 }
@@ -274,14 +282,14 @@ private fun ScreenContentApp(
     @Composable
     fun SetupActions() {
         when (state) {
+            is AppState.Queued,
             is AppState.Purchasing,
             is AppState.Downloading -> {
                 Actions(
                     primaryActionDisplayName = stringResource(R.string.action_open),
                     secondaryActionDisplayName = stringResource(R.string.action_cancel),
                     isPrimaryActionEnabled = false,
-                    onSecondaryAction = onCancelDownload,
-                    isSecondaryActionEnabled = state !is AppState.Purchasing
+                    onSecondaryAction = onCancelDownload
                 )
             }
 
@@ -299,7 +307,9 @@ private fun ScreenContentApp(
                     primaryActionDisplayName = stringResource(R.string.action_open),
                     secondaryActionDisplayName = stringResource(R.string.action_uninstall),
                     onPrimaryAction = onOpen,
-                    onSecondaryAction = onUninstall
+                    onSecondaryAction = onUninstall,
+                    isPrimaryActionEnabled = PackageUtil
+                        .getLaunchIntent(context, app.packageName) != null
                 )
             }
 
@@ -324,7 +334,7 @@ private fun ScreenContentApp(
     fun MainPane() {
         Scaffold(
             topBar = {
-                TopAppBarComposable(
+                TopAppBar(
                     onNavigateUp = onNavigateUp,
                     actions = { if (shouldShowMenuOnMainPane) SetupMenu() }
                 )
@@ -348,7 +358,7 @@ private fun ScreenContentApp(
 
                 Tags(app = app)
                 Changelog(changelog = app.changes)
-                HeaderComposable(
+                Header(
                     title = stringResource(R.string.details_more_about_app),
                     subtitle = app.shortDescription,
                     onClick = { showExtraPane(ExtraScreen.More) }
@@ -374,7 +384,7 @@ private fun ScreenContentApp(
 
                 Compatibility(needsGms = app.requiresGMS(), plexusScores = plexusScores)
 
-                HeaderComposable(
+                Header(
                     title = stringResource(R.string.details_permission),
                     subtitle = if (app.permissions.isNotEmpty()) {
                         stringResource(R.string.permissions_requested, app.permissions.size)
@@ -394,7 +404,7 @@ private fun ScreenContentApp(
 
                 Privacy(
                     report = exodusReport,
-                    onNavigateToDetailsExodus = if (!exodusReport?.trackers.isNullOrEmpty()) {
+                    onNavigateToDetailsExodus = if (exodusReport?.id != -1) {
                         { showExtraPane(ExtraScreen.Exodus) }
                     } else {
                         null
@@ -414,7 +424,7 @@ private fun ScreenContentApp(
     fun SupportingPane() {
         Scaffold(
             topBar = {
-                TopAppBarComposable(actions = { if (!shouldShowMenuOnMainPane) SetupMenu() })
+                TopAppBar(actions = { if (!shouldShowMenuOnMainPane) SetupMenu() })
             }
         ) { paddingValues ->
             Column(
@@ -430,7 +440,7 @@ private fun ScreenContentApp(
                         painter = painterResource(R.drawable.ic_suggestions),
                         contentDescription = null
                     )
-                    HeaderComposable(title = stringResource(R.string.pref_ui_similar_apps))
+                    Header(title = stringResource(R.string.pref_ui_similar_apps))
                 }
                 LazyColumn(
                     modifier = Modifier
@@ -438,7 +448,7 @@ private fun ScreenContentApp(
                         .padding(vertical = dimensionResource(R.dimen.padding_medium))
                 ) {
                     items(items = suggestions, key = { item -> item.id }) { app ->
-                        AppListComposable(
+                        LargeAppListItem(
                             app = app,
                             onClick = { onNavigateToAppDetails(app.packageName) }
                         )
@@ -449,54 +459,59 @@ private fun ScreenContentApp(
     }
 
     @Composable
-    fun ExtraPane(screen: NavKey) {
-        return when (screen) {
-            is ExtraScreen.Review -> ReviewScreen(
-                packageName = app.packageName,
-                onNavigateUp = ::onNavigateBack
-            )
+    fun ExtraPane(screen: NavKey) = when (screen) {
+        is ExtraScreen.Review -> ReviewScreen(
+            packageName = app.packageName,
+            onNavigateUp = ::onNavigateBack
+        )
 
-            is ExtraScreen.Exodus -> ExodusScreen(
-                packageName = app.packageName,
-                onNavigateUp = ::onNavigateBack
-            )
+        is ExtraScreen.Exodus -> ExodusScreen(
+            packageName = app.packageName,
+            onNavigateUp = ::onNavigateBack
+        )
 
-            is ExtraScreen.More -> MoreScreen(
-                packageName = app.packageName,
-                onNavigateUp = ::onNavigateBack,
-                onNavigateToAppDetails = onNavigateToAppDetails
-            )
+        is ExtraScreen.More -> MoreScreen(
+            packageName = app.packageName,
+            onNavigateUp = ::onNavigateBack,
+            onNavigateToAppDetails = onNavigateToAppDetails
+        )
 
-            is ExtraScreen.Permission -> PermissionScreen(
-                packageName = app.packageName,
-                onNavigateUp = ::onNavigateBack
-            )
+        is ExtraScreen.Permission -> PermissionScreen(
+            packageName = app.packageName,
+            onNavigateUp = ::onNavigateBack
+        )
 
-            is ExtraScreen.Screenshot -> ScreenshotScreen(
-                packageName = app.packageName,
-                index = screen.index,
-                onNavigateUp = ::onNavigateBack
-            )
+        is ExtraScreen.Screenshot -> ScreenshotScreen(
+            packageName = app.packageName,
+            index = screen.index,
+            onNavigateUp = ::onNavigateBack
+        )
 
-            is ExtraScreen.ManualDownload -> ManualDownloadScreen(
-                packageName = app.packageName,
-                onNavigateUp = ::onNavigateBack
-            )
+        is ExtraScreen.ManualDownload -> ManualDownloadScreen(
+            packageName = app.packageName,
+            onNavigateUp = ::onNavigateBack,
+            onRequestInstall = { requestedApp -> onInstall(requestedApp) }
+        )
 
-            is Screen.DevProfile -> DevProfileScreen(
-                publisherId = app.developerName,
-                onNavigateUp = ::onNavigateBack,
-                onNavigateToAppDetails = { onNavigateToAppDetails(it) }
-            )
+        is ExtraScreen.MicroG -> MicroGScreen(
+            packageName = app.packageName,
+            onNavigateUp = ::onNavigateBack,
+            onIgnore = { onInstall(ignoreMicroG = it) }
+        )
 
-            is Screen.PermissionRationale -> PermissionRationaleScreen(
-                onNavigateUp = ::onNavigateBack,
-                requiredPermissions = screen.requiredPermissions,
-                onPermissionCallback = { onInstall() }
-            )
+        is Screen.DevProfile -> DevProfileScreen(
+            publisherId = app.developerName,
+            onNavigateUp = ::onNavigateBack,
+            onNavigateToAppDetails = { onNavigateToAppDetails(it) }
+        )
 
-            else -> {}
-        }
+        is Screen.PermissionRationale -> PermissionRationaleScreen(
+            onNavigateUp = ::onNavigateBack,
+            requiredPermissions = screen.requiredPermissions,
+            onPermissionCallback = { onInstall() }
+        )
+
+        else -> {}
     }
 
     NavigableSupportingPaneScaffold(
@@ -514,7 +529,7 @@ private fun ScreenContentApp(
 @PreviewScreenSizes
 @Composable
 private fun AppDetailsScreenPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    CompositionLocalProvider(LocalAsyncImagePreviewHandler provides coilPreviewProvider) {
+    PreviewTemplate {
         ScreenContentApp(
             app = app,
             isAnonymous = false,
@@ -526,11 +541,15 @@ private fun AppDetailsScreenPreview(@PreviewParameter(AppPreviewProvider::class)
 @Preview
 @Composable
 private fun AppDetailsScreenPreviewLoading() {
-    ScreenContentLoading()
+    PreviewTemplate {
+        ScreenContentLoading()
+    }
 }
 
 @Preview
 @Composable
 private fun AppDetailsScreenPreviewError() {
-    ScreenContentError()
+    PreviewTemplate {
+        ScreenContentError()
+    }
 }

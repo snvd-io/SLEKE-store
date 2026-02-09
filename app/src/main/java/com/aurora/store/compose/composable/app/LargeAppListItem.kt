@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -26,14 +25,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import coil3.compose.AsyncImage
-import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.aurora.extensions.requiresGMS
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.compose.preview.coilPreviewProvider
+import com.aurora.store.compose.preview.PreviewTemplate
 import com.aurora.store.util.CommonUtil
 
 /**
@@ -66,7 +64,7 @@ fun LargeAppListItem(modifier: Modifier = Modifier, app: App, onClick: () -> Uni
                 .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_medium)))
         )
         Column(
-            modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.margin_small)),
+            modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.margin_small))
         ) {
             Text(
                 text = app.displayName,
@@ -86,31 +84,29 @@ fun LargeAppListItem(modifier: Modifier = Modifier, app: App, onClick: () -> Uni
 @Preview(showBackground = true)
 @Composable
 fun LargeAppListItemPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    CompositionLocalProvider(LocalAsyncImagePreviewHandler provides coilPreviewProvider) {
+    PreviewTemplate {
         LargeAppListItem(app = app)
     }
 }
 
 @Composable
-private fun buildExtras(app: App): List<String> {
-    return mutableListOf<String>().apply {
-        add(if (app.size > 0) CommonUtil.addSiPrefix(app.size) else app.downloadString)
-        add("${app.labeledRating}★")
+private fun buildExtras(app: App): List<String> = mutableListOf<String>().apply {
+    add(if (app.size > 0) CommonUtil.addSiPrefix(app.size) else app.downloadString)
+    add("${app.labeledRating}★")
 
-        if (app.isFree) {
-            add(stringResource(R.string.details_free))
-        } else {
-            add(stringResource(R.string.details_paid))
-        }
+    if (app.isFree) {
+        add(stringResource(R.string.details_free))
+    } else {
+        add(stringResource(R.string.details_paid))
+    }
 
-        if (app.containsAds) {
-            add(stringResource(R.string.details_contains_ads))
-        } else {
-            add(stringResource(R.string.details_no_ads))
-        }
+    if (app.containsAds) {
+        add(stringResource(R.string.details_contains_ads))
+    } else {
+        add(stringResource(R.string.details_no_ads))
+    }
 
-        if (app.requiresGMS()) {
-            add(stringResource(R.string.details_gsf_dependent))
-        }
+    if (app.requiresGMS()) {
+        add(stringResource(R.string.details_gsf_dependent))
     }
 }

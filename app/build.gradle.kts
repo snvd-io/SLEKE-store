@@ -7,14 +7,14 @@
 
 @file:OptIn(KspExperimental::class)
 
+import com.android.build.api.dsl.ApplicationExtension
 import com.google.devtools.ksp.KspExperimental
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import org.gradle.language.nativeplatform.internal.Dimensions.applicationVariants
 import java.util.Properties
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.parcelize)
     alias(libs.plugins.jetbrains.kotlin.serialization)
@@ -30,10 +30,14 @@ val lastCommitHash = providers.exec {
     commandLine("git", "rev-parse", "--short", "HEAD")
 }.standardOutput.asText.map { it.trim() }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 kotlin {
-    jvmToolchain(21)
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_21
         freeCompilerArgs.addAll(
             "-Xannotation-default-target=param-property"
         )
@@ -47,7 +51,7 @@ kotlin {
     }
 }
 
-android {
+configure<ApplicationExtension> {
     namespace = "com.aurora.store"
     compileSdk = 36
 
@@ -56,8 +60,8 @@ android {
         minSdk = 26
         targetSdk = 36
 
-        versionCode = 71
-        versionName = "4.7.5"
+        versionCode = 72
+        versionName = "4.8.0"
 
         testInstrumentationRunner = "com.aurora.store.HiltInstrumentationTestRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -150,14 +154,9 @@ android {
         aidl = true
         compose = true
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21.toString()
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
+//    kotlinOptions {
+//        jvmTarget = JavaVersion.VERSION_21.toString()
+//    }
 
     lint {
         lintConfig = file("lint.xml")
@@ -172,11 +171,11 @@ android {
         includeInBundle = false
     }
 
-    applicationVariants.configureEach {
-        outputs.configureEach {
-            (this as? BaseVariantOutputImpl)?.outputFileName = "Store_${versionName}.apk"
-        }
-    }
+//    applicationVariants.configureEach {
+//        outputs.configureEach {
+//            (this as? BaseVariantOutputImpl)?.outputFileName = "Store_${versionName}.apk"
+//        }
+//    }
 }
 
 androidComponents {
@@ -190,7 +189,11 @@ androidComponents {
 
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
-    useKsp2 = false // TODO: Drop after getting rid of epoxy
+}
+
+ktlint {
+    android = true
+    verbose = true
 }
 
 configurations.all {
@@ -204,11 +207,11 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("androidx.room:room-paging:2.8.3")
-    //Google's Goodies
+    // Google's Goodies
     implementation(libs.google.android.material)
     implementation(libs.google.protobuf.javalite)
 
-    //AndroidX
+    // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.browser)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -245,29 +248,29 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    //Coil
+    // Coil
     implementation(libs.coil.kt)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
 
-    //Shimmer
+    // Shimmer
     implementation(libs.facebook.shimmer)
 
-    //Epoxy
+    // Epoxy
     implementation(libs.airbnb.epoxy.android)
     ksp(libs.airbnb.epoxy.processor)
 
-    //HTTP Clients
+    // HTTP Clients
     implementation(libs.squareup.okhttp)
     implementation(libs.squareup.okhttp.logging)
 
-    //Lib-SU
+    // Lib-SU
     implementation(libs.github.topjohnwu.libsu)
 
-    //GPlayApi
+    // GPlayApi
     implementation(libs.auroraoss.gplayapi)
 
-    //Shizuku
+    // Shizuku
     compileOnly(libs.rikka.hidden.stub)
     implementation(libs.rikka.tools.refine.runtime)
     implementation(libs.rikka.shizuku.api)
@@ -275,7 +278,7 @@ dependencies {
 
     implementation(libs.lsposed.hiddenapibypass)
 
-    //Test
+    // Test
     testImplementation(libs.junit)
     testImplementation(libs.androidx.junit)
     testImplementation(libs.google.truth)
@@ -283,7 +286,7 @@ dependencies {
     androidTestImplementation(libs.google.truth)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    //Hilt
+    // Hilt
     ksp(libs.hilt.android.compiler)
     ksp(libs.hilt.androidx.compiler)
     implementation(libs.androidx.hilt.viewmodel)
@@ -293,7 +296,7 @@ dependencies {
     kspAndroidTest(libs.hilt.android.compiler)
     androidTestImplementation(libs.hilt.android.testing)
 
-    //Room
+    // Room
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)

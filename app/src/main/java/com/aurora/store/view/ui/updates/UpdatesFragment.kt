@@ -91,12 +91,15 @@ class UpdatesFragment : BaseFragment<FragmentUpdatesBinding>() {
             viewModel.updates
                 .combine(viewModel.downloadsList) { uList, dList ->
                     uList?.associateWith { a ->
-                        dList.find { it.packageName == a.packageName && it.versionCode == a.versionCode }
+                        dList.find {
+                            it.packageName == a.packageName && it.versionCode == a.versionCode
+                        }
                     }
                 }.collectLatest { map ->
                     updateController(map)
-                    viewModel.updateAllEnqueued =
-                        map?.values?.all { it?.isRunning == true } ?: false
+                    viewModel.updateAllEnqueued = map?.values?.all {
+                        it?.isRunning == true
+                    } ?: false
                 }
         }
 
@@ -145,10 +148,11 @@ class UpdatesFragment : BaseFragment<FragmentUpdatesBinding>() {
                             .id("header_all")
                             .title(
                                 "${appList.size} " +
-                                        if (appList.size == 1)
-                                            getString(R.string.update_available)
-                                        else
-                                            getString(R.string.updates_available)
+                                    if (appList.size == 1) {
+                                        getString(R.string.update_available)
+                                    } else {
+                                        getString(R.string.updates_available)
+                                    }
                             )
                             .action(
                                 if (viewModel.updateAllEnqueued) {

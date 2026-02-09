@@ -23,19 +23,18 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aurora.extensions.TAG
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.web.WebStreamHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class StreamBrowseViewModel @Inject constructor(
     private val streamHelper: WebStreamHelper
 ) : ViewModel() {
-
-    private val TAG = StreamBrowseViewModel::class.java.simpleName
 
     val liveData: MutableLiveData<StreamCluster> = MutableLiveData()
 

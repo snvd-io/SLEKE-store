@@ -8,6 +8,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.aurora.Constants
+import com.aurora.extensions.TAG
 import com.aurora.extensions.isIgnoringBatteryOptimizations
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.helpers.AppDetailsHelper
@@ -32,11 +33,11 @@ import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_AUTO
 import com.sleke.library.data.repository.ApkRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import timber.log.Timber
-import java.util.Locale
 
 /**
  * A worker to check for updates for installed apps based on saved authentication data,
@@ -60,13 +61,11 @@ class UpdateWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters
 ) : AuthWorker(authProvider, context, workerParams) {
 
-    private val TAG = UpdateWorker::class.java.simpleName
-
     private val notificationID = 100
 
     private val canSelfUpdate = !CertUtil.isFDroidApp(context, BuildConfig.APPLICATION_ID) &&
-            !CertUtil.isAppGalleryApp(context, BuildConfig.APPLICATION_ID) &&
-            BuildType.CURRENT != BuildType.DEBUG
+        !CertUtil.isAppGalleryApp(context, BuildConfig.APPLICATION_ID) &&
+        BuildType.CURRENT != BuildType.DEBUG
 
     private val isAuroraOnlyFilterEnabled: Boolean
         get() = Preferences.getBoolean(context, Preferences.PREFERENCE_FILTER_AURORA_ONLY, false)
@@ -81,14 +80,16 @@ class UpdateWorker @AssistedInject constructor(
         super.doWork()
 
         Log.i(TAG, "Checking for app updates")
-        val updateMode = UpdateMode.entries[inputData.getInt(
-            UpdateHelper.UPDATE_MODE,
-            Preferences.getInteger(
-                context,
-                PREFERENCE_UPDATES_AUTO,
-                UpdateMode.CHECK_AND_INSTALL.ordinal
+        val updateMode = UpdateMode.entries[
+            inputData.getInt(
+                UpdateHelper.UPDATE_MODE,
+                Preferences.getInteger(
+                    context,
+                    PREFERENCE_UPDATES_AUTO,
+                    UpdateMode.CHECK_AND_INSTALL.ordinal
+                )
             )
-        )]
+        ]
 
         if (updateMode == UpdateMode.DISABLED || !AccountProvider.isLoggedIn(context)) {
             Log.i(TAG, "Updates are disabled, bailing out!")
@@ -111,7 +112,9 @@ class UpdateWorker @AssistedInject constructor(
             }
 
             // Notify and exit if we are only checking for updates or if battery optimizations are enabled
-            if (updateMode == UpdateMode.CHECK_AND_NOTIFY || !context.isIgnoringBatteryOptimizations()) {
+            if (updateMode == UpdateMode.CHECK_AND_NOTIFY ||
+                !context.isIgnoringBatteryOptimizations()
+            ) {
                 Log.i(TAG, "Found  ${updates.size} updates, notifying!")
                 notifyUpdates(updates)
                 return Result.success()
@@ -126,8 +129,13 @@ class UpdateWorker @AssistedInject constructor(
                 }
 
             // Notify about apps that cannot be auto-updated
-            Log.i(TAG, "Found  ${updates.size} updates out of which ${filteredUpdates.second.size} cannot be auto-updated")
-            notifyUpdates(filteredUpdates.second)
+            if (filteredUpdates.second.isNotEmpty()) {
+                Log.i(
+                    TAG,
+                    "Found  ${updates.size} updates out of which ${filteredUpdates.second.size} cannot be auto-updated"
+                )
+                notifyUpdates(filteredUpdates.second)
+            }
 
             // Trigger download for apps if they can be auto-updated
             filteredUpdates.first.forEach { downloadHelper.enqueueUpdate(it) }
@@ -139,12 +147,10 @@ class UpdateWorker @AssistedInject constructor(
         }
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(
-            notificationID,
-            NotificationUtil.getUpdateNotification(context)
-        )
-    }
+    override suspend fun getForegroundInfo(): ForegroundInfo = ForegroundInfo(
+        notificationID,
+        NotificationUtil.getUpdateNotification(context)
+    )
 
     /**
      * Checks and returns updates for all possible apps
@@ -164,17 +170,23 @@ class UpdateWorker @AssistedInject constructor(
                 }
                 packagesAfterFilter
             } else {
-                packages.filterNot { if (isFDroidFilterEnabled) CertUtil.isFDroidApp(context, it.packageName) else false }
-            }
+                packages.filterNot {
+                    if (isFDroidFilterEnabled) {
+                        CertUtil.isFDroidApp(context, it.packageName)
+                    } else {
+                        false
+                    }
+                }
+            }.map { it.packageName }
 
 
             Timber.Forest.tag("UpdateWorker").d(
                 "Found ${filteredPackages.size} packages to check for updates"
             )
 
-            val updates = appDetailsHelper.getAppByPackageName(filteredPackages.map { it.packageName })
+            val updates = appDetailsHelper.getAppByPackageName(filteredPackages)
                 .filter { it.displayName.isNotEmpty() }
-                .filter { PackageUtil.isUpdatable(context, it.packageName, it.versionCode.toLong()) }
+                .filter { PackageUtil.isUpdatable(context, it.packageName, it.versionCode) }
                 .toMutableList()
 
             if (canSelfUpdate) getSelfUpdate()?.let { updates.add(it) }
@@ -191,7 +203,9 @@ class UpdateWorker @AssistedInject constructor(
         return withContext(Dispatchers.IO) {
             val updateUrl = when (BuildType.CURRENT) {
                 BuildType.RELEASE -> Constants.UPDATE_URL_STABLE
+
                 BuildType.NIGHTLY -> Constants.UPDATE_URL_NIGHTLY
+
                 else -> {
                     Log.i(TAG, "Self-updates are not available for this build!")
                     return@withContext null
@@ -205,6 +219,7 @@ class UpdateWorker @AssistedInject constructor(
                 val isUpdate = when (BuildType.CURRENT) {
                     BuildType.NIGHTLY,
                     BuildType.RELEASE -> selfUpdate.versionCode > BuildConfig.VERSION_CODE
+
                     else -> false
                 }
 

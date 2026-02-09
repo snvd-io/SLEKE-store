@@ -344,7 +344,7 @@
     <string name="add_dispenser_title">Добавить распределитель</string>
     <string name="add_dispenser_error">Некорректный URL-адрес</string>
     <string name="add_dispenser_hint">URL-адрес распределителя</string>
-    <string name="remove_dispenser_title">Удалить распределитель</string>
+    <string name="remove_dispenser_title">Удалить распределитель?</string>
     <string name="remove_dispenser_summary">Вы хотите удалить распределитель \"<xliff:g id="url">%1$s</xliff:g>\"?</string>
     <string name="about_wiki_summary">Найдите ответы на часто задаваемые вопросы (ЧаВо), шаги по устранению неполадок и многое другое</string>
     <string name="about_aurora_store_summary">Aurora Store позволяет искать и загружать приложения из официального магазина Google Play. Вы можете ознакомиться с описанием приложений, скриншотами, обновлениями, комментариями других пользователей и загрузить APK непосредственно из Google Play на свое устройство. Чтобы использовать Aurora Store, необходимо иметь профиль Google Play и войти в него при первом открытии и настройке Aurora Store. \n \nВ отличие от традиционного магазина приложений, Aurora Store не владеет, не лицензирует и не распространяет приложения. Все приложения, описания приложений, скриншоты и прочий контент в Aurora Store напрямую доступны, загружаются и/или отображаются из Google Play. Aurora Store работает точно так же, как дверь или браузер, позволяя вам войти в свой профиль Google Play и найти приложения из Google Play. \n \nОбратите внимание, что Aurora Store не имеет никакого соглашения, спонсорства или разрешения от Google, Google Play, любых приложений, загружаемых через Aurora Store, или разработчиков приложений; Aurora Store также не имеет с ними никакого родства, сотрудничества или связи.</string>
@@ -424,7 +424,7 @@
     <string name="pref_updates_restrictions_title">Ограничения автоматического обновления</string>
     <string name="pref_updates_restrictions_metered">Только в сетях без ограничения трафика</string>
     <string name="pref_updates_restrictions_idle">Когда устройство не используется</string>
-    <string name="pref_updates_restrictions_desc">Настроить ограничения устройства для автоматических обновлений.</string>
+    <string name="pref_updates_restrictions_desc">Настроить ограничения устройства для автоматических обновлений</string>
     <string name="pref_updates_restrictions_battery">Когда батарея не разряжена</string>
     <string name="verification_failed">Не удалось проверить загруженные файлы</string>
     <string name="app_info_min_android">Минимальная версия Android</string>
@@ -459,4 +459,18 @@
     <string name="action_filter_no_gms">Без сервисов Google Play</string>
     <string name="manual_download_version_error">Код версии может содержать только цифры</string>
     <string name="preparing_to_install">Подготовка к установке</string>
+    <plurals name="permissions_required">
+        <item quantity="one">Требуется разрешение</item>
+        <item quantity="few">Требуются разрешения</item>
+        <item quantity="many">Требуются разрешения</item>
+        <item quantity="other">Требуются разрешения</item>
+    </plurals>
+    <string name="loading">Загрузка в прогрессе</string>
+    <string name="page">Страница <xliff:g id="number">%1$d</xliff:g></string>
+    <string name="installer_microg_misconfigured">Установщик MicroG не смог установить приложение, вероятнее всего, из-за проблем с конфигурацией.</string>
+    <string name="pref_install_mode_microg">Установщик MicroG</string>
+    <string name="action_skip">Пропустить</string>
+    <string name="microg_installer_subtitle">Требует установки дополнительного приложения microG</string>
+    <string name="microg_installer_desc">Помогает пропустить проверку целостности приложения (только для установщика)</string>
+    <string name="force_restart_snack">Перезапустить чтобы применить изменения?</string>
 </resources>

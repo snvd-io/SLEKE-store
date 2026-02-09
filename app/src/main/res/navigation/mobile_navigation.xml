@@ -62,24 +62,10 @@
         android:label="@string/title_updates"
         tools:layout="@layout/fragment_updates" />
     <fragment
-        android:id="@+id/appsGamesFragment"
-        android:name="com.aurora.store.view.ui.all.AppsGamesFragment"
-        android:label="@string/title_apps_games"
-        tools:layout="@layout/fragment_generic_with_search" />
-    <fragment
-        android:id="@+id/spoofFragment"
-        android:name="com.aurora.store.view.ui.spoof.SpoofFragment"
-        android:label="@string/title_spoof_manager"
-        tools:layout="@layout/fragment_spoof" />
-    <fragment
         android:id="@+id/settingsFragment"
         android:name="com.aurora.store.view.ui.preferences.SettingsFragment"
         android:label="@string/title_settings"
-        tools:layout="@layout/fragment_setting">
-        <action
-            android:id="@+id/action_settingsFragment_to_permissionsFragment"
-            app:destination="@id/permissionsFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_setting" />
     <fragment
         android:id="@+id/installationPreference"
         android:name="com.aurora.store.view.ui.preferences.installation.InstallationPreference"
@@ -187,12 +173,6 @@
             app:launchSingleTop="true"
             app:popUpTo="@id/mobile_navigation"
             app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_splashFragment_to_onboardingFragment"
-            app:destination="@id/onboardingFragment"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/mobile_navigation"
-            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/googleFragment"
@@ -204,46 +184,6 @@
             app:popUpTo="@id/splashFragment"
             app:popUpToInclusive="true" />
     </fragment>
-    <fragment
-        android:id="@+id/onboardingFragment"
-        android:name="com.aurora.store.view.ui.onboarding.OnboardingFragment"
-        tools:layout="@layout/fragment_onboarding">
-        <action
-            android:id="@+id/action_onboardingFragment_to_splashFragment"
-            app:destination="@id/splashFragment"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/mobile_navigation"
-            app:popUpToInclusive="true" />
-    </fragment>
-    <fragment
-        android:id="@+id/installerFragment"
-        android:name="com.aurora.store.view.ui.preferences.installation.InstallerFragment"
-        android:label="InstallerFragment"
-        tools:layout="@layout/fragment_installer" />
-    <fragment
-        android:id="@+id/dispenserFragment"
-        android:name="com.aurora.store.view.ui.dispenser.DispenserFragment"
-        android:label="DispenserFragment"
-        tools:layout="@layout/fragment_dispenser">
-        <action
-            android:id="@+id/action_dispenserFragment_to_removeDispenserDialog"
-            app:destination="@id/removeDispenserDialog" />
-    </fragment>
-    <fragment
-        android:id="@+id/permissionsFragment"
-        android:name="com.aurora.store.view.ui.onboarding.PermissionsFragment"
-        android:label="PermissionsFragment"
-        tools:layout="@layout/fragment_onboarding_permissions">
-        <argument
-            android:name="isOnboarding"
-            android:defaultValue="true"
-            app:argType="boolean" />
-    </fragment>
-    <fragment
-        android:id="@+id/detailsMicroGFragment"
-        android:name="com.aurora.store.view.ui.details.DetailsMicroGFragment"
-        android:label="MicroGFragment"
-        tools:layout="@layout/fragment_details_microg" />
     <dialog
         android:id="@+id/appMenuSheet"
         android:name="com.aurora.store.view.ui.sheets.AppMenuSheet"
@@ -262,22 +202,6 @@
         android:id="@+id/moreDialogFragment"
         android:name="com.aurora.store.view.ui.commons.MoreDialogFragment"
         android:label="MoreDialogFragment" />
-    <dialog
-        android:id="@+id/inputDispenserDialog"
-        android:name="com.aurora.store.view.ui.dispenser.InputDispenserDialog"
-        android:label="@string/add_dispenser_title" />
-    <dialog
-        android:id="@+id/removeDispenserDialog"
-        android:name="com.aurora.store.view.ui.dispenser.RemoveDispenserDialog"
-        android:label="@string/remove_dispenser_title">
-        <argument
-            android:name="url"
-            app:argType="string" />
-    </dialog>
-    <dialog
-        android:id="@+id/aboutDialog"
-        android:name="com.aurora.store.view.ui.about.AboutDialog"
-        android:label="@string/title_about" />
     <dialog
         android:id="@+id/proxyURLDialog"
         android:name="com.aurora.store.view.ui.preferences.network.ProxyURLDialog"

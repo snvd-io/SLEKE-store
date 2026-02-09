@@ -19,20 +19,19 @@
 
 package com.aurora.store.util
 
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.util.Locale
-import javax.inject.Inject
 import com.aurora.store.data.network.HttpClient
 import com.sleke.library.util.SlekeConstants
 import okhttp3.RequestBody.Companion.toRequestBody
-import kotlin.collections.mapOf
+import java.util.Locale
+import javax.inject.Inject
 
 class AC2DMTask @Inject constructor(private val httpClient: HttpClient) {
 
     @Throws(Exception::class)
     fun getAC2DMResponse(email: String?, oAuthToken: String?): Map<String, String> {
-        if (email == null || oAuthToken == null)
+        if (email == null || oAuthToken == null) {
             return mapOf()
+        }
 
         val params: MutableMap<String, Any> = hashMapOf()
         params["lang"] = Locale.getDefault().toString().replace("_", "-")

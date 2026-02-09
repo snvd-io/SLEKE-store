@@ -14,6 +14,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.aurora.Constants.PACKAGE_NAME_PLAY_STORE
+import com.aurora.extensions.TAG
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.helpers.AuthHelper
 import com.aurora.store.data.model.AccountType
@@ -38,8 +39,6 @@ open class AuthWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
-
-    private val TAG = AuthWorker::class.java.simpleName
 
     override suspend fun doWork(): Result {
         if (!AccountProvider.isLoggedIn(context)) {
@@ -101,8 +100,8 @@ open class AuthWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun fetchAuthToken(email: String, oldToken: String? = null): String {
-        return suspendCoroutine { continuation ->
+    private suspend fun fetchAuthToken(email: String, oldToken: String? = null): String =
+        suspendCoroutine { continuation ->
             fetchAuthToken(email, oldToken) { future ->
                 try {
                     val bundle = future.result
@@ -111,14 +110,15 @@ open class AuthWorker @AssistedInject constructor(
                     if (token != null) {
                         continuation.resume(token)
                     } else {
-                        continuation.resumeWithException(IllegalStateException("Auth token is null"))
+                        continuation.resumeWithException(
+                            IllegalStateException("Auth token is null")
+                        )
                     }
                 } catch (e: Exception) {
                     continuation.resumeWithException(e)
                 }
             }
         }
-    }
 
     private fun fetchAuthToken(
         email: String,
@@ -156,8 +156,8 @@ open class AuthWorker @AssistedInject constructor(
         }
     }
 
-    private fun verifyAndSaveAuth(authData: AuthData, accountType: AccountType): AuthData? {
-        return if (authData.authToken.isNotEmpty() && authData.deviceConfigToken.isNotEmpty()) {
+    private fun verifyAndSaveAuth(authData: AuthData, accountType: AccountType): AuthData? =
+        if (authData.authToken.isNotEmpty() && authData.deviceConfigToken.isNotEmpty()) {
             authProvider.saveAuthData(authData)
             AccountProvider.login(
                 context,
@@ -172,5 +172,4 @@ open class AuthWorker @AssistedInject constructor(
             AccountProvider.logout(context)
             null
         }
-    }
 }

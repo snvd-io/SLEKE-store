@@ -6,6 +6,9 @@
 package com.aurora.store.viewmodel.onboarding
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.Constants.PACKAGE_NAME_GMS
@@ -15,110 +18,110 @@ import com.aurora.store.AuroraApp
 import com.aurora.store.data.event.InstallerEvent
 import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.room.suite.ExternalApk
+import com.aurora.store.util.PackageUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+
+data class MicroGUIState(
+    var isDownloading: Boolean = false,
+    var isInstalled: Boolean = false
+)
 
 @HiltViewModel
 class MicroGViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext
+    private val context: Context,
     private val downloadHelper: DownloadHelper
 ) : ViewModel() {
 
     companion object {
-        const val MICROG_DOWNLOAD_URL = "https://github.com/microg/GmsCore/releases/download"
-        const val MICROG_VERSION = "v0.3.6.244735"
-        const val GMS_VERSION_CODE = 244735012
-        const val COMPANION_VERSION_CODE = 84022612
+        private const val BASE_URL =
+            "https://github.com/microg/GmsCore/releases/download"
+        private const val MICROG_VERSION = "v0.3.11.250932"
+        private const val GMS_VERSION_CODE = 250932022
+        private const val COMPANION_VERSION_CODE = 84022622
+
+        private const val MICROG_DOWNLOAD_URL =
+            "$BASE_URL/$MICROG_VERSION/$PACKAGE_NAME_GMS-$GMS_VERSION_CODE-hw.apk"
+        private const val FAKE_STORE_DOWNLOAD_URL =
+            "$BASE_URL/$MICROG_VERSION/$PACKAGE_NAME_PLAY_STORE-$COMPANION_VERSION_CODE-hw.apk"
+
+        private const val ICON_BASE_URL = "https://raw.githubusercontent.com/microg"
+        private const val ICON_FILE_PATH = "src/main/res/mipmap-xxxhdpi/ic_app.png"
     }
 
-    private val _packageNames = MutableSharedFlow<List<String>>()
-    val packageNames = _packageNames.asSharedFlow()
+    init {
+        AuroraApp.events.installerEvent.onEach {
+            when (it) {
+                is InstallerEvent.Installed -> confirmBundleInstall()
+                else -> {}
+            }
+        }.launchIn(AuroraApp.scope)
+    }
 
-    private val _checked = MutableStateFlow(false)
-    val checked: StateFlow<Boolean> = _checked
+    var uiState: MicroGUIState by mutableStateOf(MicroGUIState())
+        private set
 
-    val download = combine(packageNames, downloadHelper.downloadsList) { apps, list ->
-        list.find { d -> apps.any { it == d.packageName } }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-
-    val microGServiceApk = ExternalApk(
+    private val microGServiceApk = ExternalApk(
         packageName = PACKAGE_NAME_GMS,
         versionCode = GMS_VERSION_CODE.toLong(),
         versionName = MICROG_VERSION,
         displayName = "microG Services",
-        iconURL = "https://raw.githubusercontent.com/microg/GmsCore/refs/heads/master/play-services-core/src/main/res/mipmap-xxxhdpi/ic_app.png",
+        iconURL = "$ICON_BASE_URL/GmsCore/refs/heads/master/play-services-core/$ICON_FILE_PATH",
         developerName = "microG Team",
         fileList = listOf(
             PlayFile(
-                url = "$MICROG_DOWNLOAD_URL/$MICROG_VERSION/$PACKAGE_NAME_GMS-$GMS_VERSION_CODE-hw.apk",
+                url = MICROG_DOWNLOAD_URL,
                 name = "$PACKAGE_NAME_GMS-$GMS_VERSION_CODE-hw.apk",
-                size = 32509431,
-                sha256 = "2f14df2974811b576bfafa6167a97e3b3032f2bd6e6ec3887a833fd2fa350dda"
+                size = 92386474,
+                sha256 = "2894a93544a8d7ca8f6ca96e7cc697647a7e0862165b6a02f8cd26822759b9cc"
             )
         )
     )
 
-    val microGCompanionApk = ExternalApk(
+    private val microGCompanionApk = ExternalApk(
         packageName = PACKAGE_NAME_PLAY_STORE,
         versionCode = COMPANION_VERSION_CODE.toLong(),
         versionName = MICROG_VERSION,
         displayName = "microG Companion",
-        iconURL = "https://raw.githubusercontent.com/microg/FakeStore/refs/heads/main/fake-store/src/main/res/mipmap-xxxhdpi/ic_app.png",
+        iconURL = "$ICON_BASE_URL/FakeStore/refs/heads/main/fake-store/$ICON_FILE_PATH",
         developerName = "microG Team",
         fileList = listOf(
             PlayFile(
-                url = "$MICROG_DOWNLOAD_URL/$MICROG_VERSION/$PACKAGE_NAME_PLAY_STORE-$COMPANION_VERSION_CODE-hw.apk",
+                url = FAKE_STORE_DOWNLOAD_URL,
                 name = "$PACKAGE_NAME_PLAY_STORE-$COMPANION_VERSION_CODE-hw.apk",
-                size = 3915551,
-                sha256 = "6835b09016cef0fc3469b4a36b1720427ad3f81161cf20b188f0dadb5f8594e1"
+                size = 4626291,
+                sha256 = "b9623b8da8791c7e887efca941434b20e517c8a42ca4fda713625957edcc84eb"
             )
         )
     )
 
-    fun markAgreement(checked: Boolean) {
-        viewModelScope.launch {
-            _checked.emit(checked)
-        }
-    }
-
     fun downloadMicroG() {
-        viewModelScope.launch {
-            try {
-                _packageNames.emit(listOf(PACKAGE_NAME_GMS))
+        viewModelScope.launch(Dispatchers.IO) {
+            if (microGCompanionApk.isInstalled(context)) {
+                AuroraApp.events.send(InstallerEvent.Installed(PACKAGE_NAME_PLAY_STORE))
+            } else {
+                downloadHelper.enqueueStandalone(microGCompanionApk)
+                uiState = uiState.copy(isDownloading = true)
+            }
 
-                if (microGServiceApk.isInstalled(context)) {
-                    AuroraApp.events.send(InstallerEvent.Installed(PACKAGE_NAME_GMS))
-                } else {
-                    downloadHelper.enqueueStandalone(microGServiceApk)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            if (microGServiceApk.isInstalled(context)) {
+                AuroraApp.events.send(InstallerEvent.Installed(PACKAGE_NAME_GMS))
+            } else {
+                downloadHelper.enqueueStandalone(microGServiceApk)
+                uiState = uiState.copy(isDownloading = true)
             }
         }
     }
 
-    fun downloadCompanion() {
-        viewModelScope.launch {
-            try {
-                _packageNames.emit(listOf(PACKAGE_NAME_PLAY_STORE))
-
-                if (microGCompanionApk.isInstalled(context)) {
-                    AuroraApp.events.send(InstallerEvent.Installed(PACKAGE_NAME_PLAY_STORE))
-                } else {
-                    downloadHelper.enqueueStandalone(microGCompanionApk)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+    private fun confirmBundleInstall() {
+        if (PackageUtil.isMicroGBundleInstalled(context)) {
+            uiState = uiState.copy(isInstalled = true, isDownloading = false)
         }
     }
 }

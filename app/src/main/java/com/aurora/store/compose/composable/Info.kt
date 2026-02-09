@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +30,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
 import com.aurora.store.compose.preview.AppPreviewProvider
+import com.aurora.store.compose.preview.PreviewTemplate
 
 /**
  * Composable to show some information
@@ -38,7 +38,7 @@ import com.aurora.store.compose.preview.AppPreviewProvider
  * @param title Title of the information
  * @param description Information to show
  * @param painter Optional painter to draw the icon
- * @param tint Optional tint color for the icon
+ * @param titleColor Optional color for the title
  * @param onClick Callback when this composable is clicked
  */
 @Composable
@@ -47,7 +47,7 @@ fun Info(
     title: AnnotatedString,
     description: AnnotatedString? = null,
     painter: Painter? = null,
-    tint: Color = LocalContentColor.current,
+    titleColor: Color = Color.Unspecified,
     onClick: (() -> Unit)? = null
 ) {
     Row(
@@ -61,13 +61,14 @@ fun Info(
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_normal)),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (painter != null) Icon(painter = painter, contentDescription = null, tint = tint)
+        if (painter != null) Icon(painter = painter, contentDescription = null)
         Column(modifier = Modifier.weight(1F)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                color = titleColor
             )
             if (!description.isNullOrBlank()) {
                 Text(
@@ -83,9 +84,11 @@ fun Info(
 @Preview(showBackground = true)
 @Composable
 private fun InfoPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    Info(
-        title = AnnotatedString(text = stringResource(R.string.details_dev_website)),
-        description = AnnotatedString.fromHtml(htmlString = app.developerWebsite),
-        painter = painterResource(R.drawable.ic_network)
-    )
+    PreviewTemplate {
+        Info(
+            title = AnnotatedString(text = stringResource(R.string.details_dev_website)),
+            description = AnnotatedString.fromHtml(htmlString = app.developerWebsite),
+            painter = painterResource(R.drawable.ic_network)
+        )
+    }
 }

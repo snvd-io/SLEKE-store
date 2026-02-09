@@ -417,7 +417,7 @@
     <string name="add_dispenser_title">新增供應者</string>
     <string name="add_dispenser_summary">於 Aurora Store 中新增供應者。權杖供應者將提供帳號證明於 Aurora Store 以匿名地登入。</string>
     <string name="add_dispenser_hint">供應者網址</string>
-    <string name="remove_dispenser_title">移除供應者</string>
+    <string name="remove_dispenser_title">移除供應者？</string>
     <string name="remove_dispenser_summary">是否移除供應者「<xliff:g id="url">%1$s</xliff:g>」？</string>
     <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> 個權限</string>
     <string name="action_unarchive">解壓縮</string>
@@ -437,7 +437,7 @@
     <string name="pref_network_proxy_desc">檢視並管理代理伺服器設定</string>
     <string name="pref_common_advanced">更多</string>
     <string name="pref_updates_restrictions_title">自動更新限制</string>
-    <string name="pref_updates_restrictions_desc">設定自動更新的裝置限制。</string>
+    <string name="pref_updates_restrictions_desc">設定自動更新的裝置限制</string>
     <string name="pref_updates_restrictions_metered">僅限於非計量付費網路</string>
     <string name="pref_updates_restrictions_idle">於裝置閒置時</string>
     <string name="pref_updates_restrictions_battery">於裝置電量足夠時</string>
@@ -459,4 +459,15 @@
     <string name="select_app_for_details">選擇一個應用程式以查看更多詳細資訊</string>
     <string name="action_filter_no_ads">無廣告</string>
     <string name="action_filter_no_gms">無 Play 服務</string>
+    <plurals name="permissions_required">
+        <item quantity="other">需要權限</item>
+    </plurals>
+    <string name="installer_microg_misconfigured">MicroG 安裝器安裝應用失敗，可能由於錯誤配置。</string>
+    <string name="pref_install_mode_microg">MicroG 安裝器</string>
+    <string name="microg_installer_subtitle">需要安裝 microG 助手應用</string>
+    <string name="microg_installer_desc">幫助繞過應用程式完整性（僅限安裝包）檢查</string>
+    <string name="loading">正在加載</string>
+    <string name="page">頁 <xliff:g id="number">%1$d</xliff:g></string>
+    <string name="action_skip">跳過</string>
+    <string name="force_restart_snack">重新啟動以套用變更？</string>
 </resources>

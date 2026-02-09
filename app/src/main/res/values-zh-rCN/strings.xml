@@ -97,7 +97,7 @@
     <string name="about_paypal_summary">通过 PayPal 捐款</string>
     <string name="about_libera_summary">在 Liberapay 成为捐款者</string>
     <string name="about_libera">Liberapay</string>
-    <string name="about_gitlab_summary">在 GitLab 上的 Aurora OSS 获取 Aurora Store 源代码。</string>
+    <string name="about_gitlab_summary">在 GitLab 上获取 Aurora Store 源代码</string>
     <string name="about_gitlab">GitLab</string>
     <string name="about_fdroid_summary">在 F-Droid 获取 Aurora Store。</string>
     <string name="about_fdroid">F-Droid</string>
@@ -342,7 +342,7 @@
     <string name="add_dispenser_error">无效 URL</string>
     <string name="add_dispenser_hint">分发程序 URL</string>
     <string name="remove">删除</string>
-    <string name="remove_dispenser_title">删除分发程序</string>
+    <string name="remove_dispenser_title">删除分发程序?</string>
     <string name="add">添加</string>
     <string name="remove_dispenser_summary">你希望删除分发程序 \"<xliff:g id="url">%1$s</xliff:g>\"吗？</string>
     <string name="session_login">请登录你的 Google 账户</string>
@@ -422,7 +422,7 @@
     <string name="toast_proxy_disabled">成功停用了代理</string>
     <string name="pref_network_proxy_desc">查看并管理代理配置</string>
     <string name="pref_updates_restrictions_title">自动更新限制</string>
-    <string name="pref_updates_restrictions_desc">配置自动更新的设备限制。</string>
+    <string name="pref_updates_restrictions_desc">配置设备自动更新限制</string>
     <string name="pref_updates_restrictions_metered">仅在不按流量计费网络上</string>
     <string name="pref_updates_restrictions_idle">当设备闲置时</string>
     <string name="pref_updates_restrictions_battery">当电量不低时</string>
@@ -459,4 +459,15 @@
     <string name="action_filter_no_gms">无 play 服务</string>
     <string name="manual_download_version_error">版本码只能包含数字</string>
     <string name="preparing_to_install">准备安装中</string>
+    <plurals name="permissions_required">
+        <item quantity="other">需要权限</item>
+    </plurals>
+    <string name="installer_microg_misconfigured">MicroG 安装器安装应用失败，可能由于错误配置。</string>
+    <string name="pref_install_mode_microg">MicroG 安装器</string>
+    <string name="microg_installer_subtitle">需要安装 microG 助手应用</string>
+    <string name="microg_installer_desc">帮助绕过应用完整性（仅安装包）检查</string>
+    <string name="loading">正在加载</string>
+    <string name="page">页 <xliff:g id="number">%1$d</xliff:g></string>
+    <string name="action_skip">跳过</string>
+    <string name="force_restart_snack">重启应用更改吗？</string>
 </resources>

@@ -44,6 +44,9 @@ class ExportWorker @AssistedInject constructor(
         private const val VERSION_CODE = "VERSION_CODE"
         private const val DISPLAY_NAME = "DISPLAY_NAME"
 
+        private const val NOTIFICATION_ID = 500
+        private const val NOTIFICATION_ID_FGS = 501
+
         /**
          * Exports the installed package to the given URI
          * @param app App to export
@@ -91,8 +94,6 @@ class ExportWorker @AssistedInject constructor(
     }
 
     private lateinit var notificationManager: NotificationManager
-    private val NOTIFICATION_ID = 500
-    private val NOTIFICATION_ID_FGS = 501
 
     override suspend fun doWork(): Result {
         val isDownload = inputData.getBoolean(IS_DOWNLOAD, false)
@@ -125,12 +126,10 @@ class ExportWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(
-            NOTIFICATION_ID_FGS,
-            NotificationUtil.getExportNotification(context)
-        )
-    }
+    override suspend fun getForegroundInfo(): ForegroundInfo = ForegroundInfo(
+        NOTIFICATION_ID_FGS,
+        NotificationUtil.getExportNotification(context)
+    )
 
     private fun notifyStatus(packageName: String, uri: Uri, success: Boolean = true) {
         notificationManager.notify(
@@ -156,12 +155,10 @@ class ExportWorker @AssistedInject constructor(
         bundleAllAPKs(fileList.filterNotNull(), uri)
     }
 
-    private fun copyDownloadedApp(packageName: String, versionCode: Long, uri: Uri) {
-        return bundleAllAPKs(
-            PathUtil.getAppDownloadDir(context, packageName, versionCode).listFiles()!!.toList(),
-            uri
-        )
-    }
+    private fun copyDownloadedApp(packageName: String, versionCode: Long, uri: Uri) = bundleAllAPKs(
+        PathUtil.getAppDownloadDir(context, packageName, versionCode).listFiles()!!.toList(),
+        uri
+    )
 
     /**
      * Bundles all the given APKs to a zip file

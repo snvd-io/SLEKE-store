@@ -22,14 +22,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.aurora.store.R
+import com.aurora.store.compose.preview.PreviewTemplate
 import com.aurora.store.data.model.Link
 
 /**
@@ -39,7 +43,12 @@ import com.aurora.store.data.model.Link
  * @param onClick Callback when the composable is clicked
  */
 @Composable
-fun LinkListItem(modifier: Modifier = Modifier, link: Link, onClick: () -> Unit = {}) {
+fun LinkListItem(
+    modifier: Modifier = Modifier,
+    link: Link,
+    onClick: () -> Unit = {},
+    iconTint: Color? = null
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -56,7 +65,8 @@ fun LinkListItem(modifier: Modifier = Modifier, link: Link, onClick: () -> Unit 
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .requiredSize(dimensionResource(R.dimen.icon_size_default))
-                .clip(CircleShape)
+                .clip(CircleShape),
+            colorFilter = if (iconTint != null) ColorFilter.tint(color = iconTint) else null
         )
         VerticalDivider(
             modifier = Modifier
@@ -84,13 +94,15 @@ fun LinkListItem(modifier: Modifier = Modifier, link: Link, onClick: () -> Unit 
 @Preview(showBackground = true)
 @Composable
 private fun LinkListItemPreview() {
-    LinkListItem(
-        link = Link(
-            id = 0,
-            title = LocalContext.current.getString(R.string.title_about),
-            subtitle = LocalContext.current.getString(R.string.about_aurora_store_subtitle),
-            url = "https://auroraoss.com/",
-            icon = R.drawable.ic_menu_about
+    PreviewTemplate {
+        LinkListItem(
+            link = Link(
+                id = 0,
+                title = stringResource(R.string.title_about),
+                subtitle = stringResource(R.string.about_aurora_store_subtitle),
+                url = "https://auroraoss.com/",
+                icon = R.drawable.ic_menu_about
+            )
         )
-    )
+    }
 }

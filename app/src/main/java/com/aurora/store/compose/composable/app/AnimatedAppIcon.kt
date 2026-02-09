@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,17 +22,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import coil3.compose.AsyncImage
-import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.compose.preview.coilPreviewProvider
+import com.aurora.store.compose.preview.PreviewTemplate
 
 /**
  * Composable to show icon for an app that can be animated to also show install progress
@@ -64,7 +64,9 @@ fun AnimatedAppIcon(
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         if (inProgress) {
-            val indicatorModifier = Modifier.fillMaxSize()
+            val indicatorModifier = Modifier
+                .fillMaxSize()
+                .semantics { testTag = "progressIndicator" }
             if (animatedProgress > 0) {
                 CircularProgressIndicator(
                     modifier = indicatorModifier,
@@ -90,7 +92,7 @@ fun AnimatedAppIcon(
     }
 }
 
-private class ProgressProvider: PreviewParameterProvider<Float> {
+private class ProgressProvider : PreviewParameterProvider<Float> {
     override val values: Sequence<Float>
         get() = sequenceOf(0F, 50F)
 }
@@ -98,7 +100,7 @@ private class ProgressProvider: PreviewParameterProvider<Float> {
 @Preview(showBackground = true)
 @Composable
 private fun AnimatedAppIconPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    CompositionLocalProvider(LocalAsyncImagePreviewHandler provides coilPreviewProvider) {
+    PreviewTemplate {
         AnimatedAppIcon(
             modifier = Modifier.requiredSize(dimensionResource(R.dimen.icon_size_large)),
             iconUrl = app.iconArtwork.url
@@ -109,7 +111,7 @@ private fun AnimatedAppIconPreview(@PreviewParameter(AppPreviewProvider::class) 
 @Preview(showBackground = true)
 @Composable
 private fun AnimatedAppIconPreview(@PreviewParameter(ProgressProvider::class) progress: Float) {
-    CompositionLocalProvider(LocalAsyncImagePreviewHandler provides coilPreviewProvider) {
+    PreviewTemplate {
         AnimatedAppIcon(
             modifier = Modifier.requiredSize(dimensionResource(R.dimen.icon_size_large)),
             iconUrl = "",

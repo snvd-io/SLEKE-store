@@ -251,7 +251,7 @@
     <string name="title_blacklist_manager">Musta nimekirja haldur</string>
     <string name="title_games">Mängud</string>
     <string name="title_settings">Seaded</string>
-    <string name="toast_proxy_invalid">Vale puhverserveri URL, kontrolli vormingut!</string>
+    <string name="toast_proxy_invalid">Vale puhverserveri võrguaadress, kontrolli vormingut!</string>
     <string name="app_updater_service_notif_title">Rakenduse allalaadimine taustal</string>
     <string name="expand">Laienda</string>
     <string name="title_search_results">Otsingutulemused</string>
@@ -308,7 +308,7 @@
     <string name="about_aurora_store_title">Aurora poest</string>
     <string name="manage_account">Halda oma kontot</string>
     <string name="title_more">Veel</string>
-    <string name="add_dispenser_error">Kehtetu võrguaadress</string>
+    <string name="add_dispenser_error">Vigane võrguaadress</string>
     <string name="add">Lisa</string>
     <string name="toast_fav_import_failed">Lemmikute import nurjus!</string>
     <string name="toast_fav_import_success">Lemmikud imporditud!</string>
@@ -339,7 +339,7 @@
     <string name="disable">Keela</string>
     <string name="pref_network_proxy_desc">Vaata ja halda puhverserveri seadistust</string>
     <string name="pref_updates_restrictions_title">Automaatsete uuenduste piirangud</string>
-    <string name="pref_updates_restrictions_desc">Määra automaatsete värskenduste jaoks piirangud.</string>
+    <string name="pref_updates_restrictions_desc">Seadista automaatsete uuenduste jaoks seadme piirangud</string>
     <string name="pref_updates_restrictions_idle">Kui seade on jõudeolekus</string>
     <string name="verification_failed">Allalaaditud failide kinnitamine nurjus</string>
     <string name="details_compatibility_microg">MicroG projektiga</string>
@@ -415,12 +415,12 @@
     <string name="am_installer_desc">Nõuab rakendust App Manager, paigaldamiseks on vaja adb/root-režiimi, kui miui optimeerimine on sisse lülitatud</string>
     <string name="pref_clear_device_owner_summary">Lõpetab Aurora Poe tegevuse rakenduse omanikuna</string>
     <string name="pref_dispenser_title">Halda sisselogimistunnuseid</string>
-    <string name="pref_dispenser_summary">Vaata ja halda tunnuslubade plokke, mida kasutatakse anonüümseks sisseligimiseks</string>
+    <string name="pref_dispenser_summary">Vaata ja halda tunnuslubade plokke, mida kasutatakse anonüümseks sisselogimiseks</string>
     <string name="no_dispensers_available">Sisselogimistunnuseid pole saadaval</string>
     <string name="add_dispenser_title">Lisa sisselogimistunnus</string>
     <string name="add_dispenser_summary">Lisa sisselogimistunnus Aurora Poodi. Neid kasutatakse anonüümsel sisselogimisel.</string>
     <string name="add_dispenser_hint">Sisselogimistunnuse võrguaadress</string>
-    <string name="remove_dispenser_title">Eemalda sisselogimistunnus</string>
+    <string name="remove_dispenser_title">Kas eemaldad sisselogimistunnuse?</string>
     <string name="remove_dispenser_summary">Kas sa soovid eemaldada sisselogimistunnuse \"<xliff:g id="url">%1$s</xliff:g>\"?</string>
     <string name="export_app_summary_success">Rakenduse kogumi eksportimine õnnestus</string>
     <string name="export_app_summary_fail">Rakenduse kogumi eksportimine ei õnnestunud</string>
@@ -459,4 +459,16 @@
     <string name="action_filter_no_gms">Ei vaja Google Play teenuseid</string>
     <string name="manual_download_version_error">Versiooni koodis võib olla vaid numbreid</string>
     <string name="preparing_to_install">Paigaldamine on ettevalmistamisel</string>
+    <plurals name="permissions_required">
+        <item quantity="one">Õigus on vajalik</item>
+        <item quantity="other">Õigused on vajalikud</item>
+    </plurals>
+    <string name="installer_microg_misconfigured">MicroG paigaldaja ei suutnud rakendust paigaldada. Ilmselt juhtus see vale seadistuse tõttu.</string>
+    <string name="pref_install_mode_microg">MicroG paigaldaja</string>
+    <string name="microg_installer_subtitle">Eeldab, et kaasnev MicroG rakendus on paigaldatud</string>
+    <string name="microg_installer_desc">Lubab sul jätta vahele rakenduse tervikluse kontrolli (vaid paigaldaja puhul)</string>
+    <string name="loading">Laadimine on töös</string>
+    <string name="page">Leht <xliff:g id="number">%1$d</xliff:g></string>
+    <string name="action_skip">Jäta vahele</string>
+    <string name="force_restart_snack">Kas käivitad muudatuste jõustamiseks uuesti?</string>
 </resources>

@@ -23,7 +23,7 @@
     <string name="onboarding_welcome_select">Comment allez-vous ?</string>
     <string name="onboarding_title_welcome">Bienvenue</string>
     <string name="onboarding_title_installer">Programme d’installation</string>
-    <string name="pref_filter_fdroid_title">Filtrer les applis de F-Droid</string>
+    <string name="pref_filter_fdroid_title">Filtrer les applis provenant de F-Droid</string>
     <string name="pref_install_mode_title">Mode d’installation</string>
     <string name="title_about">À propos</string>
     <string name="tab_trending">Tendances</string>
@@ -116,7 +116,7 @@
     <string name="action_filter_misc">Divers</string>
     <string name="action_filter_gsf_dependent_apps">Dépend du Google Services Framework</string>
     <string name="action_filter_downloads">Téléchargements</string>
-    <string name="action_filter_apps_with_ads">Applis avec pubs</string>
+    <string name="action_filter_apps_with_ads">Applis avec publicités</string>
     <string name="action_filter_apply">Appliquer</string>
     <string name="action_filter_all">Tout</string>
     <string name="action_filter">Filtres</string>
@@ -180,10 +180,10 @@
     <string name="pref_install_delete_title">Supprimer l’APK après installation</string>
     <string name="pref_install_delete_summary">Les APK téléchargés seront supprimés immédiatement après installation</string>
     <string name="pref_filter_fdroid_summary">Ignorer les mises à jour d’applis installées avec F-Droid</string>
-    <string name="onboarding_permission_installer_desc">Autoriser l’installation d’applis par le Aurora Store</string>
+    <string name="onboarding_permission_installer_desc">Autoriser l’installation d’applis du Aurora Store</string>
     <string name="onboarding_permission_installer">Autorisation du programme d’installation</string>
     <string name="onboarding_permission_esm">Gestionnaire de mémoire externe</string>
-    <string name="onboarding_permission_esa_desc">Pour enregistrer les fichiers d’expansion APK (OBB) des applis et jeux volumineux</string>
+    <string name="onboarding_permission_esa_desc">Pour enregistrer les fichiers d’extension APK (OBB) pour les applis et jeux volumineux.</string>
     <string name="onboarding_permission_esa">Accès à la mémoire externe</string>
     <string name="onboarding_title_permissions">Autorisations</string>
     <string name="onboarding_permission_select">Aurora Store a besoin des autorisations suivantes</string>
@@ -205,11 +205,11 @@
     <string name="purchase_session_expired">La session est expirée. Reconnectez-vous pour obtenir une nouvelle session.</string>
     <string name="purchase_not_found">L’appli est introuvable</string>
     <string name="purchase_unsupported">L’appli n’est pas prise en charge</string>
-    <string name="toast_purchase_blocked">Les achats d’applis ne sont pas possibles pour les comptes anonymes.</string>
+    <string name="toast_purchase_blocked">Les comptes anonymes ne peuvent pas acheter des applis.</string>
     <string name="insecure_anonymous_apply">Reconnectez-vous et redémarrez l’appli pour appliquer les changements.</string>
     <string name="pref_network_title">Mise en réseau</string>
     <string name="pref_ui_no_for_you">Pages « Pour vous »</string>
-    <string name="pref_ui_similar_apps">Applis semblables et connexes</string>
+    <string name="pref_ui_similar_apps">Applis semblables et apparentées</string>
     <string name="pref_ui_no_for_you_desc">Afficher les pages « Pour vous » sur l’écran d’accueil</string>
     <string name="pref_ui_layout_tab">Choisir l’onglet par défaut</string>
     <string name="pref_ui_layout">Disposition</string>
@@ -218,7 +218,7 @@
     <string name="toast_manual_available">Félicitations, le code de version demandé est proposé ; le téléchargement est en cours.</string>
     <string name="toast_manual_unavailable">Le code de version que vous demandez n’est pas proposé.</string>
     <string name="title_manual_download">Téléchargement manuel</string>
-    <string name="dialog_desc_native_split">Le programme d’installation natif ne permet pas d’installer des paquets d’applis (fractionnés). Choisissez une autre méthode d’installation, Session, Services ou Racine.</string>
+    <string name="dialog_desc_native_split">Le programme d’installation natif ne permet pas d’installer des paquets d’applis (fractionnés). Choisissez une autre méthode d’installation : Session, Services ou Racine.</string>
     <string name="toast_aas_token_failed">Impossible de générer le jeton AAS</string>
     <string name="toast_rated_failed">Impossible de transmettre l’évaluation</string>
     <string name="toast_rated_success">L’évaluation a été enregistrée. Son affichage peut prendre un certain temps</string>
@@ -326,7 +326,7 @@
     <string name="services_installer_desc">Les services Aurora doivent être installés en tant qu’appli avec les privilèges système</string>
     <string name="services_installer_subtitle">Programme d’installation pour les installations en arrière-plan</string>
     <string name="am_installer_subtitle">Gestionnaire de paquet complet à code ouvert</string>
-    <string name="am_installer_desc">Le gestionnaire d’applis « App Manager » et le mode ADB/root sont nécessaires pour installer si l’optimisation MIUI est activée</string>
+    <string name="am_installer_desc">Le gestionnaire d’applis « App Manager » et le mode ADB/racine sont nécessaires à l\'installation si l’optimisation MIUI est activée</string>
     <string name="title_more">Plus</string>
     <string name="manage_account">Gérer mon compte</string>
     <string name="about_wiki_title">Wiki</string>
@@ -340,11 +340,11 @@
     <string name="session_login">Connectez-vous à votre compte Google Play</string>
     <string name="add_dispenser_summary">Ajouter un distributeur de jetons à Aurora Store. Les distributeurs de jetons fournissent des identifiants de compte à Aurora Store pour les connexions anonymes.</string>
     <string name="add_dispenser_hint">URL du distributeur de jetons</string>
-    <string name="remove_dispenser_title">Supprimer le distributeur de jetons</string>
+    <string name="remove_dispenser_title">Supprimer le distributeur de jetons ?</string>
     <string name="add">Ajouter</string>
     <string name="pref_dispenser_summary">Consulter et gérer les distributeurs de jetons pour les connexions anonymes</string>
     <string name="no_dispensers_available">Aucun distributeur de jetons n’est proposé</string>
-    <string name="about_aurora_store_summary">Aurora Store vous permet de chercher des applications dans le magasin officiel Google Play et de les télécharger. Vous pouvez consulter leurs descriptions, captures d’écran, mises à jour, les commentaires des utilisateurs et télécharger les APK directement de Google Play sur votre appareil. Pour utiliser Aurora Store, vous devez avoir un compte Google et vous y connecter lors du premier lancement et de la configuration d’Aurora Store.\n\nContrairement à un magasin d’applications traditionnel, Aurora Store n’est pas le propriétaire des applis, ne les distribue pas, ni n’émet de licence. Les applis, leurs descriptions, captures d’écran et autres contenus offerts par Aurora Store proviennent directement de Google Play. Aurora Store fonctionne exactement comme une porte d’accès, un navigateur qui vous permet de vous connecter à votre compte Google Play et de trouver les applis dans Google Play.\n\nAurora Store ne reçoit aucune autorisation, aucun parrainage de Google, Google Play, des applications téléchargées avec Aurora Store ni des équipes de développement de ces applications. Aurora Store n’a aucun lien d’affiliation, de coopération ou autres connexions avec ces entités.</string>
+    <string name="about_aurora_store_summary">Aurora Store vous permet de chercher et de télécharger des applis dans le magasin officiel Google Play. Vous pouvez consulter leurs descriptions, captures d’écran, mises à jour, les commentaires des utilisateurs et télécharger les APK directement de Google Play sur votre appareil. Pour utiliser Aurora Store, vous devez disposer d’un compte Google et vous y connecter lors du premier lancement et de la configuration d’Aurora Store.\n\nContrairement à un magasin d’applications traditionnel, Aurora Store n’est le propriétaire d’aucune appli, ne les distribue pas, ni n’émet de licence. Les applis, leurs descriptions, captures d’écran et autres contenus offerts par Aurora Store proviennent directement de Google Play. Aurora Store fonctionne exactement comme une porte d’accès ou un navigateur qui vous permet de vous connecter à votre compte Google Play et de trouver les applis dans Google Play.\n\nAurora Store ne reçoit aucune autorisation, aucun parrainage de Google, de Google Play, des applis téléchargées avec Aurora Store ni des équipes de développement de ces applis. Aurora Store n’a aucun lien d’affiliation, de coopération ou autres connexions avec ces entités.</string>
     <string name="about_aurora_store_title">À propos d’Aurora Store</string>
     <string name="about_aurora_store_subtitle">En savoir plus sur Aurora Store</string>
     <string name="pref_clear_device_owner_desc">Le programme d’installation de session ne pourra plus installer silencieusement les applis. Confirmez-vous la révocation du droit de propriété de l’appareil ?</string>
@@ -375,7 +375,7 @@
     <string name="export_app_title">Exportateur de fichier</string>
     <string name="export_app_summary">Patience, l’exportation de votre fichier est en cours</string>
     <string name="notification_channel_install">Notification d’installation</string>
-    <string name="notification_channel_export">Notification d’exportation d’application</string>
+    <string name="notification_channel_export">Notification d’exportation d’appli</string>
     <string name="notification_channel_downloads">Notification de téléchargement</string>
     <string name="status_completed">Terminé</string>
     <string name="status_queued">En attente</string>
@@ -384,7 +384,7 @@
     <string name="status_failed">Échec</string>
     <string name="status_unavailable">Inaccessible</string>
     <string name="authentication_required_unarchive">Connectez-vous à votre compte Google Play pour désarchiver l’appli</string>
-    <string name="notification_channel_account">Notification liée au compte</string>
+    <string name="notification_channel_account">Notification relative au compte</string>
     <string name="authentication_required_title">L’authentification est requise</string>
     <string name="checking_updates">Recherche de mises à jour</string>
     <string name="made_with_love">Conçu en Inde avec <xliff:g id="heart_emoji">%1$s</xliff:g></string>
@@ -421,14 +421,14 @@
     <string name="disable">Désactiver</string>
     <string name="toast_proxy_disabled">Le mandataire a été désactivé</string>
     <string name="pref_network_proxy_desc">Afficher et gérer la configuration du mandataire</string>
-    <string name="pref_updates_restrictions_desc">Configurer les restrictions de l’appareil relatives aux mises à jour automatiques.</string>
+    <string name="pref_updates_restrictions_desc">Configurer les restrictions de l’appareil relatives aux mises à jour automatiques</string>
     <string name="pref_updates_restrictions_metered">Seulement sur les réseaux illimités</string>
     <string name="pref_updates_restrictions_idle">Quand l’appareil est au repos</string>
     <string name="pref_updates_restrictions_battery">Quand le niveau de la batterie est suffisant</string>
     <string name="pref_updates_restrictions_title">Restrictions des mises à jour automatiques</string>
     <string name="verification_failed">Échec de vérification des fichiers téléchargés</string>
     <string name="pref_common_advanced">Avancé</string>
-    <string name="pref_updates_app_source">Source d’applis</string>
+    <string name="pref_updates_app_source">Source des applis</string>
     <string name="app_info_downloads">Téléchargements</string>
     <string name="app_info_updated_on">Dernière mise à jour</string>
     <string name="app_info_min_android">Version minimale d’Android</string>
@@ -439,7 +439,7 @@
     <string name="onboarding_title_gsf_desc">Dépendances manquantes</string>
     <string name="onboarding_gms_agreement">J’ai lu et accepte les conditions générales d’utilisation et la politique de confidentialité de microG</string>
     <string name="onboarding_gms_missing">Les services Google Play ne se trouvent pas sur votre appareil. Plusieurs applis populaires ont besoin de ces services pour fonctionner correctement.</string>
-    <string name="onboarding_gms_microg">microG est une implémentation libre et à code source ouvert qui permet aux appareils Android, grâce à une réimplémentation, d’exécuter des applis qui dépendent des services Google Play.\n\nmicroG permet aux applis d’accéder à ces API de Google, améliorant ainsi la compatibilité pour les utilisateurs tout en offrant des avantages en matière de protection des données personnelles.\n\nmicroG s’exécute automatiquement en arrière-plan si des applis qui dépendent des services mobiles de Google sont ouvertes.</string>
+    <string name="onboarding_gms_microg">microG est une implémentation gratuite et à code source ouvert qui offre des fonctions semblables pour exécuter, grâce à une réimplémentation, des applis qui dépendent des services Google Play pour les appareils Android.\n\nmicroG permet aux applis d’accéder à ces API Google, améliorant ainsi la compatibilité pour les utilisateurs tout en offrant des avantages en matière de confidentialité. \n\nmicroG s’exécute automatiquement en arrière-plan quand vous ouvrez des applis qui dépendent des services mobiles Google.</string>
     <string name="microg_privacy_policy">Lire la Politique de confidentialité de microG</string>
     <string name="microg_license_agreement">Lire la licence et l’entente de microG</string>
     <string name="microg_website">Consulter le site Web du projet microG</string>
@@ -459,4 +459,17 @@
     <string name="action_filter_no_gms">Pas de Services Play</string>
     <string name="manual_download_version_error">La version du code ne peut comporter que des chiffres</string>
     <string name="preparing_to_install">Préparation de l’installation</string>
+    <plurals name="permissions_required">
+        <item quantity="one">Une autorisation est nécessaire</item>
+        <item quantity="many">Des autorisations sont nécessaires</item>
+        <item quantity="other">Des autorisations sont nécessaires</item>
+    </plurals>
+    <string name="installer_microg_misconfigured">Le programme d’installation de MicroG n’a pas réussi à installer l’appli, probablement en raison d’une mauvaise configuration.</string>
+    <string name="pref_install_mode_microg">Programme d’installation de MicroG</string>
+    <string name="microg_installer_subtitle">L’appli compagnon microG doit être installée</string>
+    <string name="microg_installer_desc">Vous aide à contourner la vérification de l’intégrité des applis (programme d’installation seulement)</string>
+    <string name="loading">En cours de chargement</string>
+    <string name="page">Page <xliff:g id="number">%1$d</xliff:g></string>
+    <string name="action_skip">Ignorer</string>
+    <string name="force_restart_snack">Redémarrer pour appliquer les changements ?</string>
 </resources>

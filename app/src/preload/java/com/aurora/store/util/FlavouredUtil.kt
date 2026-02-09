@@ -4,7 +4,7 @@ import android.content.Context
 
 object FlavouredUtil : IFlavouredUtil {
 
-    override fun promptMicroGInstall(context: Context): Boolean {
-        return false
-    }
+    override val defaultDispensers = setOf(Constants.URL_DISPENSER)
+
+    override fun promptMicroGInstall(context: Context): Boolean = false
 }

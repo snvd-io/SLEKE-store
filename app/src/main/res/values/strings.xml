@@ -180,6 +180,7 @@
     <string name="installer_service_available">"Store services is available and ready to install."</string>
     <string name="installer_service_unavailable">Install Store services 1.0.9 or above, or change the installer.</string>
     <string name="installer_service_misconfigured">Set up Store services and grant all permissions first.</string>
+    <string name="installer_microg_misconfigured">MicroG installer failed to install app, likely due to misconfiguration.</string>
     <string name="installer_status_failure">"Installer failed"</string>
     <string name="installer_status_failure_blocked">"Installation was blocked"</string>
     <string name="installer_status_failure_session">"Could not create session"</string>
@@ -213,6 +214,7 @@
     <string name="pref_install_mode_root">"Root installer"</string>
     <string name="pref_install_mode_services">"Services (Deprecated)"</string>
     <string name="pref_install_mode_session">"Session installer"</string>
+    <string name="pref_install_mode_microg">"MicroG installer"</string>
     <string name="pref_install_mode_summary">"Select mode of APK installation"</string>
     <string name="pref_install_mode_title">"Installation method"</string>
     <string name="pref_vending_version_title">Google Play version</string>
@@ -356,6 +358,7 @@
     <string name="app_info_target_android">"Target API Level"</string>
 
     <!-- OnBoarding Fragment -->
+    <string name="action_skip">Skip</string>
     <string name="onboarding_title_installer">"Installer"</string>
     <string name="onboarding_title_gsf">"App Compatibility"</string>
     <string name="onboarding_title_gsf_desc">"Missing dependencies"</string>
@@ -389,6 +392,8 @@
     <string name="native_installer_desc">Best suited for devices running below Android 4.4</string>
     <string name="services_installer_subtitle">Installer for background installations</string>
     <string name="services_installer_desc">Requires Services to be installed as a privileged-system app</string>
+    <string name="microg_installer_subtitle">Requires microG companion app to be installed</string>
+    <string name="microg_installer_desc">Helps you bypass App Integrity (installer only) check</string>
     <string name="am_installer_subtitle">Full-featured open source package manager</string>
     <string name="am_installer_desc">Requires App Manager, need adb/root mode to install when miui optimization is on</string>
     <string name="shizuku_installer_subtitle">Using system APIs directly with adb/root privileges</string>
@@ -435,7 +440,7 @@
     <string name="add_dispenser_summary">Add a token dispenser to Store. Token dispensers provide account credentials to Store for logging in anonymously.</string>
     <string name="add_dispenser_error">Invalid URL</string>
     <string name="add_dispenser_hint">Dispenser URL</string>
-    <string name="remove_dispenser_title">Remove dispenser</string>
+    <string name="remove_dispenser_title">Remove dispenser?</string>
     <string name="remove_dispenser_summary">Do you wish to remove the dispenser \"<xliff:g id="url">%1$s</xliff:g>\"?</string>
     <string name="add">Add</string>
     <string name="remove">Remove</string>
@@ -467,6 +472,7 @@
     <string name="checking_updates">Checking for updates</string>
 
     <!-- ForceRestartDialog -->
+    <string name="force_restart_snack">Restart to apply changes?</string>
     <string name="force_restart_title">Restart Store</string>
     <string name="force_restart_summary">Store needs to be restarted to apply the newly changed settings</string>
 
@@ -496,7 +502,6 @@
     <string name="details_more_content_rating">Content rating</string>
     <string name="action_unarchive">Unarchive</string>
     <string name="unable_to_open">Unable to open app</string>
-    <string name="version_update" translatable="false"><xliff:g id="installed_version_name">%1$s</xliff:g> (<xliff:g id="installed_version_code">%2$d</xliff:g>) ➔ <xliff:g id="update_version_name">%3$s</xliff:g> (<xliff:g id="update_version_code">%4$d</xliff:g>)</string>
     <string name="plexus_powered">Powered by Plexus</string>
     <string name="plexus_progress">Checking compatibility…</string>
     <string name="details_compatibility_title">Compatibility</string>
@@ -552,4 +557,8 @@
     <string name="google_login_warning_message">Logging in with your primary Google account may result in account suspension due to Google Terms of Service violations. We strongly recommend creating a separate Gmail account for this app to protect your primary account. Use at your own risk.</string>
     <string name="action_continue">Continue</string>
     <string name="log_in_to_continue">Log in to continue</string>
+
+    <!-- Misc -->
+    <string name="loading">Loading in progress</string>
+    <string name="page">Page <xliff:g id="number">%1$d</xliff:g></string>
 </resources>

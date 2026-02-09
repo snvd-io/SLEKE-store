@@ -334,7 +334,7 @@
     <string name="pref_clear_device_owner_desc">Bu, oturum kurucunun uygulamayı sessizce kurma iznini iptal edecektir. Aygıt sahipliğini temizlemeye devam edilsin mi?</string>
     <string name="pref_dispenser_title">Dağıtıcıları yönet</string>
     <string name="pref_dispenser_summary">Anonim oturum açmak için belirteç dağıtıcılarını görüntüleyin ve yönetin</string>
-    <string name="remove_dispenser_title">Dağıtıcıyı kaldır</string>
+    <string name="remove_dispenser_title">Dağıtıcı kaldırılsın mı?</string>
     <string name="remove">Kaldır</string>
     <string name="about_wiki_title">Wiki</string>
     <string name="about_wiki_summary">Sık sorulan soruların (SSS) yanıtlarını, sorun giderme adımlarını ve daha çoğunu bulun</string>
@@ -426,7 +426,7 @@
     <string name="pref_updates_restrictions_battery">Pil gücü düşük değilken</string>
     <string name="pref_network_proxy_desc">Vekil yapılandırmasını göster ve yönet</string>
     <string name="pref_updates_restrictions_title">Kendiliğinden güncelleme kısıtları</string>
-    <string name="pref_updates_restrictions_desc">Kendiliğinden güncellemeler için aygıt kısıtlarını yapılandır.</string>
+    <string name="pref_updates_restrictions_desc">Kendiliğinden güncellemeler için aygıt kısıtlarını yapılandır</string>
     <string name="pref_common_advanced">Gelişmiş</string>
     <string name="pref_updates_app_source">Uygulama kaynağı</string>
     <string name="app_info_downloads">İndirme</string>
@@ -459,4 +459,16 @@
     <string name="action_filter_no_ads">Reklam yok</string>
     <string name="action_filter_no_gms">Play hizmetleri yok</string>
     <string name="preparing_to_install">Kuruluma hazırlanıyor</string>
+    <plurals name="permissions_required">
+        <item quantity="one">İzin gerekli</item>
+        <item quantity="other">İzinler gerekli</item>
+    </plurals>
+    <string name="installer_microg_misconfigured">MicroG kurucu, büyük olasılıkla yanlış yapılandırma nedeniyle uygulamayı kuramadı.</string>
+    <string name="pref_install_mode_microg">MicroG kurucu</string>
+    <string name="microg_installer_subtitle">microG yardımcı uygulamasının kurulmasını gerektirir</string>
+    <string name="microg_installer_desc">Uygulama Bütünlüğü (yalnızca kurucu) denetimini atlamanıza yardımcı olur</string>
+    <string name="loading">Yükleme devam ediyor</string>
+    <string name="page">Sayfa <xliff:g id="number">%1$d</xliff:g></string>
+    <string name="action_skip">Atla</string>
+    <string name="force_restart_snack">Değişiklikleri uygulamak için yeniden başlatılsın mı?</string>
 </resources>

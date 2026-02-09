@@ -6,6 +6,9 @@
 package com.aurora.store.compose.ui.search
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +37,6 @@ import androidx.compose.material3.adaptive.navigation.NavigableListDetailPaneSca
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +48,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
@@ -60,37 +64,40 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import coil3.compose.LocalAsyncImagePreviewHandler
+import com.aurora.extensions.emptyPagingItems
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composables.ErrorComposable
-import com.aurora.store.compose.composables.ProgressComposable
-import com.aurora.store.compose.composables.SearchSuggestionComposable
-import com.aurora.store.compose.composables.app.AppListComposable
+import com.aurora.store.compose.composable.ContainedLoadingIndicator
+import com.aurora.store.compose.composable.Error
+import com.aurora.store.compose.composable.SearchSuggestionListItem
+import com.aurora.store.compose.composable.app.LargeAppListItem
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.compose.preview.coilPreviewProvider
-import com.aurora.store.compose.preview.emptyPagingItems
+import com.aurora.store.compose.preview.PreviewTemplate
 import com.aurora.store.compose.ui.details.AppDetailsScreen
 import com.aurora.store.data.model.SearchFilter
 import com.aurora.store.viewmodel.search.SearchViewModel
-import kotlinx.coroutines.android.awaitFrame
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlin.random.Random
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(onNavigateUp: () -> Unit, viewModel: SearchViewModel = hiltViewModel()) {
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val results = viewModel.apps.collectAsLazyPagingItems()
 
+    val onSearchCallback = remember<(String) -> Unit> { { query -> viewModel.search(query) } }
+    val onFetchSuggestionsCallback =
+        remember<(String) -> Unit> { { query -> viewModel.fetchSuggestions(query) } }
+
     ScreenContent(
         suggestions = suggestions,
         results = results,
         onNavigateUp = onNavigateUp,
-        onSearch = { query -> viewModel.search(query) },
-        onFetchSuggestions = { query -> viewModel.fetchSuggestions(query) },
+        onSearch = onSearchCallback,
+        onFetchSuggestions = onFetchSuggestionsCallback,
         onFilter = { filter -> viewModel.filterResults(filter) },
         isAnonymous = viewModel.authProvider.isAnonymous
     )
@@ -104,7 +111,7 @@ private fun ScreenContent(
     onFetchSuggestions: (String) -> Unit = {},
     onSearch: (String) -> Unit = {},
     onFilter: (filter: SearchFilter) -> Unit = {},
-    isAnonymous: Boolean = true,
+    isAnonymous: Boolean = true
 ) {
     val textFieldState = rememberTextFieldState()
     val searchBarState = rememberSearchBarState()
@@ -113,6 +120,9 @@ private fun ScreenContent(
     val focusRequester = remember { FocusRequester() }
     val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator<String>()
     val coroutineScope = rememberCoroutineScope()
+
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(key1 = focusRequester) {
         awaitFrame()
@@ -132,18 +142,34 @@ private fun ScreenContent(
 
     fun onRequestSearch(query: String) {
         textFieldState.setTextAndPlaceCursorAtEnd(query.trim())
-        coroutineScope.launch { searchBarState.animateToCollapsed() }
+        coroutineScope.launch {
+            focusManager.clearFocus()
+            keyboardController?.hide()
+            searchBarState.animateToCollapsed()
+        }
         onSearch(textFieldState.text.toString())
         isSearching = true
     }
 
     @Composable
     fun SearchBar() {
+        val interactionSource = remember { MutableInteractionSource() }
+
+        LaunchedEffect(interactionSource) {
+            interactionSource.interactions.collectLatest { interaction ->
+                if (interaction is PressInteraction.Press) {
+                    awaitFrame()
+                    focusRequester.requestFocus()
+                }
+            }
+        }
+
         val inputField = @Composable {
             SearchBarDefaults.InputField(
                 modifier = Modifier.focusRequester(focusRequester),
                 searchBarState = searchBarState,
                 textFieldState = textFieldState,
+                interactionSource = interactionSource,
                 onSearch = { query -> onRequestSearch(query) },
                 placeholder = {
                     Text(
@@ -181,7 +207,7 @@ private fun ScreenContent(
         AppBarWithSearch(state = searchBarState, inputField = inputField)
         ExpandedDockedSearchBar(state = searchBarState, inputField = inputField) {
             suggestions.forEach { suggestion ->
-                SearchSuggestionComposable(
+                SearchSuggestionListItem(
                     searchSuggestEntry = suggestion,
                     onClick = { query -> onRequestSearch(query) },
                     onAction = { query -> textFieldState.setTextAndPlaceCursorAtEnd(query.trim()) }
@@ -192,7 +218,11 @@ private fun ScreenContent(
 
     @Composable
     fun ListPane() {
-        Scaffold(topBar = { SearchBar() }) { paddingValues ->
+        // TODO: https://issuetracker.google.com/issues/445720462
+        Scaffold(
+            modifier = Modifier.focusable(),
+            topBar = { SearchBar() }
+        ) { paddingValues ->
             Column(
                 modifier = Modifier
                     .padding(paddingValues)
@@ -206,21 +236,21 @@ private fun ScreenContent(
                 )
 
                 when (results.loadState.refresh) {
-                    is LoadState.Loading -> ProgressComposable()
+                    is LoadState.Loading -> ContainedLoadingIndicator()
 
                     is LoadState.Error -> {
-                        ErrorComposable(
+                        Error(
                             modifier = Modifier.padding(paddingValues),
-                            icon = painterResource(R.drawable.ic_disclaimer),
+                            painter = painterResource(R.drawable.ic_disclaimer),
                             message = stringResource(R.string.error)
                         )
                     }
 
                     else -> {
                         if (isSearching && results.itemCount == 0) {
-                            ErrorComposable(
+                            Error(
                                 modifier = Modifier.padding(paddingValues),
-                                icon = painterResource(R.drawable.ic_disclaimer),
+                                painter = painterResource(R.drawable.ic_disclaimer),
                                 message = stringResource(R.string.no_apps_available)
                             )
                         } else {
@@ -230,7 +260,7 @@ private fun ScreenContent(
                                     key = results.itemKey { it.id }
                                 ) { index ->
                                     results[index]?.let { app ->
-                                        AppListComposable(
+                                        LargeAppListItem(
                                             app = app,
                                             onClick = { showDetailPane(app.packageName) }
                                         )
@@ -261,8 +291,8 @@ private fun ScreenContent(
 
                 else -> {
                     if (isSearching && results.itemCount > 0) {
-                        ErrorComposable(
-                            icon = painterResource(R.drawable.ic_round_search),
+                        Error(
+                            painter = painterResource(R.drawable.ic_round_search),
                             message = stringResource(R.string.select_app_for_details)
                         )
                     }
@@ -315,7 +345,7 @@ private fun FilterHeader(
                         contentDescription = stringResource(filter)
                     )
                 }
-            },
+            }
         )
     }
 
@@ -342,7 +372,7 @@ private fun FilterHeader(
                         painter = painterResource(R.drawable.ic_arrow_drop_down),
                         contentDescription = stringResource(filter)
                     )
-                },
+                }
             )
 
             DropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
@@ -412,10 +442,9 @@ private fun FilterHeader(
 @PreviewScreenSizes
 @Composable
 private fun SearchScreenPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    val apps = List(10) { app.copy(id = Random.nextInt()) }
-    val results = flowOf(PagingData.from(apps)).collectAsLazyPagingItems()
-
-    CompositionLocalProvider(LocalAsyncImagePreviewHandler provides coilPreviewProvider) {
+    PreviewTemplate {
+        val apps = List(10) { app.copy(id = Random.nextInt()) }
+        val results = MutableStateFlow(PagingData.from(apps)).collectAsLazyPagingItems()
         ScreenContent(results = results)
     }
 }

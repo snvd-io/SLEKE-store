@@ -23,6 +23,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aurora.extensions.TAG
 import com.aurora.gplayapi.data.models.StreamBundle
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.data.models.details.DevStream
@@ -31,10 +32,10 @@ import com.aurora.gplayapi.helpers.StreamHelper
 import com.aurora.gplayapi.helpers.contracts.StreamContract
 import com.aurora.store.data.model.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import javax.inject.Inject
 
 @HiltViewModel
 class DevProfileViewModel @Inject constructor(
@@ -42,10 +43,8 @@ class DevProfileViewModel @Inject constructor(
     private val streamHelper: StreamHelper
 ) : ViewModel() {
 
-    private val TAG = DevProfileViewModel::class.java.simpleName
-
     val liveData: MutableLiveData<ViewState> = MutableLiveData()
-    var devStream:DevStream = DevStream()
+    var devStream: DevStream = DevStream()
     var streamBundle: StreamBundle = StreamBundle()
 
     lateinit var type: StreamContract.Type
@@ -70,7 +69,9 @@ class DevProfileViewModel @Inject constructor(
             supervisorScope {
                 try {
                     if (streamCluster.hasNext()) {
-                        val newCluster = streamHelper.getNextStreamCluster(streamCluster.clusterNextPageUrl)
+                        val newCluster = streamHelper.getNextStreamCluster(
+                            streamCluster.clusterNextPageUrl
+                        )
                         updateCluster(newCluster)
                         devStream = devStream.copy(streamBundle = streamBundle)
                         liveData.postValue(ViewState.Success(devStream))
