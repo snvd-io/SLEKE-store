@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.aurora.store.R
+import com.aurora.store.compose.preview.PreviewTemplate
 
 /**
  * Composable to display sticky header in list
@@ -61,7 +62,7 @@ fun Header(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis
             )
             if (!subtitle.isNullOrBlank()) {
                 Text(
@@ -73,7 +74,7 @@ fun Header(
         if (onClick != null) {
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_right),
-                contentDescription = null,
+                contentDescription = null
             )
         }
     }
@@ -82,9 +83,11 @@ fun Header(
 @Preview(showBackground = true)
 @Composable
 private fun HeaderPreview() {
-    Header(
-        title = stringResource(R.string.details_privacy),
-        subtitle = stringResource(R.string.exodus_powered),
-        onClick = {}
-    )
+    PreviewTemplate {
+        Header(
+            title = stringResource(R.string.details_privacy),
+            subtitle = stringResource(R.string.exodus_powered),
+            onClick = {}
+        )
+    }
 }

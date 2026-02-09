@@ -23,24 +23,30 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.aurora.Constants.JSON_MIME_TYPE
+import com.aurora.extensions.emptyPagingItems
 import com.aurora.extensions.toast
 import com.aurora.store.R
-import com.aurora.store.compose.composables.ErrorComposable
-import com.aurora.store.compose.composables.FavouriteComposable
-import com.aurora.store.compose.composables.ProgressComposable
-import com.aurora.store.compose.composables.TopAppBarComposable
-import com.aurora.store.compose.preview.emptyPagingItems
+import com.aurora.store.compose.composable.ContainedLoadingIndicator
+import com.aurora.store.compose.composable.Error
+import com.aurora.store.compose.composable.FavouriteListItem
+import com.aurora.store.compose.composable.TopAppBar
+import com.aurora.store.compose.preview.FavouritePreviewProvider
+import com.aurora.store.compose.preview.PreviewTemplate
 import com.aurora.store.compose.ui.favourite.menu.FavouriteMenu
 import com.aurora.store.compose.ui.favourite.menu.MenuItem
 import com.aurora.store.data.room.favourite.Favourite
 import com.aurora.store.viewmodel.all.FavouriteViewModel
 import java.util.Calendar
+import kotlin.random.Random
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun FavouriteScreen(
@@ -120,7 +126,7 @@ private fun ScreenContent(
 
     Scaffold(
         topBar = {
-            TopAppBarComposable(
+            TopAppBar(
                 title = stringResource(R.string.title_favourites_manager),
                 onNavigateUp = onNavigateUp,
                 actions = { if (favourites.itemCount != 0) SetupMenu() }
@@ -135,16 +141,16 @@ private fun ScreenContent(
         ) {
             when {
                 favourites.loadState.refresh is LoadState.Loading && initialLoad -> {
-                    ProgressComposable()
+                    ContainedLoadingIndicator()
                 }
 
                 else -> {
                     initialLoad = false
 
                     if (favourites.itemCount == 0) {
-                        ErrorComposable(
+                        Error(
                             modifier = Modifier.padding(paddingValues),
-                            icon = painterResource(R.drawable.ic_favorite_unchecked),
+                            painter = painterResource(R.drawable.ic_favorite_unchecked),
                             message = stringResource(R.string.details_no_favourites)
                         )
                     } else {
@@ -154,7 +160,7 @@ private fun ScreenContent(
                                 key = favourites.itemKey { it.packageName }
                             ) { index ->
                                 favourites[index]?.let { favourite ->
-                                    FavouriteComposable(
+                                    FavouriteListItem(
                                         modifier = Modifier.animateItem(),
                                         favourite = favourite,
                                         onClick = { onNavigateToAppDetails(favourite.packageName) },
@@ -172,6 +178,15 @@ private fun ScreenContent(
 
 @Preview
 @Composable
-private fun FavouriteScreenPreview() {
-    ScreenContent()
+private fun FavouriteScreenPreview(
+    @PreviewParameter(FavouritePreviewProvider::class) favourite: Favourite
+) {
+    PreviewTemplate {
+        val favourites = List(10) {
+            favourite.copy(packageName = "${favourite.packageName}.${Random.nextInt()}")
+        }
+        val flow = MutableStateFlow(PagingData.from(favourites)).collectAsLazyPagingItems()
+
+        ScreenContent(favourites = flow)
+    }
 }

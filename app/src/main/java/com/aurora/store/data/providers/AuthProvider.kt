@@ -21,6 +21,7 @@ package com.aurora.store.data.providers
 
 import android.content.Context
 import android.util.Log
+import com.aurora.extensions.TAG
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.helpers.AuthHelper
@@ -32,11 +33,11 @@ import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_AUTH_DATA
 import com.aurora.store.util.Preferences.PREFERENCE_DISPENSER_URLS
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class AuthProvider @Inject constructor(
@@ -45,8 +46,6 @@ class AuthProvider @Inject constructor(
     private val spoofProvider: SpoofProvider,
     private val httpClient: IHttpClient
 ) {
-
-    private val TAG = AuthProvider::class.java.simpleName
 
     val dispenserURL: String?
         get() {
@@ -71,9 +70,7 @@ class AuthProvider @Inject constructor(
     /**
      * Checks whether saved AuthData is valid or not
      */
-    fun isSavedAuthDataValid(): Boolean {
-        return AuthHelper.isValid(authData!!)
-    }
+    fun isSavedAuthDataValid(): Boolean = AuthHelper.isValid(authData!!)
 
     /**
      * Builds [AuthData] for login using personal Google account
@@ -95,7 +92,7 @@ class AuthProvider @Inject constructor(
                         token = token,
                         tokenType = tokenType,
                         properties = spoofProvider.deviceProperties,
-                        locale = spoofProvider.locale,
+                        locale = spoofProvider.locale
                     )
                 )
             } catch (exception: Exception) {
@@ -155,10 +152,15 @@ class AuthProvider @Inject constructor(
     private fun throwError(playResponse: PlayResponse, context: Context) {
         when (playResponse.code) {
             400 -> throw Exception(context.getString(R.string.bad_request))
+
             403 -> throw Exception(context.getString(R.string.access_denied_using_vpn))
+
             404 -> throw Exception(context.getString(R.string.server_unreachable))
+
             429 -> throw Exception(context.getString(R.string.login_rate_limited))
+
             503 -> throw Exception(context.getString(R.string.server_maintenance))
+
             else -> {
                 if (playResponse.errorString.isNotBlank()) {
                     throw Exception(playResponse.errorString)

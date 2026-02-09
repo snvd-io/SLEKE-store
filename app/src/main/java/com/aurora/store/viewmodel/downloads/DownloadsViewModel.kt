@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.aurora.extensions.TAG
 import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.installer.AppInstaller
 import com.aurora.store.data.paging.GenericPagingSource.Companion.pager
@@ -19,6 +20,7 @@ import com.aurora.store.data.room.download.Download
 import com.aurora.store.data.work.ExportWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +28,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class DownloadsViewModel @Inject constructor(
@@ -34,8 +35,6 @@ class DownloadsViewModel @Inject constructor(
     private val appInstaller: AppInstaller,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
-
-    private val TAG = DownloadsViewModel::class.java.simpleName
 
     private val _downloads = MutableStateFlow<PagingData<Download>>(PagingData.empty())
     val downloads = _downloads.asStateFlow()

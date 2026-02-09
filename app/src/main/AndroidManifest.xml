@@ -119,16 +119,11 @@
             android:exported="false"
             android:theme="@style/AppTheme.Translucent" />
 
-        <!-- DownloadWorker -->
-        <service
-            android:name="androidx.work.impl.foreground.SystemForegroundService"
-            android:foregroundServiceType="dataSync"
-            tools:node="merge" />
-
-        <!-- Notification Action (Download Complete) -->
         <activity
-            android:name=".data.activity.InstallActivity"
+            android:name=".data.activity.MicroGInstallerActivity"
+            android:excludeFromRecents="true"
             android:exported="false"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.Translucent" />
 
         <!-- DownloadWorker -->

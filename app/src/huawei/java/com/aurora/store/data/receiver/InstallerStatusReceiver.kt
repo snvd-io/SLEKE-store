@@ -24,6 +24,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.util.Log
 import com.aurora.Constants.PACKAGE_NAME_APP_GALLERY
+import com.aurora.extensions.TAG
 import com.huawei.appgallery.coreservice.api.ApiClient
 import com.huawei.appgallery.coreservice.api.ApiCode
 import com.huawei.appgallery.coreservice.api.IConnectionResult
@@ -37,8 +38,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class InstallerStatusReceiver : BaseInstallerStatusReceiver() {
-
-    private val TAG = InstallerStatusReceiver::class.java.simpleName
 
     private lateinit var apiClient: ApiClient
 
@@ -58,7 +57,7 @@ class InstallerStatusReceiver : BaseInstallerStatusReceiver() {
         }
     }
 
-    override fun postStatus(status: Int, packageName: String?, extra: String?, context: Context) {
+    override fun postStatus(status: Int, packageName: String, extra: String?, context: Context) {
         super.postStatus(status, packageName, extra, context)
 
         if (::apiClient.isInitialized && apiClient.isConnected) {
@@ -144,19 +143,17 @@ class InstallerStatusReceiver : BaseInstallerStatusReceiver() {
         }
     }
 
-    private fun isHuaweiSilentInstallSupported(context: Context): Boolean {
-        return try {
-            val applicationInfo: ApplicationInfo = context.packageManager.getApplicationInfo(
-                PACKAGE_NAME_APP_GALLERY,
-                PackageManager.GET_META_DATA
-            )
+    private fun isHuaweiSilentInstallSupported(context: Context): Boolean = try {
+        val applicationInfo: ApplicationInfo = context.packageManager.getApplicationInfo(
+            PACKAGE_NAME_APP_GALLERY,
+            PackageManager.GET_META_DATA
+        )
 
-            val supportFunction = applicationInfo.metaData.getInt("appgallery_support_function")
-            Log.i(TAG, "Huawei silent install support function: $supportFunction")
+        val supportFunction = applicationInfo.metaData.getInt("appgallery_support_function")
+        Log.i(TAG, "Huawei silent install support function: $supportFunction")
 
-            (supportFunction and (1 shl 5)) != 0
-        } catch (e: Exception) {
-            false
-        }
+        (supportFunction and (1 shl 5)) != 0
+    } catch (_: Exception) {
+        false
     }
 }

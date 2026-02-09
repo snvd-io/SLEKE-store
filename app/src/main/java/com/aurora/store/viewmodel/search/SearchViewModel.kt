@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
+import com.aurora.extensions.TAG
 import com.aurora.extensions.requiresGMS
 import com.aurora.gplayapi.SearchSuggestEntry
 import com.aurora.gplayapi.data.models.App
@@ -23,6 +24,7 @@ import com.aurora.store.data.model.SearchFilter
 import com.aurora.store.data.paging.GenericPagingSource.Companion.manualPager
 import com.aurora.store.data.providers.AuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,7 +35,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -42,17 +43,15 @@ class SearchViewModel @Inject constructor(
     private val webSearchHelper: WebSearchHelper
 ) : ViewModel() {
 
-    private val TAG = SearchViewModel::class.java.simpleName
-
     private val contract: SearchContract
         get() = if (authProvider.isAnonymous) webSearchHelper else searchHelper
 
     private val _suggestions = MutableStateFlow<List<SearchSuggestEntry>>(emptyList())
     val suggestions = _suggestions.asStateFlow()
 
-    private val _filter = MutableStateFlow(SearchFilter())
+    private val searchFilter = MutableStateFlow(SearchFilter())
     private val _apps = MutableStateFlow<PagingData<App>>(PagingData.empty())
-    val apps = combine(_filter, _apps) { filter, pagingData ->
+    val apps = combine(searchFilter, _apps) { filter, pagingData ->
         pagingData.filter { app ->
             when {
                 filter.noAds && app.containsAds -> false
@@ -66,21 +65,19 @@ class SearchViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), PagingData.empty())
 
     fun filterResults(filter: SearchFilter) {
-        _filter.value = filter
+        searchFilter.value = filter
     }
 
     fun search(query: String) {
         var nextBundleUrl: String? = null
         val nextStreamUrls = mutableSetOf<String>()
 
-        fun Collection<StreamCluster>.flatClusters(): List<App> {
-            return this.flatMap { streamCluster ->
-                if (streamCluster.hasNext()) {
-                    nextStreamUrls.add(streamCluster.clusterNextPageUrl)
-                }
-                streamCluster.clusterAppList
-            }.distinctBy { app -> app.packageName }
-        }
+        fun Collection<StreamCluster>.flatClusters(): List<App> = this.flatMap { streamCluster ->
+            if (streamCluster.hasNext()) {
+                nextStreamUrls.add(streamCluster.clusterNextPageUrl)
+            }
+            streamCluster.clusterAppList
+        }.distinctBy { app -> app.packageName }
 
         manualPager { page ->
             try {
@@ -107,7 +104,6 @@ class SearchViewModel @Inject constructor(
 
                             else -> emptyList()
                         }
-                        emptyList()
                     }
                 }
             } catch (exception: Exception) {

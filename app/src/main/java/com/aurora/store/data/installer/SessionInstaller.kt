@@ -34,6 +34,7 @@ import android.os.Process
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.PendingIntentCompat
+import com.aurora.extensions.TAG
 import com.aurora.extensions.isNAndAbove
 import com.aurora.extensions.isOAndAbove
 import com.aurora.extensions.isSAndAbove
@@ -65,8 +66,6 @@ import javax.inject.Singleton
 class SessionInstaller @Inject constructor(
     @ApplicationContext private val context: Context
 ) : InstallerBase(context) {
-
-    private val TAG = SessionInstaller::class.java.simpleName
 
     val currentSessionId: Int?
         get() = enqueuedSessions.firstOrNull()?.last()?.sessionId
@@ -221,8 +220,8 @@ class SessionInstaller @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private fun buildSessionParams(packageName: String): SessionParams {
-        return SessionParams(SessionParams.MODE_FULL_INSTALL).apply {
+    private fun buildSessionParams(packageName: String): SessionParams =
+        SessionParams(SessionParams.MODE_FULL_INSTALL).apply {
             setInstallerPackageName(context.packageName)
             setAppPackageName(packageName)
             setInstallLocation(PackageInfo.INSTALL_LOCATION_AUTO)
@@ -244,7 +243,6 @@ class SessionInstaller @Inject constructor(
                 setApplicationEnabledSettingPersistent()
             }
         }
-    }
 
     private fun commitInstall(sessionInfo: SessionInfo) {
         try {

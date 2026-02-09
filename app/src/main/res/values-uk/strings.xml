@@ -164,7 +164,7 @@
     <string name="purchase_failed">Не вдалося завантажити</string>
     <string name="pref_ui_similar_apps">Подібні та пов’язані застосунки</string>
     <string name="pref_ui_no_for_you_desc">Показувати сторінки для вас на головному екрані</string>
-    <string name="pref_ui_no_for_you">Сторінки Для вас</string>
+    <string name="pref_ui_no_for_you">Персоналізовані сторінки</string>
     <string name="pref_ui_layout_tab">Оберіть типову вкладку</string>
     <string name="pref_ui_layout">Макет</string>
     <string name="pref_ui_title">Зовнішній вигляд</string>
@@ -336,7 +336,7 @@
     <string name="pref_dispenser_title">Керувати розподільниками</string>
     <string name="pref_dispenser_summary">Перегляд і керування розподільниками токенів для знеособленого входу</string>
     <string name="no_dispensers_available">Немає доступних розподільників</string>
-    <string name="remove_dispenser_title">Вилучити розподільник</string>
+    <string name="remove_dispenser_title">Вилучити розподільник?</string>
     <string name="add_dispenser_summary">Додайте розподільник токенів до Aurora Store. Розподільники токенів надають облікові дані Aurora Store для знеособленого входу.</string>
     <string name="add_dispenser_hint">URL-адреса розподільника</string>
     <string name="add_dispenser_error">Недійсна URL-адреса</string>
@@ -420,7 +420,7 @@
     <string name="set">Змінити</string>
     <string name="disable">Вимкнути</string>
     <string name="pref_updates_restrictions_title">Обмеження автоматичного оновлення</string>
-    <string name="pref_updates_restrictions_desc">Налаштувати обмеження пристрою для автоматичних оновлень.</string>
+    <string name="pref_updates_restrictions_desc">Налаштування обмежень пристроїв для автоматичних оновлень</string>
     <string name="pref_updates_restrictions_metered">Лише в безлімітних мережах</string>
     <string name="pref_updates_restrictions_idle">Коли пристрій неактивний</string>
     <string name="toast_proxy_disabled">Проксі успішно вимкнено</string>
@@ -440,9 +440,9 @@
     <string name="onboarding_gms_agreement">Я прочитав(-ла) та погоджуюся з Умовами надання послуг та Політикою конфіденційності microG</string>
     <string name="onboarding_gms_missing">Нам не вдалося знайти Сервіси Google Play на вашому пристрої. Тепер кілька популярних програм потребують їх для належної роботи!</string>
     <string name="onboarding_gms_microg">microG — це безкоштовна реалізація з відкритим кодом, яка забезпечує аналогічну функціональність для запуску програм, що залежать від Сервісів Google Play для пристроїв Android, шляхом повторної реалізації.\n\nmicroG дозволяє програмам отримувати доступ до цих API Google, покращуючи сумісність для користувачів, а також пропонуючи переваги конфіденційності.\n\nmicroG автоматично запускатиметься у фоновому режимі, коли ви відкриваєте програми, що залежать від Сервісів Google Mobile.</string>
-    <string name="microg_privacy_policy">Ознайомтеся з Політикою конфіденційності microG</string>
-    <string name="microg_license_agreement">Прочитайте ліцензію та угоду microG</string>
-    <string name="microg_website">Відвідайте веб-сайт проекту microG</string>
+    <string name="microg_privacy_policy">Ознайомитися з Політикою приватності microG</string>
+    <string name="microg_license_agreement">Прочитати ліцензію та угоду microG</string>
+    <string name="microg_website">Відвідати вебсайт проєкту microG</string>
     <string name="details_data_safety_collect">Дані, які може збирати цей додаток</string>
     <string name="details_data_safety_collect_none">Розробник стверджує, що цей додаток не збирає дані користувачів.</string>
     <string name="details_data_safety_shared">Дані, які може ділитися ця програма</string>
@@ -455,8 +455,22 @@
     <string name="details_more_package_name">Назва пакета</string>
     <string name="details_more_content_rating">Рейтинг контенту</string>
     <string name="select_app_for_details">Виберіть додаток для отримання додаткової інформації</string>
-    <string name="action_filter_no_ads">Без Реклами</string>
+    <string name="action_filter_no_ads">Без реклами</string>
     <string name="action_filter_no_gms">Немає ігрових сервісів</string>
     <string name="manual_download_version_error">Код версії може містити лише цифри</string>
     <string name="preparing_to_install">Підготовка до встановлення</string>
+    <plurals name="permissions_required">
+        <item quantity="one">Потрібен дозвіл</item>
+        <item quantity="few">Потрібні дозволи</item>
+        <item quantity="many">Потрібні дозволи</item>
+        <item quantity="other">Потрібні дозволи</item>
+    </plurals>
+    <string name="installer_microg_misconfigured">Встановлювач MicroG не зміг встановити застосунок, ймовірно, через неправильну конфігурацію.</string>
+    <string name="pref_install_mode_microg">Встановлювач MicroG</string>
+    <string name="microg_installer_subtitle">Необхідно встановити супутній застосунок microG</string>
+    <string name="microg_installer_desc">Допомагає обійти перевірку цілісності застосунків (тільки встановлювач)</string>
+    <string name="loading">Триває завантаження</string>
+    <string name="page">Сторінка <xliff:g id="number">%1$d</xliff:g></string>
+    <string name="action_skip">Пропустити</string>
+    <string name="force_restart_snack">Перезапустити, щоб застосувати зміни?</string>
 </resources>

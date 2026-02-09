@@ -27,9 +27,9 @@ import android.content.pm.PackageInstaller.EXTRA_SESSION_ID
 import android.util.Log
 import androidx.core.content.IntentCompat
 import androidx.core.content.getSystemService
+import com.aurora.extensions.TAG
 import com.aurora.extensions.runOnUiThread
 import com.aurora.store.AuroraApp
-import com.aurora.store.R
 import com.aurora.store.data.event.InstallerEvent
 import com.aurora.store.data.installer.AppInstaller.Companion.ACTION_INSTALL_STATUS
 import com.aurora.store.data.installer.AppInstaller.Companion.EXTRA_DISPLAY_NAME
@@ -43,8 +43,6 @@ import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_AUTO_DELETE
 
 abstract class BaseInstallerStatusReceiver : BroadcastReceiver() {
-
-    private val TAG = BaseInstallerStatusReceiver::class.java.simpleName
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context != null && intent?.action == ACTION_INSTALL_STATUS) {

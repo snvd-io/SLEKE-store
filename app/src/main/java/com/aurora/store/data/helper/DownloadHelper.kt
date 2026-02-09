@@ -7,6 +7,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
+import com.aurora.extensions.TAG
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.AuroraApp
 import com.aurora.store.data.model.DownloadStatus
@@ -17,13 +18,13 @@ import com.aurora.store.data.room.update.Update
 import com.aurora.store.data.work.DownloadWorker
 import com.aurora.store.util.PathUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Helper class to work with the [DownloadWorker].
@@ -46,8 +47,6 @@ class DownloadHelper @Inject constructor(
         .stateIn(AuroraApp.scope, SharingStarted.WhileSubscribed(), emptyList())
 
     val pagedDownloads get() = downloadDao.pagedDownloads()
-
-    private val TAG = DownloadHelper::class.java.simpleName
 
     /**
      * Removes failed download from the queue and starts observing for newly enqueued apps.

@@ -342,7 +342,7 @@
     <string name="about_aurora_store_summary">Aurora Store memungkinkan Anda untuk mencari dan mengunduh aplikasi dari toko resmi Google Play. Anda dapat memeriksa deskripsi aplikasi, tangkapan layar, pembaruan, komentar pengguna lain, dan mengunduh APK langsung dari Google Play ke perangkat Anda. Untuk menggunakan Aurora Store, Anda harus memiliki akun Google Play, dan masuk ke akun Google Play saat pertama kali membuka dan mengatur Aurora Store. \n \nTidak seperti toko aplikasi tradisional, Aurora Store tidak memiliki, melisensikan, atau mendistribusikan aplikasi apa pun. Semua aplikasi, deskripsi aplikasi, tangkapan layar, dan konten lainnya di Aurora Store diakses, diunduh, dan/atau ditampilkan secara langsung dari Google Play. Aurora Store berfungsi persis seperti pintu atau peramban, memungkinkan Anda untuk masuk ke akun Google Play dan menemukan aplikasi dari Google Play. \n \nHarap diperhatikan bahwa Aurora Store tidak memiliki persetujuan, sponsor, atau otorisasi apa pun dari Google, Google Play, aplikasi apa pun yang diunduh melalui Aurora Store, atau pengembang aplikasi mana pun; Aurora Store juga tidak memiliki afiliasi, kerja sama, atau hubungan apa pun dengan mereka.</string>
     <string name="toast_app_unavailable">Aplikasi tidak tersedia untuk perangkat Anda</string>
     <string name="services_installer_desc">Memerlukan Layanan Aurora yang dipasang sebagai aplikasi sistem dengan hak istimewa</string>
-    <string name="remove_dispenser_title">Hapus dispenser</string>
+    <string name="remove_dispenser_title">Hapus dispenser?</string>
     <string name="action_favourite">Kesukaan</string>
     <string name="details_no_favourites">Tidak ada aplikasi kesukaan yang ditemukan</string>
     <string name="title_favourites_manager">Aplikasi favorit</string>
@@ -423,7 +423,7 @@
     <string name="pref_network_proxy_desc">Lihat dan kelola konfigurasi proksi</string>
     <string name="pref_updates_restrictions_title">Pembatasan pembaruan otomatis</string>
     <string name="pref_updates_restrictions_idle">Saat perangkat tidak digunakan</string>
-    <string name="pref_updates_restrictions_desc">Konfigurasikan pembatasan perangkat untuk pembaruan otomatis.</string>
+    <string name="pref_updates_restrictions_desc">Konfigurasikan pembatasan perangkat untuk pembaruan otomatis</string>
     <string name="pref_updates_restrictions_metered">Hanya pada jaringan yang tidak terukur</string>
     <string name="pref_updates_restrictions_battery">Saat baterai tidak lemah</string>
     <string name="verification_failed">Gagal memverifikasi berkas terunduh</string>
@@ -459,4 +459,15 @@
     <string name="action_filter_no_gms">Tidak ada layanan google play</string>
     <string name="manual_download_version_error">Kode versi hanya dapat berisi angka</string>
     <string name="preparing_to_install">Mempersiapkan pemasangan</string>
+    <plurals name="permissions_required">
+        <item quantity="other">Izin yang diperlukan</item>
+    </plurals>
+    <string name="installer_microg_misconfigured">Pemasang MicroG gagal memasang aplikasi, kemungkinan disebabkan oleh konfigurasi yang salah.</string>
+    <string name="pref_install_mode_microg">Pemasang MicroG</string>
+    <string name="microg_installer_subtitle">Membutuhkan aplikasi pendamping microG untuk dipasang</string>
+    <string name="microg_installer_desc">Membantu Anda melewati pemeriksaan Integritas Aplikasi (hanya untuk pemasang)</string>
+    <string name="loading">Pemuatan sedang berlangsung</string>
+    <string name="page">Halaman <xliff:g id="number">%1$d</xliff:g></string>
+    <string name="action_skip">Lewat</string>
+    <string name="force_restart_snack">Mulai ulang untuk menerapkan perubahan?</string>
 </resources>

@@ -12,12 +12,13 @@ import androidx.core.content.pm.PackageInfoCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.Constants
+import com.aurora.extensions.TAG
 import com.aurora.extensions.requiresGMS
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Review
+import com.aurora.gplayapi.data.models.datasafety.Report as DataSafetyReport
 import com.aurora.gplayapi.data.models.details.TestingProgramStatus
 import com.aurora.gplayapi.helpers.AppDetailsHelper
-import com.aurora.gplayapi.helpers.PurchaseHelper
 import com.aurora.gplayapi.helpers.ReviewsHelper
 import com.aurora.gplayapi.helpers.web.WebDataSafetyHelper
 import com.aurora.gplayapi.network.IHttpClient
@@ -40,12 +41,10 @@ import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_EXTENDED
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
@@ -56,14 +55,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
-import javax.inject.Inject
-import com.aurora.gplayapi.data.models.datasafety.Report as DataSafetyReport
 
 @HiltViewModel
 class AppDetailsViewModel @Inject constructor(
     val authProvider: AuthProvider,
     @ApplicationContext private val context: Context,
-    private val purchaseHelper: PurchaseHelper,
     private val appDetailsHelper: AppDetailsHelper,
     private val reviewsHelper: ReviewsHelper,
     private val webDataSafetyHelper: WebDataSafetyHelper,
@@ -72,8 +68,6 @@ class AppDetailsViewModel @Inject constructor(
     private val httpClient: IHttpClient,
     private val json: Json
 ) : ViewModel() {
-
-    private val TAG = AppDetailsViewModel::class.java.simpleName
 
     private val _app = MutableStateFlow<App?>(null)
     val app = _app.asStateFlow()
@@ -104,9 +98,6 @@ class AppDetailsViewModel @Inject constructor(
 
     private val _favourite = MutableStateFlow(false)
     val favourite = _favourite.asStateFlow()
-
-    private val _purchaseStatus = MutableSharedFlow<Boolean>()
-    val purchaseStatus = _purchaseStatus.asSharedFlow()
 
     private val download = combine(app, downloadHelper.downloadsList) { a, list ->
         if (a?.packageName.isNullOrBlank()) return@combine null
@@ -220,20 +211,9 @@ class AppDetailsViewModel @Inject constructor(
         }
     }
 
-    fun purchase(app: App) {
+    fun enqueueDownload(app: App) {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                _state.value = AppState.Purchasing
-                val files = purchaseHelper.purchase(app.packageName, app.versionCode, app.offerType)
-                _purchaseStatus.emit(files.isNotEmpty())
-                if (files.isNotEmpty()) {
-                    downloadHelper.enqueueApp(app.copy(fileList = files.toMutableList()))
-                }
-            } catch (exception: Exception) {
-                _state.value = defaultAppState
-                _purchaseStatus.emit(false)
-                Log.e(TAG, "Failed to purchase the app", exception)
-            }
+            downloadHelper.enqueueApp(app)
         }
     }
 
@@ -252,7 +232,7 @@ class AppDetailsViewModel @Inject constructor(
                         displayName = app.displayName,
                         iconURL = app.iconArtwork.url,
                         mode = Favourite.Mode.MANUAL,
-                        added = System.currentTimeMillis(),
+                        added = System.currentTimeMillis()
                     )
                 )
             }
@@ -272,12 +252,16 @@ class AppDetailsViewModel @Inject constructor(
             }.launchIn(viewModelScope)
 
         download.filterNotNull().onEach {
-            _state.value = when {
-                it.isRunning -> AppState.Downloading(
+            _state.value = when (it.status) {
+                DownloadStatus.DOWNLOADING -> AppState.Downloading(
                     it.progress.toFloat(),
                     it.speed,
                     it.timeRemaining
                 )
+
+                DownloadStatus.QUEUED -> AppState.Queued
+
+                DownloadStatus.PURCHASING -> AppState.Purchasing
 
                 else -> defaultAppState
             }
@@ -293,7 +277,6 @@ class AppDetailsViewModel @Inject constructor(
                 _featuredReviews.value = emptyList()
             }
         }
-
     }
 
     private fun fetchFavourite(packageName: String) {
@@ -362,13 +345,13 @@ class AppDetailsViewModel @Inject constructor(
             val exodusReport = json.decodeFromString<ExodusReport>(exodusObject.toString())
 
             return exodusReport.reports
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return emptyList()
         }
     }
 
     private fun getPlexusReport(packageName: String): PlexusReport? {
-        val url = "${Constants.PLEXUS_API_URL}/${packageName}/?scores=true"
+        val url = "${Constants.PLEXUS_API_URL}/$packageName/?scores=true"
         val playResponse = httpClient.get(url, emptyMap())
         return json.decodeFromString<PlexusReport>(String(playResponse.responseBytes))
     }
