@@ -20,10 +20,9 @@
 package com.aurora.store.util
 
 import com.aurora.store.data.network.HttpClient
-import com.sleke.library.util.SlekeConstants
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Locale
 import javax.inject.Inject
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class AC2DMTask @Inject constructor(private val httpClient: HttpClient) {
 
@@ -46,12 +45,13 @@ class AC2DMTask @Inject constructor(private val httpClient: HttpClient) {
         params["add_account"] = 1
         params["Token"] = oAuthToken
         params["callerSig"] = "38918a453d07199354f8b19af05ec6562ced5788"
+        params["droidguard_results"] = "null"
 
         val body = params.map { "${it.key}=${it.value}" }.joinToString(separator = "&")
 
         val header = mapOf(
             "app" to "com.google.android.gms",
-            "User-Agent" to "${SlekeConstants.AURORA_USER_AGENT}",
+            "User-Agent" to "",
             "Content-Type" to "application/x-www-form-urlencoded"
         )
 
