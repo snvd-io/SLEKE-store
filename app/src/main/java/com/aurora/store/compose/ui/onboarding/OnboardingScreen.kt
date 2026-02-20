@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnboardingScreen(viewModel: OnboardingViewModel = hiltViewModel()) {
     val pages = listOfNotNull(
-        OnboardingPage.WELCOME,
+//        OnboardingPage.WELCOME,
         OnboardingPage.PERMISSIONS,
         if (viewModel.isMicroGPromptRequired) OnboardingPage.MICRO_G else null
     )
