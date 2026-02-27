@@ -5,26 +5,26 @@
 #
 
 [versions]
-activity = "1.12.3"
+activity = "1.12.4"
 agCoreservice = "13.3.1.300"
-androidGradlePlugin = "9.0.0"
-adaptive = "1.3.0-alpha07"
+androidGradlePlugin = "8.13.2"
+adaptive = "1.3.0-alpha08"
 androidx-hilt = "1.3.0"
 androidx-junit = "1.3.0"
 browser = "1.9.0"
 coil = "3.3.0"
-composeBom = "2026.01.01"
-composeMaterial = "1.5.0-alpha13"
+composeBom = "2026.02.00"
+composeMaterial = "1.5.0-alpha14"
 core = "1.17.0"
 datastorePreferences = "1.2.0"
 epoxy = "5.2.1"
 espresso = "3.7.0"
-gplayapi = "3.5.7"
+gplayapi = "3.5.8"
 hiddenapibypass = "6.1"
-hilt = "2.59"
+hilt = "2.58"
 hiltWork = "1.2.0"
 junit = "4.13.2"
-kotlin = "2.3.0"
+kotlin = "2.3.10"
 kotlinxCoroutinesCore = "1.10.2"
 kotlinxCoroutinesAndroid = "1.10.2"
 kotlinxCoroutinesPlayServices = "1.10.2"
@@ -36,12 +36,12 @@ lifecycle = "2.10.0"
 material = "1.13.0"
 materialIconsExtended = "1.7.8"
 navigation = "2.9.7"
-navigation3 = "1.0.0"
+navigation3 = "1.0.1"
 okhttp = "5.3.2"
-paging = "3.4.0"
+paging = "3.4.1"
 preference = "1.2.1"
 processPhoenix = "3.0.0"
-protobufJavalite = "4.33.4"
+protobufJavalite = "4.33.5"
 rikkaHiddenAPI = "4.4.0"
 rikkaTools = "4.4.0"
 room = "2.8.4"
@@ -154,6 +154,7 @@ google-services = { id = "com.google.gms.google-services", version.ref = "google
 hilt-android-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 jetbrains-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 rikka-tools-refine-plugin = { id = "dev.rikka.tools.refine", version.ref = "rikkaTools" }
