@@ -119,8 +119,6 @@ fun Details(
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                modifier = Modifier
-                    .clickable(onClick = { onNavigateToDetailsDevProfile(app.developerName) }),
                 text = app.developerName,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
