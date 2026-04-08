@@ -1,7 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.hilt.android.plugin)
+    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
+    alias(libs.plugins.hilt.android.plugin)
     alias(libs.plugins.google.ksp)
 }
 
@@ -18,11 +19,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            isMinifyEnabled = false
+            consumerProguardFiles("consumer-rules.pro")
         }
         debug {
             isMinifyEnabled = false
@@ -82,6 +80,7 @@ dependencies {
     ksp(libs.hilt.androidx.compiler)
     implementation(libs.hilt.android.core)
     implementation(libs.hilt.androidx.work)
+    implementation(libs.hilt.navigation.compose)
     implementation(libs.androidx.work.runtime.ktx)
 
     implementation(libs.bundles.ktor)
