@@ -8,14 +8,10 @@ package com.aurora.store.compose.ui.details
 import android.content.ActivityNotFoundException
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -31,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -56,7 +51,6 @@ import com.aurora.store.compose.composable.ContainedLoadingIndicator
 import com.aurora.store.compose.composable.Error
 import com.aurora.store.compose.composable.Header
 import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.composable.app.LargeAppListItem
 import com.aurora.store.compose.navigation.Screen
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.PreviewTemplate
@@ -86,7 +80,6 @@ import com.aurora.store.util.FlavouredUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.ShortcutManagerUtil
 import com.aurora.store.viewmodel.details.AppDetailsViewModel
-import kotlin.random.Random
 import kotlinx.coroutines.launch
 
 @Composable
@@ -106,7 +99,6 @@ fun AppDetailsScreen(
     val exodusReport by viewModel.exodusReport.collectAsStateWithLifecycle()
     val dataSafetyReport by viewModel.dataSafetyReport.collectAsStateWithLifecycle()
     val plexusScores by viewModel.plexusScores.collectAsStateWithLifecycle()
-    val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = packageName) { viewModel.fetchAppDetails(packageName) }
 
@@ -124,7 +116,6 @@ fun AppDetailsScreen(
             ScreenContentApp(
                 app = app!!,
                 featuredReviews = featuredReviews,
-                suggestions = suggestions,
                 isFavorite = favorite,
                 isAnonymous = viewModel.authProvider.isAnonymous,
                 state = state,
@@ -184,13 +175,12 @@ private fun ScreenContentError(onNavigateUp: () -> Unit = {}, message: String? =
 }
 
 /**
- * Composable to display app details and suggestions
+ * Composable to display app details
  */
 @Composable
 private fun ScreenContentApp(
     app: App,
     featuredReviews: List<Review> = emptyList(),
-    suggestions: List<App> = emptyList(),
     isFavorite: Boolean = false,
     isAnonymous: Boolean = true,
     state: AppState = AppState.Unavailable,
@@ -421,44 +411,6 @@ private fun ScreenContentApp(
     }
 
     @Composable
-    fun SupportingPane() {
-        Scaffold(
-            topBar = {
-                TopAppBar(actions = { if (!shouldShowMenuOnMainPane) SetupMenu() })
-            }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                Row(
-                    modifier = Modifier.padding(dimensionResource(R.dimen.margin_medium)),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_suggestions),
-                        contentDescription = null
-                    )
-                    Header(title = stringResource(R.string.pref_ui_similar_apps))
-                }
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = dimensionResource(R.dimen.padding_medium))
-                ) {
-                    items(items = suggestions, key = { item -> item.id }) { app ->
-                        LargeAppListItem(
-                            app = app,
-                            onClick = { onNavigateToAppDetails(app.packageName) }
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
     fun ExtraPane(screen: NavKey) = when (screen) {
         is ExtraScreen.Review -> ReviewScreen(
             packageName = app.packageName,
@@ -517,7 +469,7 @@ private fun ScreenContentApp(
     NavigableSupportingPaneScaffold(
         navigator = scaffoldNavigator,
         mainPane = { AnimatedPane { MainPane() } },
-        supportingPane = { AnimatedPane { SupportingPane() } },
+        supportingPane = { },
         extraPane = {
             scaffoldNavigator.currentDestination?.contentKey?.let { screen ->
                 AnimatedPane { ExtraPane(screen) }
@@ -532,8 +484,7 @@ private fun AppDetailsScreenPreview(@PreviewParameter(AppPreviewProvider::class)
     PreviewTemplate {
         ScreenContentApp(
             app = app,
-            isAnonymous = false,
-            suggestions = List(10) { app.copy(id = Random.nextInt()) }
+            isAnonymous = false
         )
     }
 }
