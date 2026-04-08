@@ -39,6 +39,8 @@ import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.helper.UpdateHelper
 import com.aurora.store.data.receiver.PackageManagerReceiver
 import com.aurora.store.util.CommonUtil
+import com.aurora.store.util.CrashlyticsTree
+import com.aurora.store.util.CrashlyticsTreeT
 import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
@@ -84,7 +86,11 @@ class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Fa
         ComposeMaterial3Flags.isCheckboxStylingFixEnabled = true
         super.onCreate()
         FirebaseApp.initializeApp(this)
-        Timber.plant(Timber.DebugTree())
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        } else {
+            Timber.plant(CrashlyticsTreeT())
+        }
 
         // Set the app theme
         val themeStyle = Preferences.getInteger(this, Preferences.PREFERENCE_THEME_STYLE)

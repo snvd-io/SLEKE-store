@@ -23,6 +23,7 @@ plugins {
     alias(libs.plugins.androidx.navigation)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.rikka.tools.refine.plugin)
     alias(libs.plugins.hilt.android.plugin)
 }

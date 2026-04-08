@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
 
+    api(libs.cedar.logging)
     api(libs.timber)
     api(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.play.services)
@@ -62,6 +63,7 @@ dependencies {
     api(libs.firebase.firestore.ui)
     api(libs.firebase.ui.auth)
     api(libs.firebase.core)
+    api(libs.firebase.crashlytics)
 
     // Paging
     api(libs.androidx.paging.runtime.ktx)
