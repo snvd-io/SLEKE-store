@@ -22,8 +22,8 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.androidx.navigation)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
+    alias(libs.plugins.google.services)
     alias(libs.plugins.rikka.tools.refine.plugin)
     alias(libs.plugins.hilt.android.plugin)
 }
@@ -62,7 +62,7 @@ configure<ApplicationExtension> {
         minSdk = 26
         targetSdk = 36
 
-        versionCode = 73
+        versionCode = 74
         versionName = "4.8.1"
 
         testInstrumentationRunner = "com.aurora.store.HiltInstrumentationTestRunner"
@@ -105,8 +105,8 @@ configure<ApplicationExtension> {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

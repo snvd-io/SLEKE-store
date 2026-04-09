@@ -161,7 +161,7 @@ fun Context.isDomainVerified(domain: String): Boolean = when {
         val domainVerificationManager = getSystemService<DomainVerificationManager>()
         val userState = domainVerificationManager!!.getDomainVerificationUserState(packageName)
         val domainMap = userState?.hostToStateMap?.filterKeys { it == domain }
-        domainMap?.values?.first() == DomainVerificationUserState.DOMAIN_STATE_SELECTED
+        domainMap?.values?.firstOrNull() == DomainVerificationUserState.DOMAIN_STATE_SELECTED
     }
 
     else -> true
