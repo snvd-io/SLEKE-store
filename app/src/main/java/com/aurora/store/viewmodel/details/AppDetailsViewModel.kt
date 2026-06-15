@@ -28,6 +28,8 @@ import com.aurora.store.data.event.InstallerEvent
 import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.model.AppState
 import com.aurora.store.data.model.DownloadStatus
+import com.aurora.store.data.model.Recovery
+import com.aurora.store.data.model.decideRecovery
 import com.aurora.store.data.model.ExodusReport
 import com.aurora.store.data.model.PlexusReport
 import com.aurora.store.data.model.Report
@@ -38,11 +40,14 @@ import com.aurora.store.data.room.favourite.FavouriteDao
 import com.aurora.store.util.CertUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
+import com.aurora.store.util.Preferences.PREFERENCE_ERROR_RESTART_TS
 import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_EXTENDED
+import com.jakewharton.processphoenix.ProcessPhoenix
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,6 +60,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
+
+// Delay before a silent in-place retry of a failed app-details load
+private const val RETRY_DELAY_MS = 1000L
 
 @HiltViewModel
 class AppDetailsViewModel @Inject constructor(
@@ -74,6 +82,9 @@ class AppDetailsViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<AppState>(AppState.Loading)
     val state = _state.asStateFlow()
+
+    // Tracks whether a silent in-place retry has already been used for the current load
+    private var retryAttempted = false
 
     private val _suggestions = MutableStateFlow<List<App>>(emptyList())
     val suggestions = _suggestions.asStateFlow()
@@ -149,16 +160,23 @@ class AppDetailsViewModel @Inject constructor(
     }
 
     fun fetchAppDetails(packageName: String) {
+        retryAttempted = false
+        loadAppDetails(packageName)
+    }
+
+    private fun loadAppDetails(packageName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 _app.value = appDetailsHelper.getAppByPackageName(packageName).copy(
                     isInstalled = PackageUtil.isInstalled(context, packageName)
                 )
                 _state.value = defaultAppState
+                // Healthy load clears any pending restart guard
+                Preferences.putLong(context, PREFERENCE_ERROR_RESTART_TS, 0L)
             } catch (exception: Exception) {
                 Log.e(TAG, "Failed to fetch app details", exception)
                 _app.value = null
-                _state.value = AppState.Error(exception.message)
+                handleLoadFailure(packageName)
             }
         }.invokeOnCompletion { throwable ->
             // Only proceed if there was no error while fetching the app details
@@ -170,6 +188,38 @@ class AppDetailsViewModel @Inject constructor(
             fetchSuggestions()
             fetchExodusPrivacyReport(packageName)
             if (app.value!!.requiresGMS()) fetchPlexusReport(packageName)
+        }
+    }
+
+    /**
+     * Recovers from an app-details load failure via [decideRecovery]: silent in-place
+     * retry first, then a one-shot background restart, finally a user-facing message.
+     */
+    private suspend fun handleLoadFailure(packageName: String) {
+        val decision = decideRecovery(
+            retryAttempted = retryAttempted,
+            lastRestartMs = Preferences.getLong(context, PREFERENCE_ERROR_RESTART_TS),
+            nowMs = System.currentTimeMillis()
+        )
+
+        when (decision) {
+            Recovery.RETRY -> {
+                retryAttempted = true
+                _state.value = AppState.Loading
+                delay(RETRY_DELAY_MS)
+                loadAppDetails(packageName)
+            }
+
+            Recovery.RESTART -> {
+                Preferences.putLong(
+                    context,
+                    PREFERENCE_ERROR_RESTART_TS,
+                    System.currentTimeMillis()
+                )
+                ProcessPhoenix.triggerRebirth(context)
+            }
+
+            Recovery.SHOW_MESSAGE -> _state.value = AppState.Error(null)
         }
     }
 
