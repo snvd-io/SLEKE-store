@@ -284,6 +284,7 @@
     <string name="toast_apk_blacklisted">"Blacklisted"</string>
     <string name="toast_apk_whitelisted">"Whitelisted"</string>
     <string name="toast_app_unavailable">"App not available for your device"</string>
+    <string name="app_details_load_error">Oops! We had trouble loading this page. Try closing the app and reopening it.</string>
     <string name="toast_clipboard_copied">"Copied to clipboard"</string>
     <string name="toast_developer_setting_failed">Turn on developer settings from the device settings to open them.</string>
     <string name="toast_permission_granted">"Permission granted"</string>
