@@ -158,6 +158,7 @@ class UpdateWorker @AssistedInject constructor(
     private suspend fun checkUpdates(): List<Update> {
         return withContext(Dispatchers.IO) {
             val packages = PackageUtil.getAllValidPackages(context)
+                .filterNot { it.packageName == Constants.PACKAGE_NAME_GMS }
                 .filterNot { blacklistProvider.isBlacklisted(it.packageName) }
                 .filter { if (!isExtendedUpdateEnabled) it.applicationInfo!!.enabled else true }
 
