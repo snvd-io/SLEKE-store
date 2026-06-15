@@ -45,12 +45,36 @@ fun Context.uninstallApp(packageName: String) {
 }
 
 fun Context.extractPackageName(apkFilePath: String): String? {
-    val packageInfo: PackageInfo? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    return extractApkInfo(apkFilePath)?.packageName
+}
+
+/**
+ * Metadata extracted from a downloaded APK archive, used to stage the file into the
+ * location the installer expects and to install it with the correct parameters.
+ */
+data class ApkInfo(
+    val packageName: String,
+    val versionCode: Long,
+    val targetSdk: Int
+)
+
+fun Context.extractApkInfo(apkFilePath: String): ApkInfo? {
+    val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         packageManager.getPackageArchiveInfo(apkFilePath, PackageManager.PackageInfoFlags.of(0L))
     } else {
         packageManager.getPackageArchiveInfo(apkFilePath, PackageManager.GET_META_DATA)
+    } ?: return null
+
+    val packageName = packageInfo.packageName ?: return null
+    val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        packageInfo.longVersionCode
+    } else {
+        @Suppress("DEPRECATION")
+        packageInfo.versionCode.toLong()
     }
-    return packageInfo?.packageName
+    val targetSdk = packageInfo.applicationInfo?.targetSdkVersion ?: 1
+
+    return ApkInfo(packageName, versionCode, targetSdk)
 }
 
 fun Context.isAppInstalled(packageName: String): Boolean {

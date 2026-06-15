@@ -19,8 +19,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.sleke.library.util.SlekeConstants
-import com.sleke.library.util.extractPackageName
-import com.sleke.library.util.installApp
+import com.sleke.library.util.extractApkInfo
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.ktor.client.HttpClient
@@ -50,6 +49,9 @@ class ApkDownloadWorker @AssistedInject constructor(
         const val KEY_PACKAGE = "KEY_PACKAGE"
         private const val KEY_URL = "KEY_URL"
         const val KEY_APK_URI = "APK_URI"
+        const val KEY_APK_PATH = "APK_PATH"
+        const val KEY_VERSION_CODE = "VERSION_CODE"
+        const val KEY_TARGET_SDK = "TARGET_SDK"
         const val KEY_ERROR = "KEY_ERROR"
 
         const val PROGRESS = "PROGRESS"
@@ -113,8 +115,8 @@ class ApkDownloadWorker @AssistedInject constructor(
                     }
                 }
             }
-            val extractedPkg = applicationContext
-                .extractPackageName(outFile.absolutePath)
+            val apkInfo = applicationContext
+                .extractApkInfo(outFile.absolutePath)
                 ?: return@withContext Result.failure()
             val uri = FileProvider.getUriForFile(
                 applicationContext,
@@ -122,18 +124,16 @@ class ApkDownloadWorker @AssistedInject constructor(
                 outFile
             )
 
-            extractedPkg to uri
+            Triple(apkInfo, uri, outFile.absolutePath)
         }.fold(
-            onSuccess = { (pkg, uri) ->
-                runCatching {
-                    applicationContext.installApp(uri.toString())
-                }.onFailure {
-                    Timber.tag("SlekeAppsScreen").e(it, "Failed to install app from APK URI: $uri")
-                }
+            onSuccess = { (apkInfo, uri, path) ->
                 Result.success(
                     workDataOf(
-                        KEY_PACKAGE to pkg,
-                        KEY_APK_URI to uri.toString()
+                        KEY_PACKAGE to apkInfo.packageName,
+                        KEY_APK_URI to uri.toString(),
+                        KEY_APK_PATH to path,
+                        KEY_VERSION_CODE to apkInfo.versionCode,
+                        KEY_TARGET_SDK to apkInfo.targetSdk
                     )
                 )
             },
