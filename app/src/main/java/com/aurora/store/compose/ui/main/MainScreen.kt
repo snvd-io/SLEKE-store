@@ -40,9 +40,7 @@ import com.aurora.store.R
 import com.aurora.store.compose.composable.TopAppBar
 import com.aurora.store.compose.composition.LocalNetworkStatus
 import com.aurora.store.compose.navigation.Destination
-import com.aurora.store.compose.ui.apps.AppsGamesScreen
 import com.aurora.store.compose.ui.commons.MoreSheet
-import com.sleke.presentation.screens.SlekeHomeScreen
 import com.aurora.store.compose.ui.commons.NetworkScreen
 import com.aurora.store.compose.ui.sheets.AppUpdateSheet
 import com.aurora.store.compose.ui.updates.UpdatesScreen
@@ -51,6 +49,9 @@ import com.aurora.store.data.model.PermissionType
 import com.aurora.store.data.providers.PermissionProvider.Companion.isGranted
 import com.aurora.store.data.room.update.Update
 import com.aurora.store.viewmodel.all.UpdatesViewModel
+import com.sleke.presentation.screens.EnterpriseAppsPane
+import com.sleke.presentation.screens.SlekeAppsScreen
+import com.sleke.presentation.screens.SlekeHomeScreen
 import kotlinx.coroutines.launch
 
 private enum class MainTab(
@@ -58,7 +59,7 @@ private enum class MainTab(
     @DrawableRes val iconRes: Int
 ) {
     APPS(R.string.title_apps, R.drawable.ic_apps),
-    GAMES(R.string.title_games, R.drawable.ic_games),
+    SLEKE_APPS(R.string.title_sleke_apps, R.drawable.ic_server),
     UPDATES(R.string.title_updates, R.drawable.ic_updates)
 }
 
@@ -88,6 +89,7 @@ fun MainScreen(
 
     var showMoreSheet by remember { mutableStateOf(false) }
     var appUpdateTarget by remember { mutableStateOf<Update?>(null) }
+    var showSlekeEnterprise by remember { mutableStateOf(false) }
 
     fun handleNavigation(destination: Destination) {
         when (destination) {
@@ -197,10 +199,11 @@ fun MainScreen(
                             onNavigateTo(Destination.AppDetails(app.packageName))
                         }
                     )
-                    MainTab.GAMES -> AppsGamesScreen(
-                        pageType = 1,
-                        onNavigateTo = ::handleNavigation
-                    )
+                    MainTab.SLEKE_APPS -> if (showSlekeEnterprise) {
+                        EnterpriseAppsPane(upPress = { showSlekeEnterprise = false })
+                    } else {
+                        SlekeAppsScreen(onNavigateToEnterprise = { showSlekeEnterprise = true })
+                    }
                     MainTab.UPDATES -> UpdatesScreen(
                         viewModel = updatesViewModel,
                         onNavigateTo = ::handleNavigation,
