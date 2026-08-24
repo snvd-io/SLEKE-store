@@ -1,4 +1,5 @@
 /*
+ * SPDX-FileCopyrightText: 2026 Aurora OSS
  * SPDX-FileCopyrightText: 2025 The Calyx Institute
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -17,13 +18,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewWrapper
+import com.aurora.Constants
 import com.aurora.store.R
 import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.preview.PreviewTemplate
+import com.aurora.store.compose.preview.ThemePreviewProvider
 import com.aurora.store.data.model.AppState
+import com.aurora.store.util.PackageUtil
 
 /**
  * Menu for the app details screen
@@ -37,8 +42,11 @@ fun AppDetailsMenu(
     state: AppState = AppState.Unavailable,
     isFavorite: Boolean = false,
     isExpanded: Boolean = false,
+    canManualDownload: Boolean = true,
+    canUseOtherAccount: Boolean = false,
     onMenuItemClicked: (menuItem: MenuItem) -> Unit = {}
 ) {
+    val context = LocalContext.current
     var expanded by remember { mutableStateOf(isExpanded) }
     fun onClick(menuItem: MenuItem) {
         onMenuItemClicked(menuItem)
@@ -74,7 +82,12 @@ fun AppDetailsMenu(
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.title_manual_download)) },
                 onClick = { onClick(MenuItem.MANUAL_DOWNLOAD) },
-                enabled = !state.inProgress()
+                enabled = canManualDownload && !state.inProgress()
+            )
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.action_switch_account)) },
+                onClick = { onClick(MenuItem.INSTALL_OTHER_ACCOUNT) },
+                enabled = canUseOtherAccount && !state.inProgress()
             )
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.action_info)) },
@@ -86,18 +99,22 @@ fun AppDetailsMenu(
                 onClick = { onClick(MenuItem.ADD_TO_HOME) },
                 enabled = state is AppState.Installed || state is AppState.Updatable
             )
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.action_view_on_play)) },
+                onClick = { onClick(MenuItem.PLAY_STORE) },
+                enabled = PackageUtil.isInstalled(context, Constants.PACKAGE_NAME_PLAY_STORE)
+            )
         }
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview(showBackground = true)
 @Composable
 private fun AppDetailsMenuPreview() {
-    PreviewTemplate {
-        TopAppBar(
-            actions = {
-                AppDetailsMenu(isFavorite = true, isExpanded = true)
-            }
-        )
-    }
+    TopAppBar(
+        actions = {
+            AppDetailsMenu(isFavorite = true, isExpanded = true)
+        }
+    )
 }

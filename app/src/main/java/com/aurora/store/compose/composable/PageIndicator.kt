@@ -15,19 +15,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import com.aurora.store.R
-import com.aurora.store.compose.preview.PreviewTemplate
+import com.aurora.store.compose.preview.ThemePreviewProvider
 
 /**
  * Pager indicator
@@ -42,24 +43,22 @@ fun PageIndicator(modifier: Modifier = Modifier, totalPages: Int, currentPage: I
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(
-            dimensionResource(R.dimen.margin_xsmall),
+            dimensionResource(R.dimen.spacing_xsmall),
             Alignment.CenterHorizontally
         )
     ) {
+        val selectedColor = MaterialTheme.colorScheme.primary
+        val unselectedColor = MaterialTheme.colorScheme.outlineVariant
         repeat(totalPages) { iteration ->
             val page = stringResource(R.string.page, iteration)
             val isSelected = currentPage == iteration
             val color by animateColorAsState(
-                targetValue = if (isSelected) {
-                    Color.DarkGray
-                } else {
-                    Color.LightGray
-                },
+                targetValue = if (isSelected) selectedColor else unselectedColor,
                 animationSpec = tween()
             )
             val size by animateDpAsState(
                 targetValue = if (isSelected) {
-                    dimensionResource(R.dimen.radius_normal)
+                    dimensionResource(R.dimen.radius_medium)
                 } else {
                     dimensionResource(R.dimen.radius_small)
                 },
@@ -77,10 +76,9 @@ fun PageIndicator(modifier: Modifier = Modifier, totalPages: Int, currentPage: I
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview(showBackground = true)
 @Composable
 private fun PageIndicatorPreview() {
-    PreviewTemplate {
-        PageIndicator(totalPages = 5)
-    }
+    PageIndicator(totalPages = 5)
 }

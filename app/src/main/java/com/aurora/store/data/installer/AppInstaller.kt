@@ -25,12 +25,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.core.content.pm.PackageInfoCompat
+import com.aurora.Constants.PACKAGE_NAME_GMS
+import com.aurora.extensions.TAG
 import com.aurora.extensions.getUpdateOwnerPackageNameCompat
 import com.aurora.extensions.isOAndAbove
 import com.aurora.extensions.isPAndAbove
 import com.aurora.extensions.isSAndAbove
+import com.aurora.extensions.toast
 import com.aurora.store.BuildConfig
+import com.aurora.store.R
 import com.aurora.store.data.installer.ShizukuInstaller.Companion.SHIZUKU_PACKAGE_NAME
 import com.aurora.store.data.installer.base.IInstaller
 import com.aurora.store.data.model.Installer
@@ -150,6 +155,22 @@ class AppInstaller @Inject constructor(
             false
         }
 
+        // TODO: Use microG's proposed API instead of relying on a hardcoded metadata flag that can be misleading (e.g. user can enable the installer from UI)
+        fun hasMicroGInstaller(context: Context): Boolean {
+            if (!PackageUtil.hasMicroGCompanion(context)) return false
+            return try {
+                val metadata = PackageUtil.getPackageInfo(
+                    context,
+                    PACKAGE_NAME_GMS,
+                    PackageManager.GET_META_DATA
+                ).applicationInfo?.metaData
+
+                metadata?.getBoolean("org.microg.gms.settings.vending_apps_install", false) ?: false
+            } catch (_: Exception) {
+                false
+            }
+        }
+
         fun hasAppManager(context: Context): Boolean =
             PackageUtil.isInstalled(context, AMInstaller.AM_PACKAGE_NAME) or
                 PackageUtil.isInstalled(context, AMInstaller.AM_DEBUG_PACKAGE_NAME)
@@ -157,8 +178,15 @@ class AppInstaller @Inject constructor(
         fun hasShizukuOrSui(context: Context): Boolean = isOAndAbove &&
             (PackageUtil.isInstalled(context, SHIZUKU_PACKAGE_NAME) || Sui.isSui())
 
-        fun hasShizukuPerm(): Boolean =
-            Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        // Shizuku.checkSelfPermission() throws when the binder is not alive (Shizuku
+        // disabled/not running), so guard on pingBinder() and swallow any failure to let
+        // callers fall back gracefully instead of crashing.
+        fun hasShizukuPerm(): Boolean = try {
+            Shizuku.pingBinder() &&
+                Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        } catch (_: Exception) {
+            false
+        }
 
         fun uninstall(context: Context, packageName: String) {
             val intent = Intent().apply {
@@ -181,31 +209,47 @@ class AppInstaller @Inject constructor(
 
     fun getMicroGInstaller(): IInstaller = microGInstaller
 
-    fun getPreferredInstaller(): IInstaller = when (getCurrentInstaller(context)) {
-        Installer.SESSION -> sessionInstaller
+    /**
+     * Returns the installer for the user's chosen mode, transparently falling back to the
+     * default (session) installer when that mode is currently unavailable, e.g. the chosen
+     * Shizuku installer when Shizuku is disabled.
+     * @param notifyOnFallback Whether to inform the user via a toast when a fallback happens
+     */
+    fun getPreferredInstaller(notifyOnFallback: Boolean = false): IInstaller {
+        val selected = getCurrentInstaller(context)
+        val installer = when (selected) {
+            Installer.SESSION -> sessionInstaller
 
-        Installer.NATIVE -> nativeInstaller
+            Installer.NATIVE -> nativeInstaller
 
-        Installer.ROOT -> if (hasRootAccess()) rootInstaller else defaultInstaller
+            Installer.ROOT -> if (hasRootAccess()) rootInstaller else defaultInstaller
 
-        Installer.SERVICE -> if (hasAuroraService(context)) {
-            serviceInstaller
-        } else {
-            defaultInstaller
+            Installer.SERVICE -> if (hasAuroraService(context)) {
+                serviceInstaller
+            } else {
+                defaultInstaller
+            }
+
+            Installer.AM -> if (hasAppManager(context)) amInstaller else defaultInstaller
+
+            Installer.SHIZUKU -> if (hasShizukuOrSui(context) && hasShizukuPerm()) {
+                shizukuInstaller
+            } else {
+                defaultInstaller
+            }
+
+            Installer.MICROG -> if (hasMicroGCompanion(context)) {
+                microGInstaller
+            } else {
+                defaultInstaller
+            }
         }
 
-        Installer.AM -> if (hasAppManager(context)) amInstaller else defaultInstaller
-
-        Installer.SHIZUKU -> if (hasShizukuOrSui(context) && hasShizukuPerm()) {
-            shizukuInstaller
-        } else {
-            defaultInstaller
+        if (selected != Installer.SESSION && installer === defaultInstaller) {
+            Log.i(TAG, "$selected installer unavailable, falling back to session installer")
+            if (notifyOnFallback) context.toast(R.string.installer_fallback_session)
         }
 
-        Installer.MICROG -> if (hasMicroGCompanion(context)) {
-            microGInstaller
-        } else {
-            defaultInstaller
-        }
+        return installer
     }
 }

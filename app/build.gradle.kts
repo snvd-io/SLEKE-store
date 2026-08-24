@@ -5,22 +5,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-@file:OptIn(KspExperimental::class)
-
 import com.android.build.api.dsl.ApplicationExtension
-import com.google.devtools.ksp.KspExperimental
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
-import org.gradle.language.nativeplatform.internal.Dimensions.applicationVariants
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.parcelize)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.google.ksp)
-    alias(libs.plugins.androidx.navigation)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.google.services)
@@ -30,6 +23,10 @@ plugins {
 
 val lastCommitHash = providers.exec {
     commandLine("git", "rev-parse", "--short", "HEAD")
+}.standardOutput.asText.map { it.trim() }
+
+val lastCommitTimestamp = providers.exec {
+    commandLine("git", "log", "-1", "--format=%ct")
 }.standardOutput.asText.map { it.trim() }
 
 java {
@@ -48,19 +45,28 @@ kotlin {
             "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
             "androidx.compose.foundation.layout.ExperimentalLayoutApi",
             "androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi",
-            "coil3.annotation.ExperimentalCoilApi"
+            "coil3.annotation.ExperimentalCoilApi",
+            "kotlin.uuid.ExperimentalUuidApi"
         )
     }
 }
 
 configure<ApplicationExtension> {
     namespace = "com.aurora.store"
-    compileSdk = 36
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 0
+        }
+    }
 
     defaultConfig {
         applicationId = "com.sleke.store"
-        minSdk = 26
-        targetSdk = 36
+        minSdk {
+            version = release(26)
+        }
+        targetSdk {
+            version = release(37)
+        }
 
         versionCode = 74
         versionName = "4.8.1"
@@ -69,6 +75,7 @@ configure<ApplicationExtension> {
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
 
         buildConfigField("String", "EXODUS_API_KEY", "\"bbe6ebae4ad45a9cbacb17d69739799b8df2c7ae\"")
+        buildConfigField("long", "BUILD_TIMESTAMP", "${lastCommitTimestamp.get()}L")
 
         missingDimensionStrategy("device", "vanilla")
     }
@@ -136,23 +143,25 @@ configure<ApplicationExtension> {
         create("vanilla") {
             isDefault = true
             dimension = "device"
+            buildConfigField("Boolean", "SHOW_ANONYMOUS_LOGIN", "true")
         }
 
         create("huawei") {
             dimension = "device"
             versionNameSuffix = "-hw"
+            buildConfigField("Boolean", "SHOW_ANONYMOUS_LOGIN", "false")
         }
 
         // This flavor is only for preloaded devices / users who push the app to system
         create("preload") {
             dimension = "device"
             versionNameSuffix = "-preload"
+            buildConfigField("Boolean", "SHOW_ANONYMOUS_LOGIN", "true")
         }
     }
 
     buildFeatures {
         buildConfig = true
-        viewBinding = true
         aidl = true
         compose = true
     }
@@ -216,11 +225,10 @@ dependencies {
     // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.biometric)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.navigation3)
     implementation(libs.androidx.preference.ktx)
-    implementation(libs.androidx.swiperefreshlayout)
-    implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.paging.runtime)
 
@@ -231,13 +239,12 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
 
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
@@ -254,13 +261,6 @@ dependencies {
     implementation(libs.coil.kt)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
-
-    // Shimmer
-    implementation(libs.facebook.shimmer)
-
-    // Epoxy
-    implementation(libs.airbnb.epoxy.android)
-    ksp(libs.airbnb.epoxy.processor)
 
     // HTTP Clients
     implementation(libs.squareup.okhttp)

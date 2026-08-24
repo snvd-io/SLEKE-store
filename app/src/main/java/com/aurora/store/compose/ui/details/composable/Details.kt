@@ -1,4 +1,5 @@
 /*
+ * SPDX-FileCopyrightText: 2026 Aurora OSS
  * SPDX-FileCopyrightText: 2025 The Calyx Institute
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -32,12 +33,13 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.compose.ui.unit.LayoutDirection
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
 import com.aurora.store.compose.composable.app.AnimatedAppIcon
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.compose.preview.PreviewTemplate
+import com.aurora.store.compose.preview.ThemePreviewProvider
 import com.aurora.store.data.model.AppState
 import com.aurora.store.util.CommonUtil
 import com.aurora.store.util.PackageUtil
@@ -104,14 +106,18 @@ fun Details(
         )
     }
 
-    Row(modifier = Modifier.fillMaxWidth()) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(R.dimen.spacing_medium))
+    ) {
         AnimatedAppIcon(
             modifier = Modifier.requiredSize(dimensionResource(R.dimen.icon_size_large)),
             iconUrl = app.iconArtwork.url,
             inProgress = state.inProgress(),
             progress = state.progress()
         )
-        Column(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.margin_small))) {
+        Column(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_small))) {
             Text(
                 text = app.displayName,
                 style = MaterialTheme.typography.titleLarge,
@@ -134,15 +140,20 @@ fun Details(
                 Text(
                     style = MaterialTheme.typography.bodySmall,
                     text = when (cState) {
-                        AppState.Installing::class,
                         AppState.Downloading::class -> {
                             "${Formatter.formatShortFileSize(context, speed)}/s" +
                                 ", " + CommonUtil.getETAString(context, timeRemaining)
                         }
 
+                        AppState.Installing::class -> stringResource(R.string.action_installing)
+
                         AppState.Queued::class -> stringResource(R.string.status_queued)
 
-                        AppState.Purchasing::class -> stringResource(R.string.preparing_to_install)
+                        AppState.Purchasing::class ->
+                            stringResource(R.string.preparing_to_download)
+
+                        AppState.Verifying::class ->
+                            stringResource(R.string.verifying_downloads)
 
                         else -> {
                             stringResource(R.string.version, versionName, versionCode)
@@ -154,14 +165,13 @@ fun Details(
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview(showBackground = true)
 @Composable
 private fun DetailsPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    PreviewTemplate {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_medium))
-        ) {
-            Details(app = app)
-        }
+    Column(
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
+    ) {
+        Details(app = app)
     }
 }

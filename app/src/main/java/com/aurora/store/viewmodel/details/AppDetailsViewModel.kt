@@ -16,14 +16,19 @@ import com.aurora.extensions.TAG
 import com.aurora.extensions.requiresGMS
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Review
+import com.aurora.gplayapi.data.models.StreamBundle
+import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.data.models.datasafety.Report as DataSafetyReport
 import com.aurora.gplayapi.data.models.details.TestingProgramStatus
+import com.aurora.gplayapi.exceptions.GooglePlayException
 import com.aurora.gplayapi.helpers.AppDetailsHelper
 import com.aurora.gplayapi.helpers.ReviewsHelper
 import com.aurora.gplayapi.helpers.web.WebDataSafetyHelper
 import com.aurora.gplayapi.network.IHttpClient
 import com.aurora.store.AuroraApp
 import com.aurora.store.BuildConfig
+import com.aurora.store.data.AccountRepository
+import com.aurora.store.data.event.AuthEvent
 import com.aurora.store.data.event.InstallerEvent
 import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.model.AppState
@@ -35,8 +40,12 @@ import com.aurora.store.data.model.PlexusReport
 import com.aurora.store.data.model.Report
 import com.aurora.store.data.model.Scores
 import com.aurora.store.data.providers.AuthProvider
+import com.aurora.store.data.room.download.Download
 import com.aurora.store.data.room.favourite.Favourite
 import com.aurora.store.data.room.favourite.FavouriteDao
+import com.aurora.store.data.room.review.LocalReview
+import com.aurora.store.data.room.review.LocalReview.Companion.toReview
+import com.aurora.store.data.room.review.ReviewDao
 import com.aurora.store.util.CertUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
@@ -47,14 +56,20 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -73,8 +88,10 @@ class AppDetailsViewModel @Inject constructor(
     private val webDataSafetyHelper: WebDataSafetyHelper,
     private val downloadHelper: DownloadHelper,
     private val favouriteDao: FavouriteDao,
+    private val reviewDao: ReviewDao,
     private val httpClient: IHttpClient,
-    private val json: Json
+    private val json: Json,
+    private val accountRepository: AccountRepository
 ) : ViewModel() {
 
     private val _app = MutableStateFlow<App?>(null)
@@ -86,14 +103,27 @@ class AppDetailsViewModel @Inject constructor(
     // Tracks whether a silent in-place retry has already been used for the current load
     private var retryAttempted = false
 
-    private val _suggestions = MutableStateFlow<List<App>>(emptyList())
-    val suggestions = _suggestions.asStateFlow()
+    private val _suggestionsBundle = MutableStateFlow<StreamBundle?>(null)
+    val suggestionsBundle: StateFlow<StreamBundle?> = _suggestionsBundle.asStateFlow()
+
+    private var suggestionsState: StreamBundle = StreamBundle.EMPTY
 
     private val _featuredReviews = MutableStateFlow<List<Review>>(emptyList())
     val featuredReviews = _featuredReviews.asStateFlow()
 
-    private val _userReview = MutableStateFlow<Review?>(null)
-    val userReview = _userReview.asStateFlow()
+    // The user's own review for the loaded app, backed by Room so it is shown instantly (even
+    // offline) and survives restarts while Google takes time to publish it. Scoped by account.
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val userReview: StateFlow<Review?> = app
+        .filterNotNull()
+        .flatMapLatest { loadedApp ->
+            reviewDao.review(loadedApp.packageName, accountEmail).map { it?.toReview() }
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    // One-shot signal carrying whether the latest review submission succeeded
+    private val _reviewPosted = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+    val reviewPosted = _reviewPosted.asSharedFlow()
 
     private val _dataSafetyReport = MutableStateFlow<DataSafetyReport?>(null)
     val dataSafetyReport = _dataSafetyReport.asStateFlow()
@@ -110,10 +140,19 @@ class AppDetailsViewModel @Inject constructor(
     private val _favourite = MutableStateFlow(false)
     val favourite = _favourite.asStateFlow()
 
+    private val _installError = MutableStateFlow<InstallError?>(null)
+    val installError = _installError.asStateFlow()
+
+    data class InstallError(val error: String?, val extra: String?)
+
     private val download = combine(app, downloadHelper.downloadsList) { a, list ->
         if (a?.packageName.isNullOrBlank()) return@combine null
         list.find { d -> d.packageName == a.packageName }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    // E-mail of the signed-in account; blank for anonymous sessions. Used to scope cached reviews.
+    private val accountEmail: String
+        get() = authProvider.authData?.email.orEmpty()
 
     private val isInstalled: Boolean
         get() = PackageUtil.isInstalled(context, app.value!!.packageName)
@@ -170,9 +209,31 @@ class AppDetailsViewModel @Inject constructor(
                 _app.value = appDetailsHelper.getAppByPackageName(packageName).copy(
                     isInstalled = PackageUtil.isInstalled(context, packageName)
                 )
-                _state.value = defaultAppState
                 // Healthy load clears any pending restart guard
                 Preferences.putLong(context, PREFERENCE_ERROR_RESTART_TS, 0L)
+
+                val existingDownload = downloadHelper.getDownload(packageName)
+
+                // A COMPLETED record for an app that is no longer installed means the app was
+                // installed then removed while Aurora held a stale record.
+                // Remove it so the live download observer doesn't lock the UI in Installing state
+                // indefinitely.
+                if (existingDownload?.status == DownloadStatus.COMPLETED && !isInstalled) {
+                    downloadHelper.removeDownload(packageName)
+                    _state.value = defaultAppState
+                } else {
+                    // Seed state from any in-flight download for this package so reopening
+                    // the screen doesn't briefly flash the default install action while the
+                    // download flow catches up.
+                    _state.value =
+                        existingDownload?.let { stateFromDownload(it) } ?: defaultAppState
+                }
+            } catch (exception: GooglePlayException.AuthException) {
+                // The saved Play token has been rejected mid-session. Hand off to
+                // Splash to re-validate and rebuild auth, and ask it to bring the
+                // user back to this app's details once auth is good again.
+                Log.w(TAG, "App details fetch returned ${exception.code}, redirecting to Splash")
+                AuroraApp.events.send(AuthEvent.SessionExpired(packageName))
             } catch (exception: Exception) {
                 Log.e(TAG, "Failed to fetch app details", exception)
                 _app.value = null
@@ -184,6 +245,11 @@ class AppDetailsViewModel @Inject constructor(
 
             fetchFavourite(packageName)
             fetchFeaturedReviews(packageName)
+            // Reviews can only be submitted for installed apps with a personal account, so the
+            // user's existing review is only relevant (and fetchable) in that case.
+            if (!authProvider.isAnonymous && app.value!!.isInstalled) {
+                fetchUserAppReview(app.value!!)
+            }
             fetchDataSafetyReport(packageName)
             fetchSuggestions()
             fetchExodusPrivacyReport(packageName)
@@ -234,11 +300,32 @@ class AppDetailsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Reconciles the locally cached review with the authoritative Play API:
+     * - If Play returns a review, it is mirrored locally and marked synced (this also picks up
+     *   edits made directly on the Play Store).
+     * - If Play returns nothing but we had previously confirmed a review, it was deleted on the
+     *   Play Store, so the local copy is dropped.
+     * - If Play returns nothing for a review that was never confirmed, it is still being published,
+     *   so the local (pending) copy is kept so the user keeps seeing what they submitted.
+     */
     fun fetchUserAppReview(app: App) {
         viewModelScope.launch(Dispatchers.IO) {
+            val email = accountEmail
+            if (email.isBlank()) return@launch
             try {
                 val isTesting = app.testingProgram?.isSubscribed ?: false
-                _userReview.value = reviewsHelper.getUserReview(app.packageName, isTesting)
+                val apiReview = reviewsHelper.getUserReview(app.packageName, isTesting)
+                if (apiReview != null) {
+                    reviewDao.upsert(
+                        LocalReview.fromReview(apiReview, app.packageName, email, synced = true)
+                    )
+                } else {
+                    val cached = reviewDao.get(app.packageName, email)
+                    if (cached != null && cached.synced) {
+                        reviewDao.delete(app.packageName, email)
+                    }
+                }
             } catch (exception: Exception) {
                 Log.e(TAG, "Failed to fetch user review", exception)
             }
@@ -247,24 +334,57 @@ class AppDetailsViewModel @Inject constructor(
 
     fun postAppReview(packageName: String, review: Review, isBeta: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
+            val email = accountEmail
             try {
-                _userReview.value = reviewsHelper.addOrEditReview(
+                val posted = reviewsHelper.addOrEditReview(
                     packageName,
                     review.title,
                     review.comment,
                     review.rating,
                     isBeta
                 )
+                if (posted != null) {
+                    // Cache as pending (not yet synced): Play accepted it but getUserReview may
+                    // not return it until publishing finishes. Marking it synced prematurely would
+                    // let the next reconcile mistake the publishing delay for a deletion.
+                    reviewDao.upsert(
+                        LocalReview.fromReview(posted, packageName, email, synced = false)
+                    )
+                }
+                _reviewPosted.tryEmit(posted != null)
             } catch (exception: Exception) {
                 Log.e(TAG, "Failed to post review", exception)
+                _reviewPosted.tryEmit(false)
             }
         }
     }
+
+    fun deleteAppReview(app: App) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val email = accountEmail
+            try {
+                val isTesting = app.testingProgram?.isSubscribed ?: false
+                reviewsHelper.deleteReview(app.packageName, isTesting)
+                // Only drop the local copy once Play has accepted the deletion, so a failed
+                // network call leaves the review visible rather than silently disappearing.
+                if (email.isNotBlank()) reviewDao.delete(app.packageName, email)
+            } catch (exception: Exception) {
+                Log.e(TAG, "Failed to delete review", exception)
+            }
+        }
+    }
+
+    val accounts = accountRepository.accounts
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun enqueueDownload(app: App) {
         viewModelScope.launch(Dispatchers.IO) {
             downloadHelper.enqueueApp(app)
         }
+    }
+
+    fun enqueueDownloadWith(app: App, accountId: String) {
+        viewModelScope.launch(Dispatchers.IO) { downloadHelper.enqueueApp(app, accountId) }
     }
 
     fun cancelDownload(app: App) {
@@ -291,10 +411,17 @@ class AppDetailsViewModel @Inject constructor(
         }
     }
 
+    fun dismissInstallError() {
+        _installError.value = null
+    }
+
     private fun observeAppState() {
         AuroraApp.events.installerEvent
             .filter { it.packageName == app.value?.packageName }
             .onEach { event ->
+                if (event is InstallerEvent.Failed) {
+                    _installError.value = InstallError(event.error, event.extra)
+                }
                 _state.value = when {
                     event is InstallerEvent.Installing -> AppState.Installing(event.progress)
                     else -> defaultAppState
@@ -302,20 +429,31 @@ class AppDetailsViewModel @Inject constructor(
             }.launchIn(viewModelScope)
 
         download.filterNotNull().onEach {
-            _state.value = when (it.status) {
-                DownloadStatus.DOWNLOADING -> AppState.Downloading(
-                    it.progress.toFloat(),
-                    it.speed,
-                    it.timeRemaining
-                )
-
-                DownloadStatus.QUEUED -> AppState.Queued
-
-                DownloadStatus.PURCHASING -> AppState.Purchasing
-
-                else -> defaultAppState
-            }
+            _state.value = stateFromDownload(it)
         }.launchIn(viewModelScope)
+    }
+
+    // COMPLETED is bridged to Installing so the UI doesn't briefly fall back to the
+    // install action between download finishing and the installer's first event.
+    // A stale COMPLETED row after install actually finished is handled by the
+    // isInstalled check.
+    private fun stateFromDownload(download: Download): AppState = when (download.status) {
+        DownloadStatus.DOWNLOADING -> AppState.Downloading(
+            download.progress.toFloat(),
+            download.speed,
+            download.timeRemaining
+        )
+
+        DownloadStatus.QUEUED -> AppState.Queued
+
+        DownloadStatus.PURCHASING -> AppState.Purchasing
+
+        DownloadStatus.VERIFYING -> AppState.Verifying
+
+        DownloadStatus.COMPLETED,
+        DownloadStatus.INSTALLING -> if (isInstalled) defaultAppState else AppState.Installing(0F)
+
+        else -> defaultAppState
     }
 
     private fun fetchFeaturedReviews(packageName: String) {
@@ -342,14 +480,50 @@ class AppDetailsViewModel @Inject constructor(
     }
 
     private fun fetchSuggestions() {
-        // Bail out if we go no suggestions to offer
-        if (app.value!!.detailsStreamUrl.isNullOrBlank()) return
+        val streamUrl = app.value!!.detailsStreamUrl
+
+        // Bail out if we got no suggestions to offer
+        if (streamUrl.isNullOrBlank()) {
+            _suggestionsBundle.value = StreamBundle.EMPTY
+            return
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
-            val streamBundle = appDetailsHelper.getDetailsStream(app.value!!.detailsStreamUrl!!)
-            _suggestions.value = streamBundle.streamClusters.values
-                .flatMap { it.clusterAppList }
-                .distinctBy { it.packageName }
+            try {
+                val pageBundle = appDetailsHelper.getDetailsStream(streamUrl.hashCode(), streamUrl)
+                val pageClusters = pageBundle.streamClusters.filterValues {
+                    it.clusterTitle.isNotBlank() && it.clusterAppList.isNotEmpty()
+                }
+                suggestionsState = pageBundle.copy(streamClusters = pageClusters)
+                _suggestionsBundle.value = suggestionsState
+            } catch (exception: Exception) {
+                Log.e(TAG, "Failed to fetch suggestions stream", exception)
+                _suggestionsBundle.value = StreamBundle.EMPTY
+            }
+        }
+    }
+
+    fun loadMoreCluster(cluster: StreamCluster) {
+        if (!cluster.hasNext()) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val nextPage = appDetailsHelper.getNextStreamCluster(
+                    cluster.id,
+                    cluster.clusterNextPageUrl
+                )
+                val existing = suggestionsState.streamClusters[cluster.id] ?: return@launch
+                val mergedCluster = existing.copy(
+                    clusterAppList = existing.clusterAppList + nextPage.clusterAppList,
+                    clusterNextPageUrl = nextPage.clusterNextPageUrl
+                )
+                suggestionsState = suggestionsState.copy(
+                    streamClusters = suggestionsState.streamClusters + (cluster.id to mergedCluster)
+                )
+                _suggestionsBundle.value = suggestionsState
+            } catch (exception: Exception) {
+                Log.e(TAG, "Failed to fetch next cluster page", exception)
+            }
         }
     }
 

@@ -82,9 +82,9 @@
         tools:targetApi="tiramisu">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ComposeActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -94,13 +94,45 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SHOW_APP_INFO" />
+            </intent-filter>
         </activity>
 
-        <!-- Activity to host composable screens -->
+        <!-- Confirmation gate for external app-listing deep links (market:// & play.google.com) -->
         <activity
-            android:name=".ComposeActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:name=".DeepLinkConfirmActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/AppTheme.Translucent.Transparent">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="market" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="market.android.com" />
+                <data android:host="play.google.com" />
+            </intent-filter>
+        </activity>
 
         <!-- Notification Action (Download Complete) -->
         <activity
@@ -163,6 +195,11 @@
         <!-- Cancel Download Receiver-->
         <receiver
             android:name=".data.receiver.DownloadCancelReceiver"
+            android:exported="false" />
+
+        <!-- Retry Download Receiver-->
+        <receiver
+            android:name=".data.receiver.DownloadRetryReceiver"
             android:exported="false" />
 
         <!-- SessionInstaller (as device owner) -->

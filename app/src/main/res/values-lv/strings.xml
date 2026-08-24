@@ -155,7 +155,7 @@
     <string name="download_none">Nav lejupielāžu</string>
     <string name="download_pause_all">Apturēt visas</string>
     <string name="download_resume_all">Turpināt visas</string>
-    <string name="menu_disclaimer">Brīdinājums</string>
+    <string name="menu_disclaimer">Atruna</string>
     <string name="pref_common_extra">Papildu</string>
     <string name="onboarding_permission_select">Aurora Store ir nepieciešamas šādas atļaujas</string>
     <string name="pref_ui_layout">Izkārtojums</string>
@@ -223,8 +223,8 @@
     <string name="pref_install_mode_session">Sesijas uzstādītājs</string>
     <string name="pref_install_mode_summary">Atlasīt APK uzstādīšanas veidu</string>
     <string name="pref_install_mode_title">Uzstādīšanas veids</string>
-    <string name="update_available">pieejams atjauninājums</string>
-    <string name="updates_available">atjauninājumi pieejami</string>
+    <string name="update_available">atjauninājums</string>
+    <string name="updates_available">atjauninājumi</string>
     <string name="notification_updates_available">Pieejami <xliff:g id="apps_count">%1$d</xliff:g> atjauninājumi</string>
     <string name="notification_updates_available_1">Pieejams <xliff:g id="apps_count">%1$d</xliff:g> atjauninājums</string>
     <string name="device_miui_extra">Ir iespējams izvēlēties arī iebūvēto uzstādītāju, bet tad nevarēs uzstādīt apvienotos (sastāvošus no vairākām daļām) APK, tā ka izvēle ir katra paša ziņā.</string>
@@ -286,7 +286,7 @@
     <string name="details_ratings_title_hint">Apskata nosaukums</string>
     <string name="pref_network_proxy_url">Starpniekservera URL</string>
     <string name="pref_updates_check_frequency_desc">Norādīt starplaiku stundās starp automātiskajiem atjauninājumiem.</string>
-    <string name="pref_aurora_only">Atsijāt lietotnes no citiem avotiem</string>
+    <string name="pref_aurora_only">Atsijāt lietotnes no citiem avotiem.</string>
     <string name="toast_proxy_invalid">Nederīgs starpniekservera URL, pārbaudiet URL struktūras formātu!</string>
     <string name="pref_aurora_only_desc">Nepārbaudīt atjauninājumus lietotnēm, kuras ir uzstādītas no avotiem ārpus Aurora Store</string>
     <string name="toast_proxy_success">Starpniekserveris sekmīgi iestatīts</string>
@@ -303,7 +303,7 @@
     <string name="pref_updates_auto_notify">Pārbaudīt un ziņot par pieejamajiem atjauninājumiem</string>
     <string name="pref_updates_auto_desc">Konfigurēt automātisko atjauninājumu uzvedību</string>
     <string name="pref_vending_version_device">Noklusējuma (no ierīces konfigurācijas)</string>
-    <string name="pref_updates_incompatible_desc">Rādīt atjauninājumus nesaderīgām vai atspējotām lietotnēm, kuru uzstādīšana var neizdoties</string>
+    <string name="pref_updates_incompatible_desc">Rādīt atjauninājumus nesaderīgām vai atspējotām lietotnēm, kuru uzstādīšana var neizdoties.</string>
     <string name="failed_apk_export">Neizdevās izgūt APK</string>
     <string name="manual_download_hint">Jāievada lejupielādējamās versijas kods</string>
     <string name="faqs_subtitle">Ir jautājumi? Atrodi atbildes</string>
@@ -359,7 +359,7 @@
     <string name="details_no_favourites">Nav izlasē pievienotu lietotņu</string>
     <string name="details_data_safety_title">Datu drošība</string>
     <string name="onboarding_permission_installer_legacy_desc">Atļaut lietotņu uzstādīšanu no nezināmiem avotiem</string>
-    <string name="toast_app_unavailable">Lietotne nav pieejama šajā ierīcē</string>
+    <string name="toast_app_unavailable">Lietotne nav pieejama šai ierīcei</string>
     <string name="toast_permission_installer_required">Vispirms ir nepieciešams piešķirt uzstādīšanas atļauju</string>
     <string name="item_required">Nepieciešams</string>
     <string name="item_optional">Izvēles</string>
@@ -383,7 +383,6 @@
     <string name="notification_channel_export">Lietotnes izgūšanas paziņojums</string>
     <string name="notification_channel_install">Uzstādīšanas paziņojums</string>
     <string name="notification_channel_downloads">Lejupielāžu paziņojums</string>
-    <string name="notification_channel_account">Ar kontu saistīts paziņojums</string>
     <string name="authentication_required_title">Nepieciešama autentificēšanās</string>
     <string name="authentication_required_unarchive">Lūdzu, ieiet savā Google Play kontā, lai atpakotu lietotni!</string>
     <string name="checking_updates">Pārbauda atjauninājumus</string>
@@ -448,7 +447,7 @@
     <string name="details_data_safety_shared">Dati, ko šī lietotne var kopīgot</string>
     <string name="details_data_safety_share_none">Izstrādātājs apgalvo, ka šī lietotne nekopīgo lietotāju datus ar citiem uzņēmumiem vai apvienībām.</string>
     <string name="exodus_tracker_desc">Šī lietotnes versija joprojām var saturēt vairāk izsekotāju, kuri vēl nav Exodus Privacy datubāzē.</string>
-    <string name="exodus_report_trackers">Atrasts/i <xliff:g id="number_of_trackers">%1$d</xliff:g> zināms/i izsekotājs/i <xliff:g id="app_version_name">%2$s</xliff:g></string>
+    <string name="exodus_report_trackers">Atrasto zināmo izsekotāju skaits versijā <xliff:g id="app_version_name">%2$s</xliff:g>: <xliff:g id="number_of_trackers">%1$d</xliff:g></string>
     <string name="manual_download_version_error">Versijas kods var saturēt tikai ciparus</string>
     <string name="no_description">Nav pieejams apraksts</string>
     <string name="details_more_info">Vairāk informācijas</string>
@@ -472,4 +471,37 @@
     <string name="page">Lapa <xliff:g id="number">%1$d</xliff:g></string>
     <string name="action_skip">Izlaist</string>
     <string name="force_restart_snack">Palaist no jauna, lai pielietotu izmaiņas?</string>
+    <string name="action_retry">Mēģināt vēlreiz</string>
+    <string name="action_view_on_play">Apskatīt Play veikalā</string>
+    <string name="pref_source_filters_title">Atsijāt lietotnes no citiem avotiem</string>
+    <string name="pref_source_filters_desc_all">Izlaist visas lietotnes, kuras nav uzstādītas ar Aurora Store</string>
+    <string name="pref_source_filters_desc_none">Nav neiekļautu uzstādītāju</string>
+    <string name="pref_source_filters_desc_count">%1$d uzstādītājs(i) nav iekļauts(i)</string>
+    <string name="source_filters_all">Atsijāt visus citus uzstādītājus</string>
+    <string name="download_failed_storage">Nav pietiekami daudz vietas krātuvē, lai lejupielādētu šo lietotni</string>
+    <string name="installer_fallback_session">Izvēlētais uzstādītājs nav pieejams, tā vietā tiks izmantots noklusējuma uzstādītājs.</string>
+    <string name="title_security">Drošība</string>
+    <string name="app_lock_title">Lietotnes aizslēgšana</string>
+    <string name="app_lock_summary">Pieprasīt biometriju vai ekrāna aizslēgšanas autentificēšanos, lai atvērtu Aurora Store.</string>
+    <string name="app_lock_no_credential">Vispirms ierīcē jāiestata ekrāna slēgšana (PIN, zīmējums, parole vai biometrija).</string>
+    <string name="app_lock_locked_message">Nepieciešama autentificēšanās, lai piekļūtu Aurora Store</string>
+    <string name="app_lock_unlock">Atslēgt</string>
+    <string name="details_review_delete">Izdzēst</string>
+    <string name="app_lock_prompt_title">Atslēgt Aurora Store</string>
+    <string name="action_buy">Pirkt %1$s</string>
+    <string name="action_install_all">Uzstādīt visas</string>
+    <string name="details_review_comment_hint">Apraksti savu pieredzi (pēc izvēles)</string>
+    <string name="details_review_edit">Labot atsauksmi</string>
+    <string name="details_review_delete_title">Izdzēst atsauksmi?</string>
+    <string name="details_review_delete_message">Vērtējums un atsauksme tiks noņemta no Google Play.</string>
+    <string name="details_your_review">Tava atsauksme</string>
+    <string name="confirm_deeplink_title">Apstiprināt ārējas saites</string>
+    <string name="confirm_deeplink_sheet_title">Turpināt Aurora Store?</string>
+    <string name="confirm_deeplink_sheet_message">Ārēja lietotne vēlas atvērt Aurora Store</string>
+    <string name="confirm_deeplink_sheet_source">Atvērts no %1$s</string>
+    <string name="notification_channel_alerts">Kļūdas un brīdinājumi</string>
+    <string name="notification_group_activity">Lejupielādes un atjauninājumi</string>
+    <string name="notification_group_alerts">Brīdinājumi</string>
+    <string name="pref_self_update">Pašatjaunināšana</string>
+    <string name="pref_self_update_desc">Piedāvāt jaunus Aurora Store būvējumus atjauninājumu cilnē.</string>
 </resources>

@@ -16,15 +16,16 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import com.aurora.extensions.browse
 import com.aurora.extensions.copyToClipBoard
 import com.aurora.extensions.mailTo
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Header
 import com.aurora.store.compose.composable.Info
+import com.aurora.store.compose.composable.SectionHeader
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.compose.preview.PreviewTemplate
+import com.aurora.store.compose.preview.ThemePreviewProvider
 
 /**
  * Composable to display details of the app developer, supposed to be used as a part
@@ -37,7 +38,7 @@ import com.aurora.store.compose.preview.PreviewTemplate
 fun DeveloperDetails(address: String, website: String, email: String) {
     val context = LocalContext.current
 
-    Header(title = stringResource(R.string.details_dev_details))
+    SectionHeader(title = stringResource(R.string.details_dev_details))
     Column {
         if (website.isNotBlank()) {
             Info(
@@ -68,18 +69,17 @@ fun DeveloperDetails(address: String, website: String, email: String) {
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview(showBackground = true)
 @Composable
 private fun DeveloperDetailsPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    PreviewTemplate {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_medium))
-        ) {
-            DeveloperDetails(
-                address = app.developerAddress,
-                website = app.developerWebsite,
-                email = app.developerEmail
-            )
-        }
+    Column(
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
+    ) {
+        DeveloperDetails(
+            address = app.developerAddress,
+            website = app.developerWebsite,
+            email = app.developerEmail
+        )
     }
 }

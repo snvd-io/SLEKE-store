@@ -6,26 +6,18 @@
 package com.aurora.store.compose.composable
 
 import android.text.format.DateUtils
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,113 +27,147 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.aurora.gplayapi.data.models.App
+import com.aurora.store.AuroraApp
 import com.aurora.store.R
+import com.aurora.store.compose.composable.app.AnimatedAppIcon
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.compose.preview.PreviewTemplate
+import com.aurora.store.compose.preview.ThemePreviewProvider
+import com.aurora.store.compose.theme.colorGreen
+import com.aurora.store.compose.theme.colorRed
+import com.aurora.store.data.event.InstallerEvent
+import com.aurora.store.data.model.DownloadStatus
+import com.aurora.store.data.room.download.Download
 import com.aurora.store.data.room.favourite.Favourite
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.aurora.store.util.PackageUtil
+import kotlinx.coroutines.flow.filter
 
-/**
- * Composable to display a favourite app in a list
- * @param modifier The modifier to be applied to the composable
- * @param favourite A [Favourite] app to display
- * @param onClick Callback when this composable is clicked
- * @param onClear Callback when the favourite button is clicked to remove the app from favourites
- */
 @Composable
 fun FavouriteListItem(
     modifier: Modifier = Modifier,
     favourite: Favourite,
+    download: Download? = null,
     onClick: () -> Unit = {},
     onClear: () -> Unit = {}
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    var isVisible by remember { mutableStateOf(true) }
+    val context = LocalContext.current
 
-    fun requestClear() {
-        coroutineScope.launch {
-            isVisible = false
-            delay(300) // Let the animation play
-            onClear()
-        }
+    // Seed from a one-shot check, then keep it live so the installed tick reflects the app
+    // being installed or removed without leaving the screen.
+    var isInstalled by remember(favourite.packageName) {
+        mutableStateOf(PackageUtil.isInstalled(context, favourite.packageName))
     }
-
-    AnimatedVisibility(
-        visible = isVisible,
-        exit = shrinkVertically() + fadeOut()
-    ) {
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(
-                    horizontal = dimensionResource(R.dimen.padding_medium),
-                    vertical = dimensionResource(R.dimen.padding_xsmall)
-                ),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Row(modifier = Modifier.weight(1F)) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(favourite.iconURL)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .requiredSize(dimensionResource(R.dimen.icon_size_medium))
-                        .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_medium)))
-                )
-                Column(
-                    modifier = Modifier.padding(
-                        horizontal = dimensionResource(R.dimen.margin_small)
-                    )
-                ) {
-                    Text(
-                        text = favourite.displayName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = favourite.packageName,
-                        style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = DateUtils.formatDateTime(
-                            LocalContext.current,
-                            favourite.added,
-                            DateUtils.FORMAT_SHOW_DATE
-                        ),
-                        style = MaterialTheme.typography.bodySmall
-                    )
+    LaunchedEffect(favourite.packageName) {
+        AuroraApp.events.installerEvent
+            .filter { it.packageName == favourite.packageName }
+            .collect { event ->
+                when (event) {
+                    is InstallerEvent.Installed -> isInstalled = true
+                    is InstallerEvent.Uninstalled -> isInstalled = false
+                    else -> {}
                 }
             }
-            IconButton(onClick = { requestClear() }) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_favorite_checked),
-                    contentDescription = stringResource(R.string.action_favourite)
-                )
+    }
+
+    // Show download/install progress on the row; only non-finished statuses count as in
+    // progress, so a downloaded-but-not-installed (COMPLETED) app stays in its idle state.
+    val inProgress = download != null && !download.isFinished
+    val progress = if (download?.status == DownloadStatus.DOWNLOADING) {
+        download.progress.toFloat()
+    } else {
+        0f
+    }
+
+    val statusText = when {
+        download?.status == DownloadStatus.DOWNLOADING ->
+            "${stringResource(R.string.status_downloading)} • ${download.progress}%"
+
+        inProgress && download != null -> stringResource(download.status.localized)
+        else -> DateUtils.formatDateTime(context, favourite.added, DateUtils.FORMAT_SHOW_DATE)
+    }
+
+    RemovableListItem(onRemove = onClear) { triggerRemove ->
+        AuroraListItem(
+            modifier = modifier,
+            headline = favourite.displayName,
+            supporting = favourite.packageName,
+            tertiary = statusText,
+            headlineStyle = MaterialTheme.typography.bodyMedium,
+            onClick = onClick,
+            leading = {
+                if (inProgress) {
+                    AnimatedAppIcon(
+                        modifier = Modifier
+                            .requiredSize(dimensionResource(R.dimen.icon_size_medium)),
+                        iconUrl = favourite.iconURL,
+                        inProgress = true,
+                        progress = progress
+                    )
+                } else {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(favourite.iconURL)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .requiredSize(dimensionResource(R.dimen.icon_size_medium))
+                            .clip(RoundedCornerShape(dimensionResource(R.dimen.radius_medium)))
+                    )
+                }
+            },
+            trailing = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(
+                        dimensionResource(R.dimen.spacing_xsmall)
+                    )
+                ) {
+                    if (isInstalled && !inProgress) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_check),
+                            contentDescription = stringResource(R.string.title_installed),
+                            tint = colorGreen
+                        )
+                    }
+                    IconButton(onClick = triggerRemove) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_favorite_checked),
+                            contentDescription = stringResource(R.string.action_favourite),
+                            tint = colorRed
+                        )
+                    }
+                }
             }
-        }
+        )
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview(showBackground = true)
 @Composable
 private fun FavouriteListItemPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    PreviewTemplate {
-        FavouriteListItem(favourite = Favourite.fromApp(app, Favourite.Mode.MANUAL))
-    }
+    FavouriteListItem(favourite = Favourite.fromApp(app, Favourite.Mode.MANUAL))
+}
+
+@PreviewWrapper(ThemePreviewProvider::class)
+@Preview(showBackground = true)
+@Composable
+private fun FavouriteListItemDownloadingPreview(
+    @PreviewParameter(AppPreviewProvider::class) app: App
+) {
+    FavouriteListItem(
+        favourite = Favourite.fromApp(app, Favourite.Mode.MANUAL),
+        download = Download.fromApp(app).copy(
+            status = DownloadStatus.DOWNLOADING,
+            progress = 45
+        )
+    )
 }

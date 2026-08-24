@@ -23,18 +23,19 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aurora.extensions.copyToClipBoard
 import com.aurora.store.R
 import com.aurora.store.compose.composable.DispenserListItem
-import com.aurora.store.compose.composable.Error
+import com.aurora.store.compose.composable.Placeholder
 import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.preview.PreviewTemplate
+import com.aurora.store.compose.preview.ThemePreviewProvider
 import com.aurora.store.viewmodel.dispenser.DispenserViewModel
 
 @Composable
-fun DispenserScreen(onNavigateUp: () -> Unit, viewModel: DispenserViewModel = hiltViewModel()) {
+fun DispenserScreen(viewModel: DispenserViewModel = hiltViewModel()) {
     val dispensers by viewModel.dispensers.collectAsStateWithLifecycle()
 
     var shouldShowInputDialog by rememberSaveable { mutableStateOf(false) }
@@ -62,7 +63,6 @@ fun DispenserScreen(onNavigateUp: () -> Unit, viewModel: DispenserViewModel = hi
 
     ScreenContent(
         dispensers = dispensers,
-        onNavigateUp = onNavigateUp,
         onAddDispenser = { shouldShowInputDialog = true },
         onRemoveDispenser = { url -> shouldRemoveDispenser = url }
     )
@@ -70,7 +70,6 @@ fun DispenserScreen(onNavigateUp: () -> Unit, viewModel: DispenserViewModel = hi
 
 @Composable
 private fun ScreenContent(
-    onNavigateUp: () -> Unit = {},
     dispensers: Set<String> = emptySet(),
     onAddDispenser: () -> Unit = {},
     onRemoveDispenser: (url: String) -> Unit = {}
@@ -80,8 +79,7 @@ private fun ScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = stringResource(R.string.pref_dispenser_title),
-                onNavigateUp = onNavigateUp
+                title = stringResource(R.string.pref_dispenser_title)
             )
         },
         floatingActionButton = {
@@ -96,11 +94,11 @@ private fun ScreenContent(
         }
     ) { paddingValues ->
         if (dispensers.isEmpty()) {
-            Error(
+            Placeholder(
                 modifier = Modifier.padding(paddingValues),
                 painter = painterResource(R.drawable.ic_server),
                 message = stringResource(R.string.no_dispensers_available),
-                actionMessage = stringResource(R.string.add_dispenser_title),
+                actionLabel = stringResource(R.string.add_dispenser_title),
                 onAction = onAddDispenser
             )
         } else {
@@ -108,7 +106,7 @@ private fun ScreenContent(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
-                    .padding(vertical = dimensionResource(R.dimen.padding_medium))
+                    .padding(vertical = dimensionResource(R.dimen.spacing_medium))
             ) {
                 items(items = dispensers.toList(), key = { url -> url }) { url ->
                     DispenserListItem(
@@ -122,19 +120,17 @@ private fun ScreenContent(
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview
 @Composable
 private fun DispenserScreenPreview() {
     val dispensers = List(10) { "https://auroraoss.com/api/auth/$it" }
-    PreviewTemplate {
-        ScreenContent(dispensers = dispensers.toSet())
-    }
+    ScreenContent(dispensers = dispensers.toSet())
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview
 @Composable
 private fun DispenserScreenEmptyPreview() {
-    PreviewTemplate {
-        ScreenContent()
-    }
+    ScreenContent()
 }

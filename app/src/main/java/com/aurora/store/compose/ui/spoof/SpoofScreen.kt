@@ -36,34 +36,30 @@ import com.aurora.Constants
 import com.aurora.extensions.toast
 import com.aurora.store.R
 import com.aurora.store.compose.composable.TopAppBar
+import com.aurora.store.compose.navigation.Destination
 import com.aurora.store.compose.ui.spoof.menu.MenuItem
 import com.aurora.store.compose.ui.spoof.menu.SpoofMenu
 import com.aurora.store.compose.ui.spoof.navigation.SpoofPage
-import com.aurora.store.data.providers.AccountProvider
 import com.aurora.store.viewmodel.spoof.SpoofViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SpoofScreen(
-    onNavigateUp: () -> Unit,
-    onNavigateToSplash: () -> Unit,
-    viewModel: SpoofViewModel = hiltViewModel()
-) {
+fun SpoofScreen(onNavigateTo: (Destination) -> Unit, viewModel: SpoofViewModel = hiltViewModel()) {
     ScreenContent(
-        onNavigateUp = onNavigateUp,
-        onNavigateToSplash = onNavigateToSplash,
+        onNavigateTo = onNavigateTo,
         onDeviceSpoofImport = { uri -> viewModel.importDeviceSpoof(uri) },
-        onDeviceSpoofExport = { uri -> viewModel.exportDeviceSpoof(uri) }
+        onDeviceSpoofExport = { uri -> viewModel.exportDeviceSpoof(uri) },
+        onLogout = { viewModel.logout() }
     )
 }
 
 @Composable
 private fun ScreenContent(
     pages: List<SpoofPage> = listOf(SpoofPage.DEVICE, SpoofPage.LOCALE),
-    onNavigateUp: () -> Unit = {},
-    onNavigateToSplash: () -> Unit = {},
+    onNavigateTo: (Destination) -> Unit = {},
     onDeviceSpoofImport: (uri: Uri) -> Unit = {},
-    onDeviceSpoofExport: (uri: Uri) -> Unit = {}
+    onDeviceSpoofExport: (uri: Uri) -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState { pages.size }
@@ -100,8 +96,8 @@ private fun ScreenContent(
             )
             when (result) {
                 SnackbarResult.ActionPerformed -> {
-                    AccountProvider.logout(context)
-                    onNavigateToSplash()
+                    onLogout()
+                    onNavigateTo(Destination.Splash())
                 }
 
                 else -> Unit
@@ -133,7 +129,6 @@ private fun ScreenContent(
         topBar = {
             TopAppBar(
                 title = stringResource(R.string.title_spoof_manager),
-                onNavigateUp = onNavigateUp,
                 actions = { SetupMenu() }
             )
         }

@@ -1,4 +1,5 @@
 /*
+ * SPDX-FileCopyrightText: 2026 Aurora OSS
  * SPDX-FileCopyrightText: 2025 The Calyx Institute
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -27,10 +28,11 @@ import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.compose.preview.PreviewTemplate
+import com.aurora.store.compose.preview.ThemePreviewProvider
 
 /**
  * Composable to show some information
@@ -55,10 +57,10 @@ fun Info(
             .fillMaxWidth()
             .clickable(onClick = { if (onClick != null) onClick() }, enabled = onClick != null)
             .padding(
-                horizontal = dimensionResource(R.dimen.padding_small),
-                vertical = dimensionResource(R.dimen.padding_xxsmall)
+                horizontal = dimensionResource(R.dimen.spacing_medium),
+                vertical = dimensionResource(R.dimen.spacing_xsmall)
             ),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_normal)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (painter != null) Icon(painter = painter, contentDescription = null)
@@ -74,21 +76,20 @@ fun Info(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview(showBackground = true)
 @Composable
 private fun InfoPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    PreviewTemplate {
-        Info(
-            title = AnnotatedString(text = stringResource(R.string.details_dev_website)),
-            description = AnnotatedString.fromHtml(htmlString = app.developerWebsite),
-            painter = painterResource(R.drawable.ic_network)
-        )
-    }
+    Info(
+        title = AnnotatedString(text = stringResource(R.string.details_dev_website)),
+        description = AnnotatedString.fromHtml(htmlString = app.developerWebsite),
+        painter = painterResource(R.drawable.ic_network)
+    )
 }

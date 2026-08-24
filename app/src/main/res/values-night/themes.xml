@@ -3,7 +3,8 @@
 
     <style name="AppTheme" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
         <item name="chipStyle">@style/Chip.Filter</item>
-        <item name="preferenceTheme">@style/AppTheme.PreferenceThemeOverlay</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- Brand accent for devices without dynamic color (Android 11 and below) -->
+        <item name="colorPrimary">@color/colorAccent</item>
     </style>
 </resources>

@@ -1,4 +1,5 @@
 /*
+ * SPDX-FileCopyrightText: 2026 Aurora OSS
  * SPDX-FileCopyrightText: 2025 The Calyx Institute
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -8,12 +9,13 @@ package com.aurora.store.compose.ui.commons
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,7 +23,7 @@ import com.aurora.extensions.adaptiveNavigationIcon
 import com.aurora.store.R
 import com.aurora.store.compose.composable.PermissionList
 import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.preview.PreviewTemplate
+import com.aurora.store.compose.preview.ThemePreviewProvider
 import com.aurora.store.data.model.Permission
 import com.aurora.store.data.model.PermissionType
 import com.aurora.store.viewmodel.commons.PermissionRationaleViewModel
@@ -33,14 +35,12 @@ import kotlin.random.Random
 @Composable
 fun PermissionRationaleScreen(
     requiredPermissions: Set<PermissionType> = emptySet(),
-    onNavigateUp: () -> Unit,
     onPermissionCallback: (type: PermissionType) -> Unit = {},
     viewModel: PermissionRationaleViewModel = hiltViewModel()
 ) {
     val permissions by viewModel.permissions.collectAsStateWithLifecycle()
 
     ScreenContent(
-        onNavigateUp = onNavigateUp,
         permissions = permissions
             .filter { it.type in requiredPermissions }
             .map { permission -> permission.copy(optional = false) },
@@ -54,16 +54,14 @@ fun PermissionRationaleScreen(
 @Composable
 private fun ScreenContent(
     permissions: List<Permission> = emptyList(),
-    onNavigateUp: () -> Unit = {},
     onPermissionCallback: (type: PermissionType) -> Unit = {},
-    windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
+    windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfoV2()
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = pluralStringResource(R.plurals.permissions_required, permissions.size),
-                navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon,
-                onNavigateUp = onNavigateUp
+                navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon
             )
         }
     ) { paddingValues ->
@@ -75,6 +73,7 @@ private fun ScreenContent(
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview
 @Composable
 private fun PermissionsScreenPreview() {
@@ -87,7 +86,5 @@ private fun PermissionsScreenPreview() {
             isGranted = Random.nextBoolean()
         )
     }
-    PreviewTemplate {
-        ScreenContent(permissions = permissions)
-    }
+    ScreenContent(permissions = permissions)
 }

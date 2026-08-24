@@ -375,7 +375,6 @@
     <string name="export_app_title">Εξαγωγέας αρχείου</string>
     <string name="export_app_summary">Περίμενε λίγο, εξάγουμε το αρχείο σου</string>
     <string name="made_with_love">Φτιαγμένο με <xliff:g id="heart_emoji">%1$s</xliff:g> στην Ινδία</string>
-    <string name="notification_channel_account">Ειδοποίηση σχετική με λογαριασμό</string>
     <string name="status_downloading">Γίνεται λήψη</string>
     <string name="status_failed">Απέτυχε</string>
     <string name="status_unavailable">Μη διαθέσιμη</string>
@@ -471,4 +470,9 @@
     <string name="action_filter_no_gms">Δεν υπάρχουν υπηρεσίες play</string>
     <string name="loading">Φόρτωση σε εξέλιξη</string>
     <string name="page">Σελίδα <xliff:g id="number">%1$d</xliff:g></string>
+    <string name="action_retry">Επανάληψη</string>
+    <string name="action_view_on_play">Δείτε στο Play Store</string>
+    <string name="microg_removed_auth_warning">microG δεν είναι πλέον εγκατεστημένο. Εκτελέστε ξανά τη ρύθμιση για να συνεχίσουν όλα να λειτουργούν ομαλά.</string>
+    <string name="preparing_to_download">Προετοιμασία για λήψη</string>
+    <string name="verifying_downloads">Επαλήθευση λήψεων</string>
 </resources>

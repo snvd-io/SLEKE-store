@@ -1,4 +1,5 @@
 /*
+ * SPDX-FileCopyrightText: 2026 Aurora OSS
  * SPDX-FileCopyrightText: 2025 The Calyx Institute
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -11,14 +12,15 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aurora.extensions.adaptiveNavigationIcon
@@ -27,18 +29,18 @@ import com.aurora.gplayapi.data.models.Artwork
 import com.aurora.store.R
 import com.aurora.store.compose.composable.TopAppBar
 import com.aurora.store.compose.composable.details.ScreenshotListItem
-import com.aurora.store.compose.preview.PreviewTemplate
+import com.aurora.store.compose.preview.ThemePreviewProvider
 import com.aurora.store.viewmodel.details.AppDetailsViewModel
 
 @Composable
 fun ScreenshotScreen(
     packageName: String,
     index: Int,
-    onNavigateUp: () -> Unit,
     viewModel: AppDetailsViewModel = hiltViewModel(key = packageName),
-    windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
+    windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfoV2()
 ) {
     val app by viewModel.app.collectAsStateWithLifecycle()
+    val screenshots = app?.screenshots ?: emptyList()
 
     val topAppBarTitle = when {
         windowAdaptiveInfo.isWindowCompact -> app!!.displayName
@@ -47,8 +49,7 @@ fun ScreenshotScreen(
 
     ScreenContent(
         topAppBarTitle = topAppBarTitle,
-        onNavigateUp = onNavigateUp,
-        screenshots = app!!.screenshots,
+        screenshots = screenshots.distinctBy { it.url },
         index = index
     )
 }
@@ -56,12 +57,11 @@ fun ScreenshotScreen(
 @Composable
 private fun ScreenContent(
     topAppBarTitle: String? = null,
-    onNavigateUp: () -> Unit = {},
     screenshots: List<Artwork> = emptyList(),
     index: Int = 0,
-    windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
+    windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfoV2()
 ) {
-    val displayMetrics = LocalContext.current.resources.displayMetrics
+    val displayMetrics = LocalResources.current.displayMetrics
     val pagerState = rememberPagerState(initialPage = index) { screenshots.size }
 
     LaunchedEffect(key1 = index) {
@@ -72,8 +72,7 @@ private fun ScreenContent(
         topBar = {
             TopAppBar(
                 title = topAppBarTitle,
-                navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon,
-                onNavigateUp = onNavigateUp
+                navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon
             )
         }
     ) { paddingValues ->
@@ -81,7 +80,8 @@ private fun ScreenContent(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize(),
-            state = pagerState
+            state = pagerState,
+            key = { screenshots[it].url }
         ) { page ->
             val artwork = screenshots[page]
             ScreenshotListItem(
@@ -92,12 +92,11 @@ private fun ScreenContent(
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview
 @Composable
 private fun ScreenshotScreenPreview() {
-    PreviewTemplate {
-        ScreenContent(
-            topAppBarTitle = stringResource(R.string.app_name)
-        )
-    }
+    ScreenContent(
+        topAppBarTitle = stringResource(R.string.app_name)
+    )
 }

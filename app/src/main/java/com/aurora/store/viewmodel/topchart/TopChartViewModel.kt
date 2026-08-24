@@ -19,7 +19,6 @@
 
 package com.aurora.store.viewmodel.topchart
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aurora.gplayapi.data.models.StreamCluster
@@ -30,8 +29,10 @@ import com.aurora.store.data.model.ViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 
 @HiltViewModel
 class TopChartViewModel @Inject constructor(
@@ -40,7 +41,8 @@ class TopChartViewModel @Inject constructor(
 
     private var stash: TopChartStash = mutableMapOf()
 
-    val liveData: MutableLiveData<ViewState> = MutableLiveData()
+    private val _state = MutableStateFlow<ViewState>(ViewState.Loading)
+    val state: StateFlow<ViewState> = _state.asStateFlow()
 
     private val topChartsContract: TopChartsContract
         get() = webTopChartsHelper
@@ -48,34 +50,37 @@ class TopChartViewModel @Inject constructor(
     fun getStreamCluster(type: TopChartsContract.Type, chart: TopChartsContract.Chart) {
         viewModelScope.launch(Dispatchers.IO) {
             if (targetCluster(type, chart).clusterAppList.isNotEmpty()) {
-                liveData.postValue(ViewState.Success(stash))
+                _state.value = ViewState.Success(targetCluster(type, chart))
+                return@launch
             }
+
+            _state.value = ViewState.Loading
 
             try {
                 val cluster = topChartsContract.getCluster(type.value, chart.value)
                 updateCluster(type, chart, cluster)
-                liveData.postValue(ViewState.Success(stash))
-            } catch (_: Exception) {
+                _state.value = ViewState.Success(targetCluster(type, chart))
+            } catch (e: Exception) {
+                _state.value = ViewState.Error(e.message)
             }
         }
     }
 
     fun nextCluster(type: TopChartsContract.Type, chart: TopChartsContract.Chart) {
         viewModelScope.launch(Dispatchers.IO) {
-            supervisorScope {
-                try {
-                    val target = targetCluster(type, chart)
-                    if (target.hasNext()) {
-                        val newCluster = topChartsContract.getNextStreamCluster(
-                            target.clusterNextPageUrl
-                        )
+            try {
+                val target = targetCluster(type, chart)
+                if (target.hasNext()) {
+                    val newCluster = topChartsContract.getNextStreamCluster(
+                        target.id,
+                        target.clusterNextPageUrl
+                    )
 
-                        updateCluster(type, chart, newCluster)
+                    updateCluster(type, chart, newCluster)
 
-                        liveData.postValue(ViewState.Success(stash))
-                    }
-                } catch (_: Exception) {
+                    _state.value = ViewState.Success(targetCluster(type, chart))
                 }
+            } catch (_: Exception) {
             }
         }
     }
@@ -100,7 +105,7 @@ class TopChartViewModel @Inject constructor(
     ): StreamCluster {
         val cluster = stash
             .getOrPut(type) { mutableMapOf() }
-            .getOrPut(chart) { StreamCluster() }
+            .getOrPut(chart) { StreamCluster.EMPTY }
         return cluster
     }
 }

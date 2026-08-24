@@ -363,7 +363,6 @@
     <string name="item_required">Krävs</string>
     <string name="item_optional">Valfritt</string>
     <string name="set">Ställ in</string>
-    <string name="notification_channel_account">Konto-relaterad avisering</string>
     <string name="filter_latest">Senaste</string>
     <string name="details_compatibility_title">Kompabilitet</string>
     <string name="default_spoof">Standard</string>
@@ -471,4 +470,11 @@
     <string name="action_filter_no_gms">Inga speltjänster</string>
     <string name="loading">Nedladdning pågår</string>
     <string name="page">Sida<xliff:g id="nummer">%1$d</xliff:g></string>
+    <string name="action_retry">Försök igen</string>
+    <string name="preparing_to_download">Förbereder för att ladda ner</string>
+    <string name="verifying_downloads">Verifierar nedladdningar</string>
+    <string name="action_view_on_play">Visa på Play Store</string>
+    <string name="microg_removed_auth_warning">microG är inte längre installerat. Kör installationsprogrammet igen för att hålla allt igång smidigt.</string>
+    <string name="header_blacklist_selected">Svartlistad</string>
+    <string name="header_blacklist_others">Andra</string>
 </resources>

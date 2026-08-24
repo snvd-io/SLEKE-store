@@ -1,4 +1,5 @@
 /*
+ * SPDX-FileCopyrightText: 2026 Aurora OSS
  * SPDX-FileCopyrightText: 2025 The Calyx Institute
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
@@ -20,16 +21,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.util.fastForEach
 import com.aurora.extensions.isWindowCompact
@@ -37,12 +40,11 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Rating
 import com.aurora.gplayapi.data.models.Review
 import com.aurora.store.R
-import com.aurora.store.compose.composable.Header
+import com.aurora.store.compose.composable.SectionHeader
 import com.aurora.store.compose.composable.details.RatingListItem
 import com.aurora.store.compose.composable.details.ReviewListItem
 import com.aurora.store.compose.preview.AppPreviewProvider
-import com.aurora.store.compose.preview.PreviewTemplate
-import java.util.Locale
+import com.aurora.store.compose.preview.ThemePreviewProvider
 
 /**
  * Composable to display reviews of the app, supposed to be used as a part
@@ -57,7 +59,7 @@ fun RatingAndReviews(
     rating: Rating,
     featuredReviews: List<Review> = emptyList(),
     onNavigateToDetailsReview: () -> Unit = {},
-    windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
+    windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfoV2()
 ) {
     val stars = listOf(
         rating.oneStar,
@@ -72,26 +74,28 @@ fun RatingAndReviews(
 
     val avgRating = when {
         windowAdaptiveInfo.isWindowCompact -> {
-            String.format(Locale.getDefault(), "%.1f", rating.average)
+            String.format(LocalLocale.current.platformLocale, "%.1f", rating.average)
         }
 
         else -> {
-            String.format(Locale.getDefault(), "%.1f / 5.0", rating.average)
+            String.format(LocalLocale.current.platformLocale, "%.1f / 5.0", rating.average)
         }
     }
 
-    Header(
+    SectionHeader(
         title = stringResource(R.string.details_ratings),
         onClick = onNavigateToDetailsReview
     )
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(R.dimen.spacing_medium)),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large))
     ) {
         Column(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+            modifier = Modifier.padding(dimensionResource(R.dimen.spacing_medium)),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -110,8 +114,7 @@ fun RatingAndReviews(
         }
 
         Column(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_small))
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
         ) {
             stars.reversed().fastForEach { star ->
                 RatingListItem(
@@ -126,8 +129,8 @@ fun RatingAndReviews(
         val pagerState = rememberPagerState { featuredReviews.size }
         HorizontalPager(
             state = pagerState,
-            contentPadding = PaddingValues(dimensionResource(R.dimen.padding_large)),
-            pageSpacing = dimensionResource(R.dimen.margin_medium)
+            contentPadding = PaddingValues(horizontal = dimensionResource(R.dimen.spacing_medium)),
+            pageSpacing = dimensionResource(R.dimen.spacing_medium)
         ) { page ->
             Box(
                 modifier = Modifier
@@ -142,6 +145,7 @@ fun RatingAndReviews(
     }
 }
 
+@PreviewWrapper(ThemePreviewProvider::class)
 @Preview(showBackground = true)
 @Composable
 private fun RatingAndReviewsPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
@@ -153,11 +157,9 @@ private fun RatingAndReviewsPreview(@PreviewParameter(AppPreviewProvider::class)
             comment = LoremIpsum(40).values.first()
         )
     }
-    PreviewTemplate {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.margin_medium))
-        ) {
-            RatingAndReviews(rating = app.rating, featuredReviews = reviews)
-        }
+    Column(
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
+    ) {
+        RatingAndReviews(rating = app.rating, featuredReviews = reviews)
     }
 }

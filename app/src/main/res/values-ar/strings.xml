@@ -63,7 +63,7 @@
     <string name="device_miui_title">اكتُشف MIUI!</string>
     <string name="menu_terms">شروط الخدمة</string>
     <string name="menu_license">الرخصة</string>
-    <string name="menu_disclaimer">اخلاء المسؤوليه</string>
+    <string name="menu_disclaimer">إخلاء مسؤولية</string>
     <string name="installer_status_success">ثُبِّت بنجاح</string>
     <string name="installer_status_failure_storage">مساحة التخزين غير كافية</string>
     <string name="installer_status_failure_incompatible">تطبيق غير متوافق</string>
@@ -229,7 +229,7 @@
     <string name="app_updater_service_notif_text">يفعِّل تنزيل التطبيق في الخلفية</string>
     <string name="installer_am_unavailable">ثبِّت مدير التطبيقات أو غيِّر المثبت.</string>
     <string name="pref_install_mode_am">مثبِّت AM</string>
-    <string name="download_paused">مُلبَث • <xliff:g id="completed_downloads"> %1$d </xliff:g> / <xliff:g id="all_downloads"> %2$d </xliff:g></string>
+    <string name="download_paused">مُلبَث • <xliff:g id="completed_downloads">%1$d</xliff:g> / <xliff:g id="all_downloads"> %2$d</xliff:g></string>
     <string name="download_eta_min">بقي %1$d دقيقة %2$d ثانية</string>
     <string name="download_eta_sec">بقي %1$d ثانية</string>
     <string name="session_login_failed_google">تعذّر تسجيل الدخول عبر Google</string>
@@ -241,11 +241,11 @@
     <string name="expand">توسع</string>
     <string name="permissions_denied">رُفض الإذن المطلوب يُرجى منحها لمواصلة العمل</string>
     <string name="search_hint">البحث عن التطبيقات والألعاب</string>
-    <string name="download_progress">جارِ تنزيل • <xliff:g id="completed_downloads"> %1$d </xliff:g> / <xliff:g id="all_downloads"> %2$d </xliff:g> • <xliff:g id="speed"> %3$s </xliff:g></string>
+    <string name="download_progress">جارِ تنزيل • <xliff:g id="completed_downloads">%1$d</xliff:g> / <xliff:g id="all_downloads"> %2$d</xliff:g> • <xliff:g id="speed"> %3$s</xliff:g></string>
     <string name="onboarding_permission_notifications">الإشعارات</string>
     <string name="onboarding_permission_notifications_desc">إرسال إشعارات بخصوص حالة التثبيت</string>
     <string name="session_enjoy">سجّل الدخول واستمتع.</string>
-    <string name="session_good">واو! كل شيء جيد.</string>
+    <string name="session_good">كل شيء جيد.</string>
     <string name="session_init">تجهيز الأمور…</string>
     <string name="title_advanced">متقدم</string>
     <string name="updates_available">يتوفر تحديثات</string>
@@ -256,13 +256,13 @@
     <string name="server_maintenance">الخادم معطل للصيانة</string>
     <string name="action_import">استورد</string>
     <string name="toast_import_failed">تعذر استيراد تضبيط الجهاز</string>
-    <string name="downloading_dep">تنزيل ملفات إضافية لـ <xliff:g id="app"> %1$s </xliff:g></string>
+    <string name="downloading_dep">ينزل ملفات إضافية لـ <xliff:g id="app">%1$s</xliff:g></string>
     <string name="toast_import_success">استُورد تضبيط الجهاز</string>
     <string name="notification_updates_available_desc_1">يتوفر أصدار جديد من <xliff:g id="app_one_name">%1$s</xliff:g> متاح</string>
     <string name="notification_updates_available_desc_4"><xliff:g id="app_one_name">%1$s</xliff:g>, <xliff:g id="app_two_name">%2$s</xliff:g>, <xliff:g id="app_three_name">%3$s</xliff:g> والمزيد <xliff:g id="apps_count">%4$d</xliff:g></string>
     <string name="notification_channel_updates">إشعارات التحديثات</string>
-    <string name="notification_updates_available_1">تحديث <xliff:g id="apps_count"> %1$d </xliff:g> متوفر</string>
-    <string name="notification_updates_available">تحديثات <xliff:g id="apps_count"> %1$d </xliff:g> متوفرة</string>
+    <string name="notification_updates_available_1">يتوفر <xliff:g id="apps_count">%1$d</xliff:g> تحديث</string>
+    <string name="notification_updates_available">يتوفر <xliff:g id="apps_count">%1$d</xliff:g> تحديثات</string>
     <string name="notification_updates_available_desc_2"><xliff:g id="app_one_name">%1$s</xliff:g> و <xliff:g id="app_two_name">%2$s</xliff:g></string>
     <string name="notification_updates_available_desc_3"><xliff:g id="app_one_name">%1$s</xliff:g>, <xliff:g id="app_two_name">%2$s</xliff:g> و <xliff:g id="app_three_name">%3$s</xliff:g></string>
     <string name="pref_install_mode_shizuku">مثبِّت شيزوكو</string>
@@ -274,7 +274,7 @@
     <string name="failed_to_fetch_report">فشل في الحصول على تقرير الخصوصية</string>
     <string name="access_denied_using_vpn">رُفض الوصول! هل تستخدم VPN أو تور؟</string>
     <string name="server_unreachable">لا يمكن الوصول إلى الخادم</string>
-    <string name="failed_generating_session">فشل توليد جلسة عمل، رمز الخطأ: <xliff:g id="status_code"> %1$d </xliff:g></string>
+    <string name="failed_generating_session">فشل توليد جلسة عمل، رمز الخطأ: <xliff:g id="status_code">%1$d</xliff:g></string>
     <string name="app_language">لغة التطبيق</string>
     <string name="check_connectivity">التحقق من اتصال الإنترنت</string>
     <string name="failed_to_generate_session">تعذّر توليد الجلسة</string>
@@ -284,9 +284,9 @@
     <string name="google_play_store_desc">Google Play، المعروف أيضًا باسم متجر Google Play و Android Market سابقًا.</string>
     <string name="android_market_desc">Android Market هو متجر على الإنترنت يقدم تطبيقات برمجية مصممة لأجهزة Android، وتم إيقافه في عام 2017.</string>
     <string name="details_ratings_title_hint">عنوان المراجعة</string>
-    <string name="pref_updates_check_frequency_desc">اضبط الفواصل الزمنية للتحديثات التلقائية والذاتية، في ساعة.</string>
-    <string name="pref_aurora_only">تصفية التطبيقات من مصادر أخرى</string>
-    <string name="pref_aurora_only_desc">لا تبحث عن تحديثات للتطبيقات المثبتة من مصادر خارج متجر أورورا</string>
+    <string name="pref_updates_check_frequency_desc">كم مرة يتحقق أورورا من تحديثات التطبيق.</string>
+    <string name="pref_aurora_only">تصفية التطبيقات من مصادر أخرى.</string>
+    <string name="pref_aurora_only_desc">لا تحقق من التحديثات للتطبيقات المثبتة من مصادر خارج متجر أورورا</string>
     <string name="title_app_settings">إعدادات التطبيق</string>
     <string name="pref_updates_check_frequency">تردد التحديثات التلقائية</string>
     <string name="pref_network_proxy_url">عنوان URL الوكيل</string>
@@ -306,7 +306,7 @@
     <string name="failed_apk_export">فشل تصدير ملفات APK</string>
     <string name="download_clear_finished">مسح المكتملة</string>
     <string name="pref_updates_incompatible">أظهِر التحديثات التي قد تفشل</string>
-    <string name="pref_updates_incompatible_desc">اعرض التحديثات للتطبيقات غير المتوافقة أو المعطلة التي قد يفشل تثبيتها</string>
+    <string name="pref_updates_incompatible_desc">اعرض التحديثات للتطبيقات غير المتوافقة أو المعطّلة التي قد يفشل تثبيتها.</string>
     <string name="action_home_screen">أضف إلى الشاشة الرئيسية</string>
     <string name="session_installer_subtitle">أداة التثبيت المستندة إلى الجلسة لملفات APK المجمعة/المقسمة</string>
     <string name="session_installer_desc">موصى به ومدمج ويدعم جميع إصدارات Android</string>
@@ -322,11 +322,11 @@
     <string name="shizuku_installer_desc">يتطلب Shizuku أو Sui، ويحتاج إلى الإعداد ومنح الإذن</string>
     <string name="disclaimer_subtitle">المساءلة والمسؤولية</string>
     <string name="manual_download_hint">أدخل رمز الإصدار الذي ترغب في تنزيله</string>
-    <string name="faqs_subtitle">هل لديك أسئلة؟ تعرف على الإجابات</string>
+    <string name="faqs_subtitle">ألديك أسئلة؟ تعرّف على الإجابات</string>
     <string name="source_code_title">المصدر البرمجي</string>
     <string name="source_code_subtitle">اكتشف ما بداخله</string>
     <string name="privacy_policy_title">سياسة الخصوصية</string>
-    <string name="privacy_policy_subtitle">تعرف على كيفية استخدام Aurora Store لبياناتك</string>
+    <string name="privacy_policy_subtitle">تعرّف على كيفية استخدام Aurora Store لبياناتك</string>
     <string name="title_more">المزيد</string>
     <string name="manage_account">أدر حسابك</string>
     <string name="pref_clear_device_owner_title">مسح مالك الجهاز</string>
@@ -348,7 +348,7 @@
     <string name="session_login">يُرجى تسجيل الدخول إلى حساب Google Play الخاص بك</string>
     <string name="about_aurora_store_title">عن متجر Aurora</string>
     <string name="about_aurora_store_subtitle">اعرف المزيد عن متجر Aurora</string>
-    <string name="about_aurora_store_summary">يمكّنك متجر Aurora من البحث عن التطبيقات وتنزيلها من متجر Google Play الرسمي. يمكنك التحقق من أوصاف التطبيق ولقطات الشاشة والتحديثات وتعليقات المستخدمين الآخرين وتنزيل APK مباشرة من Google Play على جهازك. لاستخدام متجر Aurora، يجب أن يكون لديك حساب Google Play، وأن تقوم بتسجيل الدخول إلى حساب Google Play الخاص بك عند فتح متجر Aurora وتضبيطه لأول مرة. \n \nعلى عكس متجر التطبيقات التقليدي، لا يمتلك متجر Aurora أي تطبيقات أو يرخصها أو يوزعها. يمكن الوصول إلى جميع التطبيقات وأوصاف التطبيقات ولقطات الشاشة والمحتويات الأخرى الموجودة في متجر Aurora مباشرة و/أو تنزيلها و/أو عرضها من Google Play. يعمل متجر Aurora تمامًا مثل الباب أو المتصفح، مما يسمح لك بتسجيل الدخول إلى حساب Google Play الخاص بك والعثور على التطبيقات من Google Play. \n \nيُرجى ملاحظة أن متجر Aurora لا يحصل على أي موافقة أو رعاية أو ترخيص من Google أو Google Play أو أي تطبيقات تم تنزيلها من خلال متجر Aurora أو أي من مطوري التطبيقات؛ ولا يوجد لدى متجر Aurora أي انتماء أو تعاون أو اتصال معهم.</string>
+    <string name="about_aurora_store_summary">يمكّنك متجر Aurora من البحث عن التطبيقات وتنزيلها من متجر Google Play الرسمي. يمكنك التحقق من أوصاف التطبيق ولقطات الشاشة والتحديثات وتعليقات المستخدمين الآخرين وتنزيل APK مباشرة من Google Play على جهازك. لاستخدام متجر Aurora، سجل الدخول بحاسب جوجل عند فتح متجر Aurora وتضبيطه لأول مرة. \n \nعلى عكس متجر التطبيقات التقليدي، لا يمتلك متجر Aurora أي تطبيقات أو يرخصها أو يوزعها. يمكن الوصول إلى جميع التطبيقات وأوصاف التطبيقات ولقطات الشاشة والمحتويات الأخرى الموجودة في متجر Aurora مباشرة و/أو تنزيلها و/أو عرضها من Google Play. يعمل متجر Aurora تمامًا مثل الباب أو المتصفح، مما يسمح لك بتسجيل الدخول إلى حساب Google Play الخاص بك والعثور على التطبيقات من Google Play. \n \nيُرجى ملاحظة أن متجر Aurora لا يحصل على أي موافقة أو رعاية أو ترخيص من Google أو Google Play أو أي تطبيقات تم تنزيلها من خلال متجر Aurora أو أي من مطوري التطبيقات؛ ولا يوجد لدى متجر Aurora أي انتماء أو تعاون أو اتصال معهم.</string>
     <string name="toast_app_unavailable">التطبيق غير متوفر لجهازك</string>
     <string name="action_favourite">المفضلة</string>
     <string name="toast_fav_export_success">صُدِّرت المفضلة!</string>
@@ -383,7 +383,6 @@
     <string name="status_queued">في قائمة الانتظار</string>
     <string name="status_cancelled">ملغي</string>
     <string name="status_downloading">تنزيل</string>
-    <string name="notification_channel_account">إشعار متعلق بالحساب</string>
     <string name="authentication_required_title">التوثيق مطلوب</string>
     <string name="authentication_required_unarchive">يُرجى تسجيل الدخول إلى حساب Google Play الخاص بك لإلغاء أرشفة التطبيق!</string>
     <string name="checking_updates">البحث عن تحديثات</string>
@@ -475,4 +474,165 @@
     <string name="page">صفحة <xliff:g id="number">%1$d</xliff:g></string>
     <string name="action_skip">تخطي</string>
     <string name="force_restart_snack">أعد التشغيل لتطبيق التغييرات؟</string>
+    <string name="preparing_to_download">يجهز التنزيل</string>
+    <string name="verifying_downloads">يتحقق من التنزيلات</string>
+    <string name="action_retry">حاول مجددًا</string>
+    <string name="action_view_on_play">اعرض على متجر Play</string>
+    <string name="header_blacklist_selected">مدرج في القائمة السوداء</string>
+    <string name="header_blacklist_others">آخرون</string>
+    <string name="microg_removed_auth_warning">لم يعد تطبيق microG مثبتًا. يُرجى تشغيل الإعداد مرة أخرى لضمان استمرار عمل النظام بسلاسة.</string>
+    <string name="pref_source_filters_title">تصفية التطبيقات من مصادر أخرى</string>
+    <string name="pref_source_filters_desc_all">تخطَّ أي تطبيق لم يتم تثبيته بواسطة متجر Aurora</string>
+    <string name="pref_source_filters_desc_none">لم يتم استبعاد أي مثبّتات</string>
+    <string name="source_filters_all">تصفية جميع المثبّتات الأخرى</string>
+    <string name="source_filters_installers_header">مثبّتات محدّدة</string>
+    <string name="source_filters_installers_empty">لم تُضاف أي مثبّتات بعد</string>
+    <string name="source_filters_add">أضف مثبت</string>
+    <string name="source_filters_add_dialog_hint">أدخل اسم الحزمة</string>
+    <string name="source_filters_remove">أزل المثبت</string>
+    <string name="updates_incompatible_header">تحديثات غير متوافقة</string>
+    <string name="updates_incompatible_desc">لا يمكن تثبيت تحديثات تطبيقات النظام هذه على نظام التشغيل هذا</string>
+    <string name="updates_approval_header">تحديثات تتطلب موافقة</string>
+    <string name="updates_approval_desc">لم تُثبت هذه التطبيقات بواسطة Aurora. سيؤدي تحديثها إلى مطالبتك بنقل ملكية تحديث التطبيق.</string>
+    <string name="updates_app_details">تفاصيل</string>
+    <string name="updates_ignored_header">متجاهلة</string>
+    <string name="updates_ignored_desc">هذه التحديثات مخفية حتى تقوم بإلغاء تجاهلها</string>
+    <string name="action_ignore_all">تجاهل كل التحديثات</string>
+    <string name="action_ignore_version">تخطَّ الإصدار <xliff:g id="version_name">%1$s</xliff:g></string>
+    <string name="action_unignore">ألغِ التجاهل</string>
+    <string name="pref_source_filters_desc_count">%1$d مثبّتات مستبعدة</string>
+    <string name="pref_updates_check_frequency_3h">كل 3 ساعات</string>
+    <string name="pref_updates_check_frequency_6h">كل 6 ساعات</string>
+    <string name="pref_updates_check_frequency_12h">كل 12 ساعة</string>
+    <string name="pref_updates_check_frequency_24h">كل 24 ساعة</string>
+    <string name="pref_updates_check_frequency_3d">كل 3 أيام</string>
+    <string name="pref_updates_check_frequency_7d">كل 7 أيام</string>
+    <string name="pref_updates_check_frequency_15d">كل 15 يوم</string>
+    <string name="pref_ui_theme">السمة</string>
+    <string name="pref_theme_style_system">اتبع النظام</string>
+    <string name="pref_theme_style_light">فاتح</string>
+    <string name="pref_theme_style_dark">داكن</string>
+    <string name="installed_sort_filter">رتّب وصفِ</string>
+    <string name="installed_sort_by">رتّب حسب</string>
+    <string name="installed_sort_name">الاسم</string>
+    <string name="installed_sort_date_installed">تاريخ التثبيت</string>
+    <string name="installed_sort_date_updated">تاريخ التحديث</string>
+    <string name="installed_sort_package_name">اسم الحزمة</string>
+    <string name="installed_sort_size">الحجم</string>
+    <string name="installed_sort_ascending">تصاعدي</string>
+    <string name="installed_sort_descending">تنازلي</string>
+    <string name="installed_filter">تصفية</string>
+    <string name="installed_filter_user_apps">تطبيقات المستخدم</string>
+    <string name="installed_filter_system_apps">تطبيقات النظام</string>
+    <string name="installed_filter_installer">ثُبّت مِن</string>
+    <string name="installed_filter_all">الكل</string>
+    <string name="installed_updated_at">حُدث <xliff:g id="when">%1$s</xliff:g></string>
+    <string name="action_check">تحقق</string>
+    <string name="download_failed_storage">لا توجد مساحة تخزين كافية لتنزيل هذا التطبيق</string>
+    <string name="installer_fallback_session">المثبّت المختار غير متاح، يتم استخدام المثبّت الافتراضي بدلاً منه.</string>
+    <string name="title_security">الأمن</string>
+    <string name="app_lock_title">قفل التطبيق</string>
+    <string name="app_lock_summary">تتطلب الاستيثاق الحيوي أو قفل الشاشة لفتح متجر Aurora.</string>
+    <string name="app_lock_no_credential">أعدَ قفل شاشة (رمز PIN، أو نمط، أو كلمة مرور، أو بصمة حيوية) على جهازك أولاً.</string>
+    <string name="app_lock_locked_message">الاستيثاق مطلوب للوصول إلى متجر Aurora</string>
+    <string name="app_lock_unlock">افتح القفل</string>
+    <string name="app_lock_prompt_title">افتح القفل متجر Aurora</string>
+    <string name="app_lock_prompt_subtitle">أدخل نمط قفل شاشة الهاتف أو رقم التعريف الشخصي (PIN) أو كلمة المرور أو بصمة الإصبع</string>
+    <string name="notification_channel_alerts">الأخطاء والتنبيهات</string>
+    <string name="notification_group_activity">التنزيلات والتحديثات</string>
+    <string name="notification_group_alerts">التنبيهات</string>
+    <string name="pref_self_update">تحديث ذاتي</string>
+    <string name="pref_self_update_desc">عرض إصدارات متجر Aurora الجديدة في علامة تبويب التحديثات.</string>
+    <string name="title_notifications">الإشعارات</string>
+    <string name="pref_notification_progress">أظهر تقدم التنزيل</string>
+    <string name="pref_notification_progress_desc">أظهر تقدم مفصل أثناء تنزيل التطبيقات وتحديثها. عند إيقاف التشغيل، سيتم إبقاء التنزيلات قيد التشغيل في الخلفية عبر إشعار واحد صامت.</string>
+    <string name="pref_notification_categories">الفئات</string>
+    <string name="pref_notification_categories_desc">اضبط الصوت والأهمية لكل نوع من أنواع الإشعارات</string>
+    <string name="pref_notification_disabled">الإشعارات معطّلة</string>
+    <string name="pref_notification_disabled_desc">انقر لتفعيل الإشعارات لمتجر Aurora</string>
+    <string name="updates_self_header">تحديث ذاتي</string>
+    <string name="updates_self_desc">يتوفر إصدار أحدث من متجر Aurora</string>
+    <string name="status_installing">يثبِّت</string>
+    <string name="status_installed">مُثبَّت</string>
+    <plurals name="notification_installed_summary">
+        <item quantity="zero">لا تطبيقات مثبتة</item>
+        <item quantity="one">ثُبِّت تطبيق واحد</item>
+        <item quantity="two">ثُبِّت تطبيقين</item>
+        <item quantity="few">ثُبِّت %d تطبيقات</item>
+        <item quantity="many">ثُبِّت %d تطبيقًا</item>
+        <item quantity="other">ثُبِّت %d تطبيق</item>
+    </plurals>
+    <plurals name="notification_failed_summary">
+        <item quantity="zero">لا تطبيقات فشلت</item>
+        <item quantity="one">فشل تطبيق واحد</item>
+        <item quantity="two">فشل تطبيقين</item>
+        <item quantity="few">فشل %d تطبيقات</item>
+        <item quantity="many">فشل %d تطبيقًا</item>
+        <item quantity="other">فشل %d تطبيق</item>
+    </plurals>
+    <string name="action_buy">اشترِ @ %1$s</string>
+    <string name="action_install_all">ثبّت الكل</string>
+    <string name="details_review_delete">احذف</string>
+    <string name="details_review_delete_title">احذف المراجعة؟</string>
+    <string name="details_review_delete_message">سيتم حذف تقييمك ومراجعتك من جوجل Play.</string>
+    <string name="details_your_review">مراجعتك</string>
+    <string name="confirm_deeplink_title">أكِّد الروابط الخارجية</string>
+    <string name="confirm_deeplink_summary">اسأل قبل فتح قائمة التطبيقات من رابط، مما يمنع الإعلانات من إطلاق متجر Aurora دون موافقتك.</string>
+    <string name="confirm_deeplink_sheet_title">استمر إلى متجر Aurora؟</string>
+    <string name="confirm_deeplink_sheet_message">تطبيق خارجي يريد فتح متجر Aurora</string>
+    <string name="confirm_deeplink_sheet_source">فُتح من %1$s</string>
+    <string name="title_install_favourites">ثبِّت المفضلات؟</string>
+    <string name="install_favourites_summary">هذا سيُنزِّل ويثبِّت %1$d تطبيقات.</string>
+    <string name="install_favourites_warning">قد ترى موجّه تثبيت منفصل لكل تطبيق.</string>
+    <string name="pref_ui_dynamic_color">ألوان الديناميكية</string>
+    <string name="pref_ui_dynamic_color_desc">استخدم ألوان خلفيتك. أوقِف الإشارة إلى لوحة علامات Aurora.</string>
+    <string name="toast_fav_install_enqueued">يُثبِّت %1$d تطبيقات</string>
+    <string name="toast_fav_install_none">لا يوجد شيء للتثبيت</string>
+    <string name="toast_fav_install_failed">فشل في جلب تفاصيل التطبيق</string>
+    <string name="details_review_comment_hint">صف تجربتك (اختياري)</string>
+    <string name="details_review_edit">حرِّر مراجعتك</string>
+    <plurals name="favourites_count">
+        <item quantity="zero">لا مفضلة</item>
+        <item quantity="one">مفضلة واحدة</item>
+        <item quantity="two">مفضلتان</item>
+        <item quantity="few">%1$d مفضلات</item>
+        <item quantity="many">%1$d مفضلة</item>
+        <item quantity="other">%1$d مفضلة</item>
+    </plurals>
+    <string name="account_set_default">عيّن كإفتراضي</string>
+    <string name="account_default">إفتراضي</string>
+    <string name="account_remove">أزِل</string>
+    <string name="account_remove_title">أزِل الحساب؟</string>
+    <string name="account_remove_message">أزِل %1$s من متجر Aurora؟</string>
+    <string name="account_remove_last_message">هذا هو حسابك الوحيد. سيؤدي حذفه إلى تسجيل خروجك، ولن تتمكن من استخدام متجر Aurora حتى تقوم بتسجيل الدخول مرة أخرى.</string>
+    <string name="account_add">أضف حساب</string>
+    <string name="account_add_device">حسابات الجهاز</string>
+    <string name="account_add_google">سجّل الدخول باستخدام Google</string>
+    <string name="account_add_anonymous">أضف حساب مجهول</string>
+    <string name="account_set_default_title">بدّل الحساب الافتراضي؟</string>
+    <string name="account_set_default_message">سيتم إعادة تشغيل متجر Aurora باستخدام الحساب الافتراضي الجديد.</string>
+    <string name="account_switching">يبدّل الحساب…</string>
+    <string name="account_adding">يضيف حساب…</string>
+    <string name="account_refresh_all">حدِّث جميع الحسابات</string>
+    <string name="account_refreshing">يحدِّث الحسابات…</string>
+    <string name="account_refresh_done">حُدثت كل الحسابات</string>
+    <string name="account_switch_failed">تعذّر النظام من تحديث هذا الحساب، لذا لم يتم تغيير الإعداد الافتراضي.</string>
+    <string name="account_add_failed">تعذّر إضافة هذا الحساب. يُرجى المحاولة مرة أخرى.</string>
+    <string name="action_switch_account">بدّل الحساب</string>
+    <plurals name="account_count">
+        <item quantity="zero">لا حسابات</item>
+        <item quantity="one">إجمالي %1$d حساب</item>
+        <item quantity="two">إجمالي حسابان</item>
+        <item quantity="few">إجمالي %1$d حسابات</item>
+        <item quantity="many">إجمالي %1$d حسابًا</item>
+        <item quantity="other">إجمالي %1$d حساب</item>
+    </plurals>
+    <plurals name="account_refresh_failed">
+        <item quantity="zero">تعذّر تحديث أي حساب</item>
+        <item quantity="one">تعذّر تحديث %1$d حساب</item>
+        <item quantity="two">تعذّر تحديث حسابين</item>
+        <item quantity="few">تعذّر تحديث %1$d حسابات</item>
+        <item quantity="many">تعذّر تحديث %1$d حسابًا</item>
+        <item quantity="other">تعذّر تحديث %1$d حساب</item>
+    </plurals>
 </resources>
