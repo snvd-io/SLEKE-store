@@ -12,11 +12,13 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +28,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,6 +72,9 @@ import com.aurora.store.util.CertUtil.GOOGLE_PLAY_CERT
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.viewmodel.auth.AuthViewModel
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,6 +95,7 @@ fun SplashScreen(
 
     var anonymousLoading by remember { mutableStateOf(false) }
     var googleLoading by remember { mutableStateOf(false) }
+    var emailLoading by remember { mutableStateOf(false) }
 
     val accountLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -108,11 +115,29 @@ fun SplashScreen(
         }
     }
 
+    // Enterprise sign-in for SLEKE accounts, backed by our own Firebase project.
+    val emailSignInLauncher = rememberLauncherForActivityResult(
+        contract = FirebaseAuthUIActivityResultContract()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                viewModel.onEmailSignIn(user.uid, user.email.orEmpty())
+            } else {
+                emailLoading = false
+                Toast.makeText(context, R.string.login_failed, Toast.LENGTH_LONG).show()
+            }
+        } else {
+            emailLoading = false
+        }
+    }
+
     LaunchedEffect(authState) {
         when (val state = authState) {
             AuthState.Valid, AuthState.SignedIn -> {
                 anonymousLoading = false
                 googleLoading = false
+                emailLoading = false
                 when {
                     !deepLinkDevId.isNullOrBlank() -> onNavigateTo(
                         Destination.DevProfile(deepLinkDevId)
@@ -141,6 +166,7 @@ fun SplashScreen(
             is AuthState.Failed -> {
                 anonymousLoading = false
                 googleLoading = false
+                emailLoading = false
             }
             else -> Unit
         }
@@ -173,12 +199,6 @@ fun SplashScreen(
                             contentDescription = stringResource(R.string.title_settings)
                         )
                     }
-                    IconButton(onClick = { onNavigateTo(Destination.About) }) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_menu_about),
-                            contentDescription = stringResource(R.string.title_about)
-                        )
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
@@ -202,12 +222,19 @@ fun SplashScreen(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_logo_alt),
-                        contentDescription = null,
-                        modifier = Modifier.size(dimensionResource(R.dimen.icon_size_splash)),
-                        contentScale = ContentScale.FillBounds
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .background(Color.White, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(R.mipmap.ic_launcher_foreground),
+                            contentDescription = null,
+                            modifier = Modifier.size(108.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                     Text(
                         text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleLarge,
@@ -263,7 +290,7 @@ fun SplashScreen(
                     ) {
                         Button(
                             modifier = Modifier.width(dimensionResource(R.dimen.width_button)),
-                            enabled = !anonymousLoading && !googleLoading && isOnline,
+                            enabled = !anonymousLoading && !googleLoading && !emailLoading && isOnline,
                             onClick = {
                                 if (canMicroGLogin) {
                                     googleLoading = true
@@ -288,7 +315,7 @@ fun SplashScreen(
                         if (BuildConfig.SHOW_ANONYMOUS_LOGIN) {
                             OutlinedButton(
                                 modifier = Modifier.width(dimensionResource(R.dimen.width_button)),
-                                enabled = !googleLoading && !anonymousLoading && isOnline,
+                                enabled = !googleLoading && !anonymousLoading && !emailLoading && isOnline,
                                 onClick = {
                                     anonymousLoading = true
                                     viewModel.buildAnonymousAuthData()
@@ -297,7 +324,24 @@ fun SplashScreen(
                                 Text(stringResource(R.string.account_anonymous))
                             }
                         }
-                        if (googleLoading || anonymousLoading) {
+                        OutlinedButton(
+                            modifier = Modifier.width(dimensionResource(R.dimen.width_button)),
+                            enabled = !googleLoading && !anonymousLoading && !emailLoading && isOnline,
+                            onClick = {
+                                emailLoading = true
+                                val providers = listOf(AuthUI.IdpConfig.EmailBuilder().build())
+                                val intent = AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setTheme(R.style.FirebaseUITheme)
+                                    .setLogo(R.drawable.sync)
+                                    .setAvailableProviders(providers)
+                                    .build()
+                                emailSignInLauncher.launch(intent)
+                            }
+                        ) {
+                            Text(stringResource(R.string.account_email))
+                        }
+                        if (googleLoading || anonymousLoading || emailLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
                                 strokeWidth = 2.dp
