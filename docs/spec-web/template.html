@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The SLEKE architecture proposal: feature ownership, stable host contracts, reliable enterprise sessions and downloads, and staged verification.">
+  <meta name="color-scheme" content="light">
+  <title>SLEKE module architecture specification</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="reader.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to specification</a>
+  <div id="reading-progress" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="wordmark" href="#main" aria-label="SLEKE specification home">SLEKE<span>.</span></a>
+    <span class="document-label">Engineering / Architecture</span>
+    <span class="status"><span></span>Draft for review</span>
+  </header>
+  <div class="page-layout">
+    <aside class="sidebar">
+      <details class="contents" open>
+        <summary>In this specification <span>⌄</span></summary>
+        <nav aria-label="Specification contents">
+          {{NAV}}
+          <a href="#requirements"><span>13</span>Search requirements</a>
+        </nav>
+      </details>
+      <div class="sidebar-note"><span class="small-label">SOURCE WORKFLOWS</span><p>Superpowers design<br>OpenSpec behavior contracts</p><a href="sleke-module-specification.zip" download>Download source bundle <span aria-hidden="true">↗</span></a></div>
+    </aside>
+    <main id="main">
+      <div class="hero">
+        <h1>SLEKE module<br>architecture</h1>
+        <p class="doc-meta">Refactoring specification · 16 October 2026</p>
+        <p class="hero-summary">Give product behavior a clear home. Keep the app’s upstream integrations small, reusable, and easy to review.</p>
+        <div class="hero-actions"><a class="primary-link" href="#ownership-and-dependency-direction">Explore the architecture <span aria-hidden="true">↓</span></a><a class="quiet-link" href="#review-decisions">Review decisions <span aria-hidden="true">↗</span></a></div>
+        <p class="baseline-line"><strong>Current baseline</strong> 2 modules · 13 feature files still in app · 10 conflicts in the last merge</p>
+      </div>
+      <div class="review-note"><span class="note-mark" aria-hidden="true">i</span><div><strong>Specification first.</strong><p>No application implementation in this phase. The three installation and access decisions are confirmed. The complete architecture and acceptance scenarios remain a draft for your review.</p></div><a href="#review-decisions">Review scope <span aria-hidden="true">→</span></a></div>
+      {{CONTENT}}
+      <section id="requirements" class="spec-section requirements-section">
+        <div class="section-heading"><span>13</span><h2>Behavior requirements</h2></div>
+        <p>These OpenSpec contracts make the design testable. Browse a capability or search for a behavior, failure, or lifecycle event.</p>
+        <label class="search-label" for="requirement-search">Find a requirement</label>
+        <div class="search-box"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg><input id="requirement-search" type="search" placeholder="Try cancellation, membership, package, retry…" autocomplete="off"><kbd>/</kbd></div>
+        <p class="search-status" id="search-status" aria-live="polite">{{COUNT}} requirements across 6 capabilities</p>
+        <div id="requirement-groups">{{REQUIREMENTS}}</div>
+        <p id="no-results" class="no-results" hidden>No requirements match. Try a broader term or clear the search.</p>
+      </section>
+      <footer class="document-footer"><div><strong>SLEKE module architecture</strong><p>Baseline <code>c58f58eb0</code> · Spec revision <code>{{REVISION}}</code></p></div><div><a href="sleke-module-specification.zip" download>Source bundle</a><a href="https://github.com/snvd-io/SLEKE-store/pull/5" target="_blank" rel="noreferrer">Merged foundation ↗</a><button type="button" id="print-spec">Print specification</button></div></footer>
+    </main>
+  </div>
+</body>
+</html>

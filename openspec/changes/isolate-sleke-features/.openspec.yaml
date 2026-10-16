@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-10-16
+goal: Isolate SLEKE features behind stable module contracts to reduce upstream
+  merge conflicts and improve layering, reuse and maintainability
