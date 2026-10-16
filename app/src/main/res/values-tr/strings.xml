@@ -611,4 +611,33 @@
         <item quantity="one">%1$d hesap yenilenemedi</item>
         <item quantity="other">%1$d hesap yenilenemedi</item>
     </plurals>
+    <string name="account_exists">Hesap zaten eklendi</string>
+    <string name="action_update_anyway">Yine de güncelle</string>
+    <string name="exodus_report_history">Sürüm geçmişi</string>
+    <string name="exodus_history_version">%1$s (%2$s)</string>
+    <string name="exodus_history_subtitle">%1$s • %2$d izleyici</string>
+    <string name="exodus_latest">En yeni</string>
+    <string name="pref_updates_warn_trackers">Uygulama güncellemelerinde yeni izleyiciler hakkında uyar</string>
+    <string name="pref_updates_warn_trackers_desc">Yeni sürümde, kurulu sürümde bulunmayan izleyiciler eklendiğinde güncellemeden önce bir uyarı göster</string>
+    <string name="tracker_warning_title">Yeni izleyiciler algılandı</string>
+    <string name="tracker_warning_desc">Bu güncelleme, kurulu sürümde bulunmayan izleyiciler ekliyor:</string>
+    <string name="manual_download_lookup">Sürümleri ara</string>
+    <string name="manual_download_select_version">Sürüm seç</string>
+    <string name="manual_download_no_versions">Bilinen sürüm bulunamadı</string>
+    <string name="manual_download_availability_warning">Bazı sürümler indirilebilir olmayabilir veya aygıtınızla uyumsuz olabilir.</string>
+    <string name="details_more_certificate_hash">Sertifika sağlama toplamı</string>
+    <string name="action_free_up_space">Alan boşalt</string>
+    <string name="installer_provider">%1$s · %2$s tarafından sağlanıyor</string>
+    <string name="insufficient_storage_title">Yeterli alan yok</string>
+    <string name="insufficient_storage_desc">%1$s için %2$s gerekiyor, ancak yalnızca %3$s var.</string>
+    <string name="insufficient_storage_hint">%1$s kadar yer açın ve tekrar deneyin.</string>
+    <string name="status_awaiting_install">Onay bekleniyor</string>
+    <string name="notification_install_prompt_pending">Kurulumu tamamlamak için dokunun</string>
+    <string name="notification_none">Burada bir şey yok</string>
+    <string name="details_more_files">Dosyalar</string>
+    <plurals name="insufficient_storage_desc_multiple">
+        <item quantity="one">%1$d uygulama için %2$s gerekiyor, ancak yalnızca %3$s var.</item>
+        <item quantity="other">%1$d uygulama için %2$s gerekiyor, ancak yalnızca %3$s var.</item>
+    </plurals>
+    <string name="download_sort_date_downloaded">İndirme tarihi</string>
 </resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="details_dev_website">Вебсайт</string>
-    <string name="details_dev_email">Ел. пошта</string>
+    <string name="details_dev_email">Е-пошта</string>
     <string name="filter_review_all">Усі</string>
     <string name="exodus_view_report">Переглянути звіт</string>
     <string name="exodus_substring">відомих відстежувачів виявлено в</string>
@@ -42,7 +42,7 @@
     <string name="details_changelog_unavailable">Перелік змін не надано</string>
     <string name="details_changelog">Перелік змін</string>
     <string name="details_beta_delay">Реєстрація може зайняти трохи часу, стан можна перевірити пізніше.</string>
-    <string name="details_beta_description">Ви побачите нові функції та помилки раніше за інших. Надсилайте свій відгук розробникам, щоби допомогти їм удосконалити застосунок.</string>
+    <string name="details_beta_description">Ви побачите нові функції та помилки раніше за інших. Надсилайте свій відгук розробникам, щоб допомогти їм удосконалити застосунок.</string>
     <string name="details_beta_available">Приєднатися до бета-тестування?</string>
     <string name="details_beta_subscribed">Ви – бета-тестувальник</string>
     <string name="details_beta">Бета-тестування</string>
@@ -65,7 +65,7 @@
     <string name="action_later">Пізніше</string>
     <string name="action_join">Приєднатися</string>
     <string name="action_installing">Установлення</string>
-    <string name="action_installations">Установлення</string>
+    <string name="action_installations">Встановлення</string>
     <string name="action_install">Установити</string>
     <string name="action_ignore">Знехтувати</string>
     <string name="action_grant">Надати</string>
@@ -77,7 +77,7 @@
     <string name="action_filter_misc">Різне</string>
     <string name="action_filter_gsf_dependent_apps">Залежні від GSF</string>
     <string name="action_filter_downloads">Завантаження</string>
-    <string name="action_filter_apps_with_ads">Застосуноки з рекламою</string>
+    <string name="action_filter_apps_with_ads">Застосунки з рекламою</string>
     <string name="action_filter_apply">Застосувати</string>
     <string name="action_filter_all">Усі</string>
     <string name="action_filter">Фільтри</string>
@@ -155,8 +155,8 @@
     <string name="tab_editor_choice">Вибір редакції</string>
     <string name="tab_categories">Категорії</string>
     <string name="insecure_anonymous_apply">Переконайтеся, що ви повторно увійшли та перезапустили застосунок, щоб застосувати зміни.</string>
-    <string name="spoof_apply">Переконайтеся, що ви повторно увійшли, щоби застосувати підміну</string>
-    <string name="purchase_session_expired">Сеанс завершився. Увійдіть знову, щоби розпочати новий сеанс.</string>
+    <string name="spoof_apply">Переконайтеся, що ви повторно ввійшли, щоб застосувати підміну</string>
+    <string name="purchase_session_expired">Сеанс завершився. Увійдіть знову, щоб розпочати новий сеанс.</string>
     <string name="purchase_no_file">Не вдалось отримати файли</string>
     <string name="purchase_not_found">Застосунок не знайдено</string>
     <string name="purchase_unsupported">Застосунок не підтримується</string>
@@ -170,7 +170,7 @@
     <string name="pref_ui_title">Зовнішній вигляд</string>
     <string name="pref_network_title">Мережа</string>
     <string name="pref_install_mode_title">Спосіб установлення</string>
-    <string name="pref_install_mode_summary">Оберіть режим установлення APK</string>
+    <string name="pref_install_mode_summary">Виберіть режим установлення APK</string>
     <string name="pref_install_mode_session">Установлювач Android</string>
     <string name="pref_install_mode_services">Сервіси Aurora (застарілі)</string>
     <string name="pref_install_mode_root">Root-установлювач</string>
@@ -180,7 +180,7 @@
     <string name="onboarding_permission_installer_desc">Дозволити встановлення застосунків з Aurora Store</string>
     <string name="onboarding_permission_installer">Дозвіл установлювача</string>
     <string name="onboarding_permission_esm">Менеджер зовнішнього сховища</string>
-    <string name="onboarding_permission_esa_desc">Щоби зберігати файли розширення APK (OBB) для великих застосунків та ігор.</string>
+    <string name="onboarding_permission_esa_desc">Щоб зберігати файли розширення APK (OBB) для великих застосунків та ігор.</string>
     <string name="onboarding_permission_esa">Доступ до зовнішнього сховища</string>
     <string name="onboarding_welcome_select">Як справи\?</string>
     <string name="onboarding_title_welcome">Вітаємо</string>
@@ -190,7 +190,7 @@
     <string name="dialog_desc_native_split">Ви не можете встановлювати пакетні (розділені) застосунки за допомогою нативного встановлювача. Змініть встановлювач на сеансовий, сервісний або Root.</string>
     <string name="dialog_title_self_update">Доступне нове оновлення</string>
     <string name="device_miui_extra">Ви також можете вибрати власний установлювач, але тоді ви не зможете встановлювати розділені (split) APK, тому вибір за вами.</string>
-    <string name="device_miui_description">Вимкніть оптимізації MIUI, щоби дозволити встановлення, інакше ви можете вибрати встановлювач Root або сервіси Aurora.</string>
+    <string name="device_miui_description">Вимкніть оптимізації MIUI, щоб дозволити встановлення, інакше ви можете вибрати встановлювач Root або сервіси Aurora.</string>
     <string name="device_miui_subtitle">Установлювач Android не може встановлювати застосунки через оптимізації MIUI.</string>
     <string name="device_miui_title">Виявлено MIUI!</string>
     <string name="menu_terms">Умови використання</string>
@@ -216,7 +216,7 @@
     <string name="filter_review_four">Чотири</string>
     <string name="filter_review_five">П’ять</string>
     <string name="filter_review_critical">Критичні</string>
-    <string name="pref_filter_fdroid_title">Фільтрувати F-Droid застосунки</string>
+    <string name="pref_filter_fdroid_title">Фільтрувати застосунки з F-Droid</string>
     <string name="pref_filter_fdroid_summary">Не перевіряти оновлення для застосунків, встановлених з F-Droid</string>
     <string name="pref_common_extra">Додаткові</string>
     <string name="toast_aas_token_failed">Не вдалося створити токен AAS</string>
@@ -361,7 +361,7 @@
     <string name="title_favourites_manager">Улюблені застосунки</string>
     <string name="action_uninstall_success">Успішно видалено</string>
     <string name="action_logout_confirmation_message">Хочете вийти з облікового запису?</string>
-    <string name="pref_network_proxy_url_message">Уведіть дійсну URL-адресу проксі-сервера, щоби передавати всі дані через нього.</string>
+    <string name="pref_network_proxy_url_message">Уведіть дійсну URL-адресу проксі-сервера, щоб передавати всі дані через нього.</string>
     <string name="action_logout_confirmation_title">Вийти з облікового запису?</string>
     <string name="check_updates">Перевірити оновлення</string>
     <string name="onboarding_permission_installer_legacy_desc">Дозволити встановлювати застосунки з невідомих джерел</string>
@@ -394,7 +394,7 @@
     <string name="toast_black_import_failed">Не вдалось імпортувати чорний список!</string>
     <string name="toast_black_export_failed">Не вдалось експортувати чорний список!</string>
     <string name="toast_black_export_success">Чорний список експортовано!</string>
-    <string name="action_select_all">Обрати все</string>
+    <string name="action_select_all">Вибрати все</string>
     <string name="toast_black_import_success">Чорний список імпортовано!</string>
     <string name="status_verifying">Перевірка</string>
     <string name="action_unarchive">Розархівувати</string>
@@ -434,26 +434,26 @@
     <string name="app_info_downloads">Завантаження</string>
     <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> дозволи</string>
     <string name="action_install_microG">Встановлення пакета microG</string>
-    <string name="onboarding_title_gsf">Сумісність програм</string>
+    <string name="onboarding_title_gsf">Сумісність застосунків</string>
     <string name="onboarding_title_gsf_desc">Відсутні залежності</string>
     <string name="onboarding_gms_agreement">Я прочитав(-ла) та погоджуюся з Умовами надання послуг та Політикою конфіденційності microG</string>
-    <string name="onboarding_gms_missing">Нам не вдалося знайти Сервіси Google Play на вашому пристрої. Тепер кілька популярних програм потребують їх для належної роботи!</string>
-    <string name="onboarding_gms_microg">microG — це безкоштовна реалізація з відкритим кодом, яка забезпечує аналогічну функціональність для запуску програм, що залежать від Сервісів Google Play для пристроїв Android, шляхом повторної реалізації.\n\nmicroG дозволяє програмам отримувати доступ до цих API Google, покращуючи сумісність для користувачів, а також пропонуючи переваги конфіденційності.\n\nmicroG автоматично запускатиметься у фоновому режимі, коли ви відкриваєте програми, що залежать від Сервісів Google Mobile.</string>
+    <string name="onboarding_gms_missing">Нам не вдалося знайти Служб Google Play на вашому пристрої. Кілька популярних застосунків потребують їх для належної роботи!</string>
+    <string name="onboarding_gms_microg">microG — це вільна та відкрита реалізація, яка забезпечує аналогічну функціональність для запуску застосунків, що залежать від Служб Google Play для пристроїв Android, шляхом повторної реалізації.\n\nmicroG уможливлює отримання доступу застосунків до цих API Google, покращуючи сумісність для користувачів, а також пропонує переваги приватності.\n\nmicroG автоматично запускатиметься у фоновому режимі, коли ви відкриваєте застосунки, що залежать від Служб Google Mobile.</string>
     <string name="microg_privacy_policy">Ознайомитися з Політикою приватності microG</string>
     <string name="microg_license_agreement">Прочитати ліцензію та угоду microG</string>
     <string name="microg_website">Відвідати вебсайт проєкту microG</string>
-    <string name="details_data_safety_collect">Дані, які може збирати цей додаток</string>
-    <string name="details_data_safety_collect_none">Розробник стверджує, що цей додаток не збирає дані користувачів.</string>
-    <string name="details_data_safety_shared">Дані, які може ділитися ця програма</string>
-    <string name="details_data_safety_share_none">Розробник стверджує, що цей додаток не передає дані користувачів іншим компаніям чи організаціям.</string>
-    <string name="exodus_tracker_desc">Ця версія програми може містити більше трекерів, яких ще немає в базі даних Exodus Privacy.</string>
+    <string name="details_data_safety_collect">Дані, які може збирати цей застосунок</string>
+    <string name="details_data_safety_collect_none">Розробник стверджує, що цей застосунок не збирає дані користувачів.</string>
+    <string name="details_data_safety_shared">Дані, якими може ділитися цей застосунок</string>
+    <string name="details_data_safety_share_none">Розробник стверджує, що цей застосунок не передає дані користувачів іншим компаніям чи організаціям.</string>
+    <string name="exodus_tracker_desc">Ця версія застосунку може містити більше трекерів, яких ще немає в базі даних Exodus Privacy.</string>
     <string name="exodus_report_trackers"><xliff:g id="number_of_trackers">%1$d</xliff:g> відомих трекерів знайдено в <xliff:g id="app_version_name">%2$s</xliff:g></string>
     <string name="no_description">Опис недоступний</string>
     <string name="details_more_info">Більше інформації</string>
     <string name="details_more_target_api">Цілі</string>
     <string name="details_more_package_name">Назва пакета</string>
-    <string name="details_more_content_rating">Рейтинг контенту</string>
-    <string name="select_app_for_details">Виберіть додаток для отримання додаткової інформації</string>
+    <string name="details_more_content_rating">Рейтинг матеріалів</string>
+    <string name="select_app_for_details">Виберіть застосунок для отримання додаткової інформації</string>
     <string name="action_filter_no_ads">Без реклами</string>
     <string name="action_filter_no_gms">Немає ігрових сервісів</string>
     <string name="manual_download_version_error">Код версії може містити лише цифри</string>
@@ -564,7 +564,7 @@
         <item quantity="many">Не вдалося встановити %d застосунків</item>
         <item quantity="other">Не вдалося встановити %d застосунків</item>
     </plurals>
-    <string name="action_buy">Придбати за %1$s</string>
+    <string name="action_buy">Придбати @ %1$s</string>
     <string name="action_install_all">Встановити все</string>
     <string name="details_review_comment_hint">Опишіть свій досвід (необов’язково)</string>
     <string name="details_review_edit">Редагувати відгук</string>
@@ -573,7 +573,7 @@
     <string name="details_review_delete_message">Ваша оцінка та відгук будуть видалені з Google Play.</string>
     <string name="details_your_review">Ваш відгук</string>
     <string name="confirm_deeplink_title">Підтвердити зовнішні посилання</string>
-    <string name="confirm_deeplink_summary">Запитувати перед відкриттям сторінки застосунку за посиланням, аби запобігти запуску Aurora Store як рекламу без вашої згоди.</string>
+    <string name="confirm_deeplink_summary">Запитувати перед відкриттям сторінки застосунку за посиланням, аби запобігти запуску Aurora Store як реклами без вашої згоди.</string>
     <string name="confirm_deeplink_sheet_title">Продовжити в Aurora Store?</string>
     <string name="confirm_deeplink_sheet_message">Зовнішній застосунок хоче відкрити Aurora Store</string>
     <string name="confirm_deeplink_sheet_source">Відкрито з %1$s</string>
@@ -591,7 +591,7 @@
         <item quantity="many">%1$d улюблених</item>
         <item quantity="other">%1$d улюблених</item>
     </plurals>
-    <string name="account_set_default">Встановити як типовий</string>
+    <string name="account_set_default">Встановити типовим</string>
     <string name="account_default">Типовий</string>
     <string name="account_remove">Вилучити</string>
     <string name="account_remove_title">Вилучити обліковий запис?</string>
@@ -623,4 +623,35 @@
         <item quantity="many">Не вдалося оновити %1$d облікових записів</item>
         <item quantity="other">Не вдалося оновити %1$d облікових записів</item>
     </plurals>
+    <string name="account_exists">Обліковий запис уже додано</string>
+    <string name="action_update_anyway">Усе одно оновити</string>
+    <string name="exodus_report_history">Історія версій</string>
+    <string name="exodus_history_version">%1$s (%2$s)</string>
+    <string name="exodus_history_subtitle">%1$s • %2$d відстежувачів</string>
+    <string name="exodus_latest">Останній</string>
+    <string name="pref_updates_warn_trackers">Попереджати про нові відстежувачі в оновленнях застосунків</string>
+    <string name="pref_updates_warn_trackers_desc">Показувати попередження перед оновленням, якщо нова версія додає відстежувачі, яких не було у встановленій версії</string>
+    <string name="tracker_warning_title">Виявлено нові відстежувачі</string>
+    <string name="tracker_warning_desc">Це оновлення додає відстежувачі, яких не було у встановленій версії:</string>
+    <string name="manual_download_lookup">Переглянути версії</string>
+    <string name="manual_download_select_version">Вибрати версію</string>
+    <string name="manual_download_no_versions">Відомих версій не знайдено</string>
+    <string name="manual_download_availability_warning">Деякі версії можуть бути недоступними для завантаження або несумісними з вашим пристроєм.</string>
+    <string name="details_more_certificate_hash">Хеш сертифіката</string>
+    <string name="action_free_up_space">Звільнити простір</string>
+    <string name="installer_provider">%1$s · Надано %2$s</string>
+    <string name="insufficient_storage_title">Недостатньо простору</string>
+    <string name="insufficient_storage_desc">%1$s потрібно %2$s, але доступно лише %3$s.</string>
+    <string name="insufficient_storage_hint">Звільніть %1$s та повторіть спробу.</string>
+    <string name="status_awaiting_install">Очікування підтвердження</string>
+    <string name="notification_install_prompt_pending">Торкніться, щоб завершити встановлення</string>
+    <string name="notification_none">Тут нічого немає</string>
+    <string name="details_more_files">Файли</string>
+    <plurals name="insufficient_storage_desc_multiple">
+        <item quantity="one">Застосунку %1$d потрібно %2$s, але доступно лише %3$s.</item>
+        <item quantity="few">%1$d застосункам потрібно %2$s, але доступно лише %3$s.</item>
+        <item quantity="many">%1$d застосункам потрібно %2$s, але доступно лише %3$s.</item>
+        <item quantity="other">%1$d застосункам потрібно %2$s, але доступно лише %3$s.</item>
+    </plurals>
+    <string name="download_sort_date_downloaded">Дата завантаження</string>
 </resources>

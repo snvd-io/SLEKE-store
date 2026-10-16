@@ -1,22 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Aurora Store
-  ~  Copyright (C) 2021, Rahul Kumar Patel <whyorean@gmail.com>
-  ~  Copyright (C) 2022, The Calyx Institute
-  ~  Copyright (C) 2023, grrfe <grrfe@420blaze.it>
-  ~
-  ~  Aurora Store is free software: you can redistribute it and/or modify
-  ~  it under the terms of the GNU General Public License as published by
-  ~  the Free Software Foundation, either version 2 of the License, or
-  ~  (at your option) any later version.
-  ~
-  ~  Aurora Store is distributed in the hope that it will be useful,
-  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~  GNU General Public License for more details.
-  ~
-  ~  You should have received a copy of the GNU General Public License
-  ~  along with Aurora Store.  If not, see <http://www.gnu.org/licenses/>.
-  ~
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-FileCopyrightText: 2021 Aurora OSS
+  ~ SPDX-FileCopyrightText: 2022 The Calyx Institute
+  ~ SPDX-FileCopyrightText: 2023 grrfe <grrfe@420blaze.it>
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" translatable="false">"SLEKE. Store"</string>
@@ -69,6 +56,7 @@
     <string name="account_refresh_done">All accounts refreshed</string>
     <string name="account_switch_failed">Couldn\'t refresh that account, so the default wasn\'t changed.</string>
     <string name="account_add_failed">Couldn\'t add that account. Please try again.</string>
+    <string name="account_exists">Account already added</string>
     <string name="action_back">"Back"</string>
     <string name="action_blacklist">"Blacklist"</string>
     <string name="action_blacklist_add">"Add to blacklist"</string>
@@ -121,10 +109,12 @@
     <string name="action_share">"Share"</string>
     <string name="action_uninstall">"Uninstall"</string>
     <string name="action_uninstall_success">"Successfully uninstalled"</string>
+    <string name="action_free_up_space">Free up space</string>
     <string name="action_home_screen">Add to home screen</string>
     <string name="action_info">"App info"</string>
     <string name="action_update">"Update"</string>
     <string name="action_update_all">"Update all"</string>
+    <string name="action_update_anyway">Update anyway</string>
     <string name="action_view_on_play">"View on Play Store"</string>
     <string name="action_whitelist">"Whitelist"</string>
     <string name="action_set">Set</string>
@@ -196,6 +186,10 @@
     <string name="exodus_substring">known trackers(s) found in</string>
     <string name="exodus_report_trackers"><xliff:g id="number_of_trackers">%1$d</xliff:g> known trackers(s) found in <xliff:g id="app_version_name">%2$s</xliff:g></string>
     <string name="exodus_view_report">"View report"</string>
+    <string name="exodus_report_history">Version history</string>
+    <string name="exodus_history_version">%1$s (%2$s)</string>
+    <string name="exodus_history_subtitle">%1$s • %2$d trackers</string>
+    <string name="exodus_latest">Latest</string>
     <string name="filter_review_all">"All"</string>
     <string name="filter_latest">"Latest"</string>
     <string name="filter_review_critical">"Critical"</string>
@@ -209,6 +203,8 @@
     <string name="installer_root_unavailable">No root access. Grant it or change the installer.</string>
     <string name="installer_shizuku_unavailable">Shizuku is not installed or set up properly.</string>
     <string name="installer_fallback_session">Chosen installer is unavailable, using the default installer instead.</string>
+    <!-- Installer description, then the app providing it, e.g. "… · Served by Shevery" -->
+    <string name="installer_provider">%1$s · Served by %2$s</string>
 
     <!-- Security -->
     <string name="title_security">Security</string>
@@ -277,6 +273,8 @@
     <string name="pref_ui_similar_apps">"Similar and related apps"</string>
     <string name="pref_updates_incompatible">"Show updates that may fail"</string>
     <string name="pref_updates_incompatible_desc">"Display updates for incompatible or disabled apps that may fail to install."</string>
+    <string name="pref_updates_warn_trackers">"Warn about new trackers in app updates"</string>
+    <string name="pref_updates_warn_trackers_desc">"Show a warning before updating when the new version adds trackers that were not in the installed version"</string>
     <string name="pref_self_update">"Self-update"</string>
     <string name="pref_self_update_desc">"Offer new Aurora Store builds in the Updates tab."</string>
     <string name="pref_aurora_only">"Filter apps from other sources."</string>
@@ -315,6 +313,8 @@
     <string name="tab_top_grossing">"Top grossing"</string>
     <string name="tab_top_paid">"Top paid"</string>
     <string name="tab_trending">"Trending"</string>
+    <string name="tracker_warning_title">New trackers detected</string>
+    <string name="tracker_warning_desc">This update adds trackers that weren\'t in the installed version:</string>
     <string name="title_about">About</string>
     <string name="title_account_manager">"Accounts"</string>
     <string name="title_apps">"Apps"</string>
@@ -330,6 +330,9 @@
     <string name="title_installation">"Installation"</string>
     <string name="title_installed">"Installed"</string>
     <string name="title_installer">"App installer"</string>
+    <string name="insufficient_storage_title">Not enough space</string>
+    <string name="insufficient_storage_desc">%1$s needs %2$s, but only %3$s is available.</string>
+    <string name="insufficient_storage_hint">Free up %1$s and try again.</string>
     <string name="title_install_favourites">"Install favourites?"</string>
     <string name="install_favourites_summary">"This will download and install %1$d apps."</string>
     <string name="install_favourites_warning">"You may see a separate installation prompt for each app."</string>
@@ -503,6 +506,10 @@
     <!-- ManualDownloadSheet -->
     <string name="manual_download_hint">Enter version code you wish to download</string>
     <string name="manual_download_version_error">Version code can only contain digits</string>
+    <string name="manual_download_lookup">Look up versions</string>
+    <string name="manual_download_select_version">Select a version</string>
+    <string name="manual_download_no_versions">No known versions found</string>
+    <string name="manual_download_availability_warning">Some versions may be unavailable to download or incompatible with your device.</string>
 
     <!-- WelcomeFragment -->
     <string name="faqs_title" translatable="false">FAQs</string>
@@ -590,6 +597,11 @@
     <string name="status_verifying">Verifying</string>
     <string name="status_installing">Installing</string>
     <string name="status_installed">Installed</string>
+    <string name="status_awaiting_install">Waiting for confirmation</string>
+
+    <!-- Notifications -->
+    <string name="notification_install_prompt_pending">Tap to finish installing</string>
+    <string name="notification_none">Nothing to see here</string>
 
     <!-- UnarchivePackageReceiver -->
     <string name="authentication_required_title">Authentication required</string>
@@ -607,9 +619,11 @@
     <string name="no_description">No description available</string>
     <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> permissions</string>
     <string name="details_more_info">More info</string>
+    <string name="details_more_files">Files</string>
     <string name="details_more_target_api">Targets</string>
     <string name="details_more_package_name">Package name</string>
     <string name="details_more_content_rating">Content rating</string>
+    <string name="details_more_certificate_hash">Certificate hash</string>
     <string name="action_unarchive">Unarchive</string>
     <string name="unable_to_open">Unable to open app</string>
     <string name="plexus_powered">Powered by Plexus</string>
@@ -631,6 +645,10 @@
     <plurals name="permissions_required">
         <item quantity="one">Permission required</item>
         <item quantity="other">Permissions required</item>
+    </plurals>
+    <plurals name="insufficient_storage_desc_multiple">
+        <item quantity="one">%1$d app needs %2$s, but only %3$s is available.</item>
+        <item quantity="other">%1$d apps need %2$s, but only %3$s is available.</item>
     </plurals>
     <plurals name="favourites_count">
         <item quantity="one">%1$d favourite</item>
@@ -667,6 +685,7 @@
     <string name="installed_sort_ascending">Ascending</string>
     <string name="installed_sort_descending">Descending</string>
     <string name="installed_filter">Filter</string>
+    <string name="download_sort_date_downloaded">Date downloaded</string>
     <string name="installed_filter_user_apps">User apps</string>
     <string name="installed_filter_system_apps">System apps</string>
     <string name="installed_filter_installer">Installed from</string>

@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Aurora OSS
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 package com.aurora.store.data.helper
 
 import android.content.Context
@@ -11,6 +16,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.aurora.extensions.TAG
 import com.aurora.store.AuroraApp
@@ -21,8 +27,8 @@ import com.aurora.store.data.model.BuildType
 import com.aurora.store.data.model.UpdateMode
 import com.aurora.store.data.room.update.IgnoredUpdate
 import com.aurora.store.data.room.update.IgnoredUpdateDao
-import com.aurora.store.data.room.update.Update
 import com.aurora.store.data.room.update.UpdateDao
+import com.aurora.store.data.room.update.isIgnoredBy
 import com.aurora.store.data.work.UpdateWorker
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
@@ -104,7 +110,7 @@ class UpdateHelper @Inject constructor(
      */
     val updates = combine(filteredUpdates, ignoredUpdateDao.ignoredUpdates()) { list, ignored ->
         val byPkg = ignored.associateBy { it.packageName }
-        list.filterNot { it.isIgnoredBy(byPkg[it.packageName]) }
+        list.filterNot { it.isIgnoredBy(byPkg) }
     }.stateIn(AuroraApp.scope, SharingStarted.WhileSubscribed(), null)
 
     /**
@@ -117,17 +123,12 @@ class UpdateHelper @Inject constructor(
         ignoredUpdateDao.ignoredUpdates()
     ) { list, ignored ->
         val byPkg = ignored.associateBy { it.packageName }
-        list.filter { it.isIgnoredBy(byPkg[it.packageName]) }
+        list.filter { it.isIgnoredBy(byPkg) }
     }.stateIn(AuroraApp.scope, SharingStarted.WhileSubscribed(), emptyList())
-
-    private fun Update.isIgnoredBy(rule: IgnoredUpdate?): Boolean {
-        if (rule == null) return false
-        return rule.ignoredVersionCode == null || rule.ignoredVersionCode == versionCode
-    }
 
     val isCheckingUpdates = WorkManager.getInstance(context)
         .getWorkInfosForUniqueWorkFlow(EXPEDITED_UPDATE_WORKER)
-        .map { list -> !list.all { it.state.isFinished } }
+        .map { list -> list.any { it.state == WorkInfo.State.RUNNING } }
         .stateIn(AuroraApp.scope, SharingStarted.WhileSubscribed(), false)
 
     /**
@@ -169,8 +170,11 @@ class UpdateHelper @Inject constructor(
             .setInputData(inputData)
             .build()
 
+        // REPLACE (not KEEP) so a manual check cancels any worker parked in a retry
+        // backoff and starts fresh; otherwise the stuck worker would linger for hours and
+        // the tap would be a no-op.
         WorkManager.getInstance(context)
-            .enqueueUniqueWork(EXPEDITED_UPDATE_WORKER, ExistingWorkPolicy.KEEP, work)
+            .enqueueUniqueWork(EXPEDITED_UPDATE_WORKER, ExistingWorkPolicy.REPLACE, work)
     }
 
     /**

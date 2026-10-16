@@ -583,4 +583,61 @@
         <item quantity="one">%1$d lemmik</item>
         <item quantity="other">%1$d lemmikut</item>
     </plurals>
+    <string name="account_set_default">Määra vaikimisi väärtuseks</string>
+    <string name="account_default">Vaikimisi</string>
+    <string name="account_remove">Eemalda</string>
+    <string name="account_remove_title">Kas eemaldad kasutajakonto?</string>
+    <string name="account_remove_message">Kas eemaldad %1$s konto Aurora rakendustepoest?</string>
+    <string name="account_remove_last_message">See on sinu ainus kasutajakonto. Selle eemaldamisel logitakse sind välja ja sa ei saa Aurora rakendustepoodi kuni uuesti sisselogimiseni kasutada.</string>
+    <string name="account_add">Lisa kasutajakonto</string>
+    <string name="account_add_device">Seadme kasutajakontod</string>
+    <string name="account_add_google">Logi sisse Google\'i kasutajakontoga</string>
+    <string name="account_add_anonymous">Lisa anonüümne kasutajakonto</string>
+    <string name="account_set_default_title">Kas lülitad kasutama vaikimisi kontot?</string>
+    <string name="account_set_default_message">Aurora rakendustepood käivitub uuesti ja võtab kasutusele vaikimisi konto.</string>
+    <string name="account_switching">Vahetan kasutajakontot…</string>
+    <string name="account_adding">Lisan kasutajakontot…</string>
+    <string name="account_refresh_all">Värskenda kõik kasutajakontod</string>
+    <string name="account_refreshing">Värskendan kasutajakontosid…</string>
+    <string name="account_refresh_done">Kõik kasutajakontod on värskendatud</string>
+    <string name="account_switch_failed">Selle kasutajakonto värskendamine ei õnnestunud, seega vaikimisi väärtus jäi muutmata.</string>
+    <string name="account_add_failed">Selle kasutajakonto lisamine ei õnnestunud. Palun proovi uuesti.</string>
+    <string name="action_switch_account">Vaheta kasutajakontot</string>
+    <plurals name="account_count">
+        <item quantity="one">Kokku %1$d kasutajakonto</item>
+        <item quantity="other">Kokku %1$d kasutajakontot</item>
+    </plurals>
+    <plurals name="account_refresh_failed">
+        <item quantity="one">%1$d kasutajakonto värskendamine ei õnnestunud</item>
+        <item quantity="other">%1$d kasutajakonto värskendamine ei õnnestunud</item>
+    </plurals>
+    <string name="account_exists">Kasutajakonto on juba lisatud</string>
+    <string name="action_update_anyway">Uuenda ikkagi</string>
+    <string name="exodus_report_history">Versioonide ajalugu</string>
+    <string name="exodus_history_version">%1$s (%2$s)</string>
+    <string name="exodus_history_subtitle">%1$s • %2$d jälitajat</string>
+    <string name="exodus_latest">Viimane</string>
+    <string name="pref_updates_warn_trackers">Rakenduste uuendamisel teavita uutest lisandunud jälitajatest</string>
+    <string name="manual_download_no_versions">Ühtegi teadaolevat versiooni ei leidu</string>
+    <string name="manual_download_availability_warning">Mõned versioonid ei pruugi olla allalaadimiseks saadaval või ei pruugi sinu seadmega ühilduda.</string>
+    <string name="details_more_certificate_hash">Sertifikaadi räsi</string>
+    <string name="pref_updates_warn_trackers_desc">Näita enne uuendamist hoiatust, kui uude versiooni on lisandunud jälitajaid, mida senises versioonis ei leidu</string>
+    <string name="tracker_warning_title">Tuvastasin uued jälitajad</string>
+    <string name="tracker_warning_desc">Selle uuendusega lisandub jälitajaid, mida paigaldatud versioonis pole:</string>
+    <string name="manual_download_lookup">Otsi versiooni</string>
+    <string name="manual_download_select_version">Vali versioon</string>
+    <string name="action_free_up_space">Vabasta andmeruumi</string>
+    <string name="installer_provider">%1$s · Kasutusel on %2$s</string>
+    <string name="insufficient_storage_title">Ei ole piisavalt andmeruumi</string>
+    <string name="insufficient_storage_desc">%1$s vajab %2$s, aga saadaval on vaid %3$s.</string>
+    <string name="insufficient_storage_hint">Vabasta %1$s andmeruumi ja proovi uuesti.</string>
+    <string name="status_awaiting_install">Kasutaja kinnituse ootel</string>
+    <string name="notification_install_prompt_pending">Klõpsa paigalduse lõpetamiseks</string>
+    <string name="notification_none">Siin pole mitte midagi huvitavat</string>
+    <string name="details_more_files">Failid</string>
+    <plurals name="insufficient_storage_desc_multiple">
+        <item quantity="one">Rakendus %1$d vajab %2$s, aga saadaval on vaid %3$s.</item>
+        <item quantity="other">Rakendus %1$d vajab %2$s, aga saadaval on vaid %3$s.</item>
+    </plurals>
+    <string name="download_sort_date_downloaded">Allalaadimise kuupäev</string>
 </resources>

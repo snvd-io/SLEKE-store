@@ -607,4 +607,23 @@
         <item quantity="one">S’u rifreskua dot %1$d llogari</item>
         <item quantity="other">S’u rifreskuan dot %1$d llogari</item>
     </plurals>
+    <string name="details_ratings_title_hint">Titull shqyrtimi</string>
+    <string name="status_installed">I instaluar</string>
+    <string name="remove_dispenser_title">Hiq shpërndarësit?</string>
+    <string name="remove_dispenser_summary">Dëshironi ta hiqni shpërndarësin \"<xliff:g id="url">%1$s</xliff:g>\"?</string>
+    <string name="account_exists">Llogaria është shtuar tashmë</string>
+    <string name="action_update_anyway">Përditësoje sido qoftë</string>
+    <string name="exodus_report_history">Historik versionesh</string>
+    <string name="exodus_history_version">%1$s (%2$s)</string>
+    <string name="exodus_history_subtitle">%1$s • %2$d gjurmues</string>
+    <string name="exodus_latest">Më i fundit</string>
+    <string name="pref_updates_warn_trackers">Paralajmëro për gjurmues të rinj në përditësimet e aplikacioneve</string>
+    <string name="pref_updates_warn_trackers_desc">Shfaq një paralajmërim para përditësimit kur versioni i ri shton gjurmues që nuk ishin në versionin e instaluar</string>
+    <string name="tracker_warning_title">U zbuluan gjurmues të rinj</string>
+    <string name="tracker_warning_desc">Ky përditësim shton gjurmues që nuk ishin në versionin e instaluar:</string>
+    <string name="manual_download_lookup">Kërko versionet</string>
+    <string name="manual_download_select_version">Zgjidh një version</string>
+    <string name="manual_download_no_versions">Nuk u gjet asnjë version i njohur</string>
+    <string name="manual_download_availability_warning">Disa versione mund të jenë të padisponueshme për shkarkim ose të papajtueshme me pajisjen tënde.</string>
+    <string name="details_more_certificate_hash">Hash-i i certifikatës</string>
 </resources>

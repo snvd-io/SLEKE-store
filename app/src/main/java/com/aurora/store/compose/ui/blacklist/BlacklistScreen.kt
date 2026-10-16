@@ -12,8 +12,6 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSearchBarState
@@ -45,8 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -72,7 +70,6 @@ import com.aurora.store.compose.ui.commons.SortFilterState
 import com.aurora.store.data.model.BlacklistAppItem
 import com.aurora.store.viewmodel.blacklist.BlacklistViewModel
 import java.util.Calendar
-import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -124,7 +121,6 @@ private fun ScreenContent(
     val context = LocalContext.current
     val textFieldState = rememberTextFieldState()
     val searchBarState = rememberSearchBarState()
-    val focusRequester = remember { FocusRequester() }
     val coroutineScope = rememberCoroutineScope()
     var sheetVisible by remember { mutableStateOf(false) }
 
@@ -177,30 +173,27 @@ private fun ScreenContent(
     }
 
     fun onRequestSearch(query: String) {
-        textFieldState.setTextAndPlaceCursorAtEnd(query.trim())
+        val trimmed = query.trim()
+        if (textFieldState.text.toString() != trimmed) {
+            textFieldState.setTextAndPlaceCursorAtEnd(trimmed)
+        }
+        onSearch(trimmed)
         coroutineScope.launch { searchBarState.animateToCollapsed() }
-        onSearch(textFieldState.text.toString())
     }
 
     @Composable
     fun SearchBar() {
-        val interactionSource = remember { MutableInteractionSource() }
-
-        LaunchedEffect(interactionSource) {
-            interactionSource.interactions.collectLatest { interaction ->
-                if (interaction is PressInteraction.Press) {
-                    awaitFrame()
-                    focusRequester.requestFocus()
-                }
-            }
-        }
-
         val inputField = @Composable {
             SearchBarDefaults.InputField(
-                modifier = Modifier.focusRequester(focusRequester),
+                // Only allow focus while expanded. Otherwise the collapsed field
+                // grabs focus whenever it is restored (returning from details,
+                // dismissing the search on Android 8, ...) and the search bar
+                // reopens on its own. Tapping still expands via click detection.
+                modifier = Modifier.focusProperties {
+                    canFocus = searchBarState.targetValue == SearchBarValue.Expanded
+                },
                 searchBarState = searchBarState,
                 textFieldState = textFieldState,
-                interactionSource = interactionSource,
                 onSearch = { query -> onRequestSearch(query) },
                 placeholder = {
                     Text(
@@ -217,12 +210,7 @@ private fun ScreenContent(
                 },
                 trailingIcon = {
                     if (textFieldState.text.isNotBlank()) {
-                        IconButton(
-                            onClick = {
-                                textFieldState.clearText()
-                                focusRequester.requestFocus()
-                            }
-                        ) {
+                        IconButton(onClick = { textFieldState.clearText() }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_cancel),
                                 contentDescription = stringResource(R.string.action_clear)

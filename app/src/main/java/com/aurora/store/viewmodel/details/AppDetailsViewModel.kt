@@ -26,19 +26,19 @@ import com.aurora.gplayapi.helpers.ReviewsHelper
 import com.aurora.gplayapi.helpers.web.WebDataSafetyHelper
 import com.aurora.gplayapi.network.IHttpClient
 import com.aurora.store.AuroraApp
-import com.aurora.store.BuildConfig
 import com.aurora.store.data.AccountRepository
+import com.aurora.store.data.ExodusRepository
 import com.aurora.store.data.event.AuthEvent
 import com.aurora.store.data.event.InstallerEvent
 import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.model.AppState
 import com.aurora.store.data.model.DownloadStatus
-import com.aurora.store.data.model.Recovery
-import com.aurora.store.data.model.decideRecovery
-import com.aurora.store.data.model.ExodusReport
 import com.aurora.store.data.model.PlexusReport
+import com.aurora.store.data.model.Recovery
 import com.aurora.store.data.model.Report
 import com.aurora.store.data.model.Scores
+import com.aurora.store.data.model.StorageRequirement
+import com.aurora.store.data.model.decideRecovery
 import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.data.room.download.Download
 import com.aurora.store.data.room.favourite.Favourite
@@ -51,6 +51,7 @@ import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_ERROR_RESTART_TS
 import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_EXTENDED
+import com.aurora.store.util.StorageUtil
 import com.jakewharton.processphoenix.ProcessPhoenix
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -74,7 +75,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import org.json.JSONObject
 
 // Delay before a silent in-place retry of a failed app-details load
 private const val RETRY_DELAY_MS = 1000L
@@ -91,7 +91,8 @@ class AppDetailsViewModel @Inject constructor(
     private val reviewDao: ReviewDao,
     private val httpClient: IHttpClient,
     private val json: Json,
-    private val accountRepository: AccountRepository
+    private val accountRepository: AccountRepository,
+    private val exodusRepository: ExodusRepository
 ) : ViewModel() {
 
     private val _app = MutableStateFlow<App?>(null)
@@ -102,6 +103,8 @@ class AppDetailsViewModel @Inject constructor(
 
     // Tracks whether a silent in-place retry has already been used for the current load
     private var retryAttempted = false
+    private val _storageWarning = MutableSharedFlow<StorageRequirement>()
+    val storageWarning = _storageWarning.asSharedFlow()
 
     private val _suggestionsBundle = MutableStateFlow<StreamBundle?>(null)
     val suggestionsBundle: StateFlow<StreamBundle?> = _suggestionsBundle.asStateFlow()
@@ -130,6 +133,12 @@ class AppDetailsViewModel @Inject constructor(
 
     private val _exodusReport = MutableStateFlow<Report?>(Report())
     val exodusReport = _exodusReport.asStateFlow()
+
+    private val _exodusReports = MutableStateFlow<List<Report>>(emptyList())
+    val exodusReports = _exodusReports.asStateFlow()
+
+    private val _versionLookupInProgress = MutableStateFlow(false)
+    val versionLookupInProgress = _versionLookupInProgress.asStateFlow()
 
     private val _plexusScores = MutableStateFlow<Scores?>(Scores())
     val plexusScores = _plexusScores.asStateFlow()
@@ -379,12 +388,22 @@ class AppDetailsViewModel @Inject constructor(
 
     fun enqueueDownload(app: App) {
         viewModelScope.launch(Dispatchers.IO) {
-            downloadHelper.enqueueApp(app)
+            if (hasSpaceFor(app)) downloadHelper.enqueueApp(app)
         }
     }
 
     fun enqueueDownloadWith(app: App, accountId: String) {
-        viewModelScope.launch(Dispatchers.IO) { downloadHelper.enqueueApp(app, accountId) }
+        viewModelScope.launch(Dispatchers.IO) {
+            if (hasSpaceFor(app)) downloadHelper.enqueueApp(app, accountId)
+        }
+    }
+
+    private suspend fun hasSpaceFor(app: App): Boolean {
+        if (!downloadHelper.needsDownload(app.packageName, app.versionCode)) return true
+
+        val requirement = StorageUtil.check(context, listOf(app.size), app.displayName)
+        if (!requirement.isSufficient) _storageWarning.emit(requirement)
+        return requirement.isSufficient
     }
 
     fun cancelDownload(app: App) {
@@ -475,7 +494,12 @@ class AppDetailsViewModel @Inject constructor(
 
     private fun fetchDataSafetyReport(packageName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _dataSafetyReport.value = webDataSafetyHelper.fetch(packageName)
+            try {
+                _dataSafetyReport.value = webDataSafetyHelper.fetch(packageName)
+            } catch (exception: Exception) {
+                Log.e(TAG, "Failed to fetch data safety report", exception)
+                _dataSafetyReport.value = null
+            }
         }
     }
 
@@ -528,15 +552,36 @@ class AppDetailsViewModel @Inject constructor(
     }
 
     private fun fetchExodusPrivacyReport(packageName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            val reports = exodusRepository.fetchReports(packageName)
+                .sortedByDescending { it.versionCode.toLongOrNull() ?: -1L }
+            _exodusReport.value = reports.firstOrNull()
+            _exodusReports.value = reports
+        }
+    }
+
+    /**
+     * Loads the list of known versions from Exodus for the version picker on the manual download
+     * screen. Reuses the reports already fetched for the privacy report when available, and only
+     * hits the network when nothing has been loaded yet.
+     */
+    fun lookupVersions() {
+        val packageName = app.value?.packageName ?: return
+        if (_exodusReports.value.isNotEmpty() || _versionLookupInProgress.value) return
+
+        viewModelScope.launch {
+            _versionLookupInProgress.value = true
             try {
-                _exodusReport.value = getLatestExodusReport(packageName)
-            } catch (exception: Exception) {
-                Log.e(TAG, "Failed to fetch privacy report", exception)
-                _exodusReport.value = null
+                _exodusReports.value = exodusRepository.fetchReports(packageName)
+                    .sortedByDescending { it.versionCode.toLongOrNull() ?: -1L }
+            } finally {
+                _versionLookupInProgress.value = false
             }
         }
     }
+
+    suspend fun getNewTrackers(packageName: String, installedVersionCode: Long) =
+        exodusRepository.getNewTrackers(packageName, installedVersionCode)
 
     private fun fetchPlexusReport(packageName: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -546,31 +591,6 @@ class AppDetailsViewModel @Inject constructor(
                 Log.e(TAG, "Failed to fetch compatibility report", exception)
                 _plexusScores.value = null
             }
-        }
-    }
-
-    private fun getLatestExodusReport(packageName: String): Report? {
-        val url = "${Constants.EXODUS_SEARCH_URL}$packageName"
-        val headers = mutableMapOf(
-            "Content-Type" to Constants.JSON_MIME_TYPE,
-            "Accept" to Constants.JSON_MIME_TYPE,
-            "Authorization" to "Token ${BuildConfig.EXODUS_API_KEY}"
-        )
-
-        val playResponse = httpClient.get(url, headers)
-        return parseExodusResponse(String(playResponse.responseBytes), packageName)
-            .firstOrNull()
-    }
-
-    private fun parseExodusResponse(response: String, packageName: String): List<Report> {
-        try {
-            val jsonObject = JSONObject(response)
-            val exodusObject = jsonObject.getJSONObject(packageName)
-            val exodusReport = json.decodeFromString<ExodusReport>(exodusObject.toString())
-
-            return exodusReport.reports
-        } catch (_: Exception) {
-            return emptyList()
         }
     }
 

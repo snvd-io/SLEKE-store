@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Aurora OSS
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 package com.aurora.store.data.room
 
 import android.util.Log
@@ -44,6 +49,18 @@ object MigrationHelper {
 
     val MIGRATION_9_10 = object : Migration(9, 10) {
         override fun migrate(db: SupportSQLiteDatabase) = migrateFrom9To10(db)
+    }
+
+    val MIGRATION_10_11 = object : Migration(10, 11) {
+        override fun migrate(db: SupportSQLiteDatabase) = migrateFrom10To11(db)
+    }
+
+    val MIGRATION_11_12 = object : Migration(11, 12) {
+        override fun migrate(db: SupportSQLiteDatabase) = migrateFrom11To12(db)
+    }
+
+    val MIGRATION_12_13 = object : Migration(12, 13) {
+        override fun migrate(db: SupportSQLiteDatabase) = migrateFrom12To13(db)
     }
 
     private const val TAG = "MigrationHelper"
@@ -237,6 +254,80 @@ object MigrationHelper {
             database.setTransactionSuccessful()
         } catch (exception: Exception) {
             Log.e(TAG, "Failed while migrating from database version 9 to 10", exception)
+        } finally {
+            database.endTransaction()
+        }
+    }
+
+    /**
+     * Add the exodus_tracker table for the API-synced tracker dictionary.
+     */
+    private fun migrateFrom10To11(database: SupportSQLiteDatabase) {
+        database.beginTransaction()
+        try {
+            database.execSQL(
+                "CREATE TABLE IF NOT EXISTS `exodus_tracker` (" +
+                    "`id` INTEGER NOT NULL, " +
+                    "`name` TEXT NOT NULL, " +
+                    "`url` TEXT NOT NULL, " +
+                    "`signature` TEXT NOT NULL, " +
+                    "`date` TEXT NOT NULL, " +
+                    "PRIMARY KEY(`id`))"
+            )
+            database.setTransactionSuccessful()
+        } catch (exception: Exception) {
+            Log.e(TAG, "Failed while migrating from database version 10 to 11", exception)
+        } finally {
+            database.endTransaction()
+        }
+    }
+
+    /**
+     * Add a categories column to the exodus_tracker table, recreating it empty for the next sync.
+     */
+    private fun migrateFrom11To12(database: SupportSQLiteDatabase) {
+        database.beginTransaction()
+        try {
+            database.execSQL("DROP TABLE IF EXISTS `exodus_tracker`")
+            database.execSQL(
+                "CREATE TABLE IF NOT EXISTS `exodus_tracker` (" +
+                    "`id` INTEGER NOT NULL, " +
+                    "`name` TEXT NOT NULL, " +
+                    "`url` TEXT NOT NULL, " +
+                    "`signature` TEXT NOT NULL, " +
+                    "`date` TEXT NOT NULL, " +
+                    "`categories` TEXT NOT NULL, " +
+                    "PRIMARY KEY(`id`))"
+            )
+            database.setTransactionSuccessful()
+        } catch (exception: Exception) {
+            Log.e(TAG, "Failed while migrating from database version 11 to 12", exception)
+        } finally {
+            database.endTransaction()
+        }
+    }
+
+    /**
+     * Add the notification table backing the in-app notification centre.
+     */
+    private fun migrateFrom12To13(database: SupportSQLiteDatabase) {
+        database.beginTransaction()
+        try {
+            database.execSQL(
+                "CREATE TABLE IF NOT EXISTS `notification` (" +
+                    "`id` TEXT NOT NULL, " +
+                    "`type` TEXT NOT NULL, " +
+                    "`title` TEXT NOT NULL, " +
+                    "`body` TEXT NOT NULL, " +
+                    "`packageName` TEXT, " +
+                    "`url` TEXT, " +
+                    "`timestamp` INTEGER NOT NULL, " +
+                    "`isRead` INTEGER NOT NULL, " +
+                    "PRIMARY KEY(`id`))"
+            )
+            database.setTransactionSuccessful()
+        } catch (exception: Exception) {
+            Log.e(TAG, "Failed while migrating from database version 12 to 13", exception)
         } finally {
             database.endTransaction()
         }
