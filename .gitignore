@@ -50,6 +50,7 @@ app/preload/*
 #Exclude signing configurations & keystore
 signing.properties
 *.keystore
+keystore.properties
 
 
 .kotlin/*
