@@ -1,20 +1,6 @@
 /*
- * Aurora Store
- *  Copyright (C) 2021, Rahul Kumar Patel <whyorean@gmail.com>
- *
- *  Aurora Store is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  Aurora Store is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Aurora Store.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2021 Aurora OSS
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 package com.aurora.store.util
@@ -68,6 +54,7 @@ object Preferences {
     const val PREFERENCE_UPDATES_EXTENDED = "PREFERENCE_UPDATES_EXTENDED"
     const val PREFERENCE_UPDATES_AUTO = "PREFERENCE_UPDATES_AUTO"
     const val PREFERENCE_UPDATES_CHECK_INTERVAL = "PREFERENCE_UPDATES_CHECK_INTERVAL"
+    const val PREFERENCE_UPDATES_WARN_TRACKERS = "PREFERENCE_UPDATES_WARN_TRACKERS"
     const val PREFERENCES_UPDATES_RESTRICTIONS = "PREFERENCES_UPDATES_RESTRICTIONS"
     const val PREFERENCES_UPDATES_RESTRICTIONS_METERED = "PREFERENCES_UPDATES_RESTRICTIONS_METERED"
     const val PREFERENCES_UPDATES_RESTRICTIONS_IDLE = "PREFERENCES_UPDATES_RESTRICTIONS_IDLE"
@@ -83,6 +70,9 @@ object Preferences {
     const val PREFERENCE_BLACKLIST_APP_TYPES = "PREFERENCE_BLACKLIST_APP_TYPES"
     const val PREFERENCE_BLACKLIST_INSTALLER = "PREFERENCE_BLACKLIST_INSTALLER"
 
+    const val PREFERENCE_DOWNLOADS_SORT_BY = "PREFERENCE_DOWNLOADS_SORT_BY"
+    const val PREFERENCE_DOWNLOADS_SORT_ORDER = "PREFERENCE_DOWNLOADS_SORT_ORDER"
+
     const val PREFERENCE_MIGRATION_VERSION = "PREFERENCE_MIGRATION_VERSION"
 
     const val PREFERENCE_SELF_UPDATE_ENABLED = "PREFERENCE_SELF_UPDATE_ENABLED"
@@ -93,6 +83,7 @@ object Preferences {
     const val PREFERENCE_CONFIRM_EXTERNAL_DEEPLINK = "PREFERENCE_CONFIRM_EXTERNAL_DEEPLINK"
 
     const val PREFERENCE_ERROR_RESTART_TS = "PREFERENCE_ERROR_RESTART_TS"
+    const val PREFERENCE_LAST_TRACKER_SYNC = "PREFERENCE_LAST_TRACKER_SYNC"
 
     private var prefs: SharedPreferences? = null
 

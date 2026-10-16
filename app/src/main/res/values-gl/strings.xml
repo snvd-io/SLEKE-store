@@ -445,4 +445,9 @@
     <string name="action_retry">Intentar de novo</string>
     <string name="action_view_on_play">Ver na Play Store</string>
     <string name="details_data_safety_collect">Datos que a aplicación podería recopilar</string>
+    <string name="account_set_default">Establecer como predeterminada</string>
+    <string name="account_default">Predeterminada</string>
+    <string name="account_remove">Eliminar</string>
+    <string name="account_remove_title">Eliminar conta?</string>
+    <string name="account_remove_message">Eliminar %1$s da Aurora Store?</string>
 </resources>

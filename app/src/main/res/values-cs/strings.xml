@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="action_update">Instalovat</string>
+    <string name="action_update">Aktualizovat</string>
     <string name="action_blacklist">Černá listina</string>
     <string name="action_blacklist_add">Přidat na černou listinu</string>
     <string name="title_blacklist_manager">Správa černé listiny</string>
@@ -111,7 +111,7 @@
     <string name="exodus_view_report">Zobrazit hlášení</string>
     <string name="exodus_substring">známých sledovacích prvků nalezeno ve verzi</string>
     <string name="exodus_no_tracker">Neobsahuje žádné známé sledovací prvky</string>
-    <string name="exodus_progress">Kontroluji trackers…</string>
+    <string name="exodus_progress">Kontroluji sledovací prvky…</string>
     <string name="exodus_powered">Využívá službu Exodus Privacy</string>
     <string name="download_speed_estimating">Odhaduji</string>
     <string name="download_resume_all">Pokračovat vše</string>
@@ -153,7 +153,7 @@
     <string name="details_beta_available">Připojit se k beta programu?</string>
     <string name="details_beta_subscribed">Jste beta tester</string>
     <string name="details_beta">Beta program</string>
-    <string name="action_update_all">Aktual. vše</string>
+    <string name="action_update_all">Aktualizovat vše</string>
     <string name="action_info">Informace o aplikaci</string>
     <string name="action_uninstall">Odinstalovat</string>
     <string name="action_share">Sdílet</string>
@@ -312,7 +312,7 @@
     <string name="session_installer_desc">Doporučený, vestavěný a podporuje všechny verze systému Android</string>
     <string name="services_installer_desc">Vyžaduje instalaci Služeb Aurora jako privilegované systémové aplikace</string>
     <string name="am_installer_subtitle">Plnohodnotný správce balíčků s otevřeným zdrojovým kódem</string>
-    <string name="am_installer_desc">Vyžaduje aplikaci App Manager, při povolené Optimalizaci MIUI potřebuje režim adb/root</string>
+    <string name="am_installer_desc">Vyžaduje aplikaci App Manager, při povolené optimalizaci MIUI potřebuje režim adb/root</string>
     <string name="shizuku_installer_subtitle">Používá přímá systémová API s právy adb/root</string>
     <string name="root_installer_desc">Vyžaduje oprávnění root/superuser, podporuje všechny verze systému Android.</string>
     <string name="root_installer_subtitle">Instalátor založený na relacích, používá oprávnění root</string>
@@ -623,4 +623,35 @@
         <item quantity="many">Nepodařilo se aktualizovat %1$d účtů</item>
         <item quantity="other">Nepodařilo se aktualizovat %1$d účtů</item>
     </plurals>
+    <string name="account_exists">Účet již byl přidán</string>
+    <string name="action_update_anyway">Přesto aktualizovat</string>
+    <string name="exodus_report_history">Historie verzí</string>
+    <string name="exodus_history_version">%1$s (%2$s)</string>
+    <string name="exodus_history_subtitle">%1$s • %2$d sledovacích prvků</string>
+    <string name="exodus_latest">Nejnovější</string>
+    <string name="pref_updates_warn_trackers">Varovat o nových sledovacích prvcích při aktualizacích aplikací</string>
+    <string name="pref_updates_warn_trackers_desc">Zobrazit varování před aktualizací na novou verzi, pokud daná verze přidává sledovací prvky, které se nenacházejí v nainstalované verzi</string>
+    <string name="tracker_warning_title">Zjištěny nové sledovací prvky</string>
+    <string name="tracker_warning_desc">Tato aktualizace přidává sledovací prvky, které se nenacházejí v nainstalované verzi:</string>
+    <string name="manual_download_lookup">Najít verze</string>
+    <string name="manual_download_select_version">Vybrat verzi</string>
+    <string name="manual_download_no_versions">Nenalezeny žádné známé verze</string>
+    <string name="manual_download_availability_warning">Některé verze nemusejí být dostupné ke stažení nebo mohou být nekompatibilní s vaším zařízením.</string>
+    <string name="details_more_certificate_hash">Hash certifikátu</string>
+    <string name="action_free_up_space">Uvolněte místo</string>
+    <string name="installer_provider">%1$s · Obsluhoval %2$s</string>
+    <string name="insufficient_storage_title">Nedostatek místa</string>
+    <string name="insufficient_storage_desc">%1$s potřebuje %2$s, ale k dispozici je pouze %3$s.</string>
+    <string name="insufficient_storage_hint">Uvolněte %1$s a zkuste to znovu.</string>
+    <string name="status_awaiting_install">Čekání na potvrzení</string>
+    <string name="notification_install_prompt_pending">Klepnutím dokončíte instalaci</string>
+    <string name="notification_none">Nic k vidění</string>
+    <string name="details_more_files">Soubory</string>
+    <plurals name="insufficient_storage_desc_multiple">
+        <item quantity="one">%1$d aplikace potřebuje %2$s, ale pouze %3$s je k dispozici.</item>
+        <item quantity="few">%1$d aplikace potřebují %2$s, ale pouze %3$s je k dispozici.</item>
+        <item quantity="many">%1$d aplikace potřebují %2$s, ale pouze %3$s je k dispozici.</item>
+        <item quantity="other">%1$d aplikace potřebují %2$s, ale pouze %3$s je k dispozici.</item>
+    </plurals>
+    <string name="download_sort_date_downloaded">Datum stažení</string>
 </resources>

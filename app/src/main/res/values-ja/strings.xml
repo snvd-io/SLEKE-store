@@ -469,4 +469,31 @@
     <string name="action_filter_no_gms">Google Play 開発者サービスなし</string>
     <string name="page"><xliff:g id="number">%1$d</xliff:g> ページ</string>
     <string name="onboarding_gms_microg">microGは、Androidデバイス向けにGoogle Play Servicesに依存するアプリを再実装によって動作させる、同様の機能を提供する無料のオープンソース実装です。\n\nmicroGはアプリがこれらのGoogle APIにアクセスすることを可能にし、ユーザーの互換性を高めつつプライバシー上の利点を提供します。\n\nGoogle Mobile Servicesに依存するアプリケーションを開くと、microGはバックグラウンドで自動的に動作します。</string>
+    <string name="account_default">デフォルト</string>
+    <string name="account_remove">削除</string>
+    <string name="account_remove_title">アカウントを削除しますか？</string>
+    <string name="account_remove_message">%1$sをAurora Storeから削除しますか？</string>
+    <string name="account_add">アカウントを追加する</string>
+    <string name="account_set_default_message">設定したデフォルトアカウントを使用するようにAurora Storeが再起動します。</string>
+    <string name="account_switching">アカウトを切り替えます…</string>
+    <string name="account_adding">アカウントを追加します…</string>
+    <string name="account_set_default">デフォルトに設定する</string>
+    <string name="account_add_google">Googleでログイン</string>
+    <string name="account_add_anonymous">匿名アカウントを追加する</string>
+    <string name="account_set_default_title">デフォルトアカウントを切り替える</string>
+    <string name="account_refresh_all">すべてのアカウントを更新する</string>
+    <string name="account_refreshing">アカウントを更新しています…</string>
+    <string name="account_refresh_done">すべてのアカウントを更新できました</string>
+    <string name="account_add_failed">アカウントの追加が失敗しました。もう一度試してください。</string>
+    <string name="action_buy">%1$sで購入する</string>
+    <string name="action_install_all">すべてをインストールする</string>
+    <string name="action_switch_account">アカウントを切り替える</string>
+    <string name="action_retry">再試行する</string>
+    <string name="action_view_on_play">Playストアで表示する</string>
+    <string name="details_review_delete">削除する</string>
+    <string name="account_remove_last_message">唯一のアカウントです。このアカウントを削除したらログアウトされ、再度ログインするまでAurora Storeを利用できなくなります。</string>
+    <string name="account_add_device">デバイスのアカウント</string>
+    <string name="account_switch_failed">アカウントの更新が失敗しましたため、デフォルトの設定が変更されませんでした。</string>
+    <string name="account_exists">アカウントはすでに追加されています</string>
+    <string name="action_update_anyway">とにかく更新する</string>
 </resources>

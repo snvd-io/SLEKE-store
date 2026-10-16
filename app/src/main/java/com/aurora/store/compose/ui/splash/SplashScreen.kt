@@ -66,6 +66,7 @@ import com.aurora.store.compose.composition.LocalNetworkStatus
 import com.aurora.store.compose.navigation.Destination
 import com.aurora.store.data.model.AuthState
 import com.aurora.store.data.model.NetworkStatus
+import com.aurora.store.data.work.ExodusTrackerWorker
 import com.aurora.store.util.CertUtil.GOOGLE_ACCOUNT_TYPE
 import com.aurora.store.util.CertUtil.GOOGLE_PLAY_AUTH_TOKEN_TYPE
 import com.aurora.store.util.CertUtil.GOOGLE_PLAY_CERT
@@ -138,6 +139,7 @@ fun SplashScreen(
                 anonymousLoading = false
                 googleLoading = false
                 emailLoading = false
+                ExodusTrackerWorker.enqueue(context)
                 when {
                     !deepLinkDevId.isNullOrBlank() -> onNavigateTo(
                         Destination.DevProfile(deepLinkDevId)
@@ -333,7 +335,7 @@ fun SplashScreen(
                                 val intent = AuthUI.getInstance()
                                     .createSignInIntentBuilder()
                                     .setTheme(R.style.FirebaseUITheme)
-                                    .setLogo(R.drawable.sync)
+                                    .setLogo(com.sleke.library.R.drawable.sleke_login_logo)
                                     .setAvailableProviders(providers)
                                     .build()
                                 emailSignInLauncher.launch(intent)

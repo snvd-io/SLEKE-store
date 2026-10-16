@@ -605,4 +605,19 @@
     <plurals name="account_refresh_failed">
         <item quantity="other">Tidak dapat menyegarkan %1$d akun</item>
     </plurals>
+    <string name="account_exists">Akun sudah ditambahkan</string>
+    <string name="action_update_anyway">Tetap perbarui</string>
+    <string name="exodus_report_history">Riwayat versi</string>
+    <string name="exodus_history_version">%1$s (%2$s)</string>
+    <string name="exodus_history_subtitle">"%1$s -  %2$d pelacak"</string>
+    <string name="exodus_latest">Terbaru</string>
+    <string name="pref_updates_warn_trackers">Peringatkan tentang pelacak baru dalam pembaruan aplikasi</string>
+    <string name="pref_updates_warn_trackers_desc">Tampilkan peringatan sebelum memperbarui ketika versi baru menambahkan pelacak yang tidak ada pada versi yang terpasang</string>
+    <string name="tracker_warning_title">Pelacak baru terdeteksi</string>
+    <string name="tracker_warning_desc">Pembaruan ini menambahkan pelacak yang tidak ada pada versi yang terpasang:</string>
+    <string name="manual_download_lookup">Cari versi</string>
+    <string name="manual_download_select_version">Pilih versi</string>
+    <string name="manual_download_no_versions">Tidak ada versi yang diketahui ditemukan</string>
+    <string name="manual_download_availability_warning">Beberapa versi mungkin tidak tersedia untuk diunduh atau tidak kompatibel dengan perangkat Anda.</string>
+    <string name="details_more_certificate_hash">Hash sertifikat</string>
 </resources>

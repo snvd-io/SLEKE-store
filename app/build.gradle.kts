@@ -17,7 +17,6 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.google.services)
-    alias(libs.plugins.rikka.tools.refine.plugin)
     alias(libs.plugins.hilt.android.plugin)
 }
 
@@ -68,8 +67,8 @@ configure<ApplicationExtension> {
             version = release(37)
         }
 
-        versionCode = 74
-        versionName = "4.8.1"
+        versionCode = 76
+        versionName = "4.8.4"
 
         testInstrumentationRunner = "com.aurora.store.HiltInstrumentationTestRunner"
         testInstrumentationRunnerArguments["disableAnalytics"] = "true"
@@ -273,12 +272,8 @@ dependencies {
     implementation(libs.auroraoss.gplayapi)
 
     // Shizuku
-    compileOnly(libs.rikka.hidden.stub)
-    implementation(libs.rikka.tools.refine.runtime)
     implementation(libs.rikka.shizuku.api)
     implementation(libs.rikka.shizuku.provider)
-
-    implementation(libs.lsposed.hiddenapibypass)
 
     // Test
     testImplementation(libs.junit)

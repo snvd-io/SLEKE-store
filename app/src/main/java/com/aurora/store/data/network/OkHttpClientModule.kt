@@ -1,20 +1,6 @@
 /*
- * Aurora Store
- *  Copyright (C) 2021, Rahul Kumar Patel <whyorean@gmail.com>
- *
- *  Aurora Store is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  Aurora Store is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Aurora Store.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * SPDX-FileCopyrightText: 2021 Aurora OSS
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 package com.aurora.store.data.network
@@ -33,11 +19,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.json.Json
-import okhttp3.Cache
-import okhttp3.CertificatePinner
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream
@@ -50,6 +31,12 @@ import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import kotlinx.serialization.json.Json
+import okhttp3.Cache
+import okhttp3.CertificatePinner
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -60,6 +47,22 @@ object OkHttpClientModule {
     private const val CERT_BEGIN = "-----BEGIN CERTIFICATE-----"
     private const val CERT_END = "-----END CERTIFICATE-----"
 
+    /**
+     * This network interceptor tags authenticated responses with `Vary: Authorization` so the cache
+     * partitions entries per account instead of by URL alone.
+     */
+    private val varyByAuthorizationInterceptor = Interceptor { chain ->
+        val request = chain.request()
+        val response = chain.proceed(request)
+        val needsVary = request.header("Authorization") != null &&
+            response.headers("Vary").none { it.contains("Authorization", ignoreCase = true) }
+        if (needsVary) {
+            response.newBuilder().addHeader("Vary", "Authorization").build()
+        } else {
+            response
+        }
+    }
+
     @Provides
     @Singleton
     fun providesOkHttpClientInstance(
@@ -69,6 +72,7 @@ object OkHttpClientModule {
     ): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient().newBuilder()
             .cache(cache)
+            .addNetworkInterceptor(varyByAuthorizationInterceptor)
             .proxy(proxy)
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = if (BuildConfig.DEBUG) {
@@ -142,10 +146,15 @@ object OkHttpClientModule {
 
     @Provides
     @Singleton
-    fun providesCacheDir(@ApplicationContext context: Context): Cache = Cache(
-        directory = File(context.cacheDir, "http_cache"),
-        maxSize = 100L * 1024 * 1024
-    )
+    fun providesCacheDir(@ApplicationContext context: Context): Cache {
+        val legacyCache = File(context.cacheDir, "http_cache")
+        if (legacyCache.exists()) legacyCache.deleteRecursively()
+
+        return Cache(
+            directory = File(context.cacheDir, "http_cache_v2"),
+            maxSize = 100L * 1024 * 1024
+        )
+    }
 
     private fun getGoogleRootCertHashes(context: Context): List<String> = try {
         val certs =

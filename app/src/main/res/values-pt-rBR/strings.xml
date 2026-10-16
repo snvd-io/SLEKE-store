@@ -12,7 +12,7 @@
     <string name="title_download_playstore">Play Store</string>
     <string name="title_download_manager">Downloads</string>
     <string name="title_apps">Apps</string>
-    <string name="pref_install_mode_services">Aurora Services (Depreciado)</string>
+    <string name="pref_install_mode_services">Aurora Services (descontinuado)</string>
     <string name="action_filter_downloads">Downloads</string>
     <string name="about_telegram">Telegram</string>
     <string name="about_paypal">PayPal</string>
@@ -169,7 +169,7 @@
     <string name="about_xda_summary">Veja a publicação da Aurora Store no XDA para discussões ou sugestões.</string>
     <string name="about_telegram_summary">Junte-se ao grupo de suporte da Aurora para discussões ou sugestões.</string>
     <string name="about_paypal_summary">Doar via PayPal</string>
-    <string name="about_libera_summary">Torne-se um patrono no Liberapay</string>
+    <string name="about_libera_summary">Torne-se um apoiador no Liberapay</string>
     <string name="about_gitlab_summary">Baixe o código-fonte da Aurora Store do Aurora OSS no GitLab.</string>
     <string name="about_fdroid_summary">Instale a Aurora Store pelo F-Droid.</string>
     <string name="about_bitcoin_eth_summary">Doar via Ethereum (ETH)</string>
@@ -201,7 +201,7 @@
     <string name="pref_install_mode_summary">Selecione o modo de instalação de APKs</string>
     <string name="pref_install_mode_session">Instalador de sessão</string>
     <string name="pref_install_mode_root">Instalador root</string>
-    <string name="pref_install_mode_native">Instalador nativo (Depreciado)</string>
+    <string name="pref_install_mode_native">Instalador nativo (descontinuado)</string>
     <string name="pref_install_delete_title">Apagar APK após a instalação</string>
     <string name="pref_install_delete_summary">Os APKs baixados serão apagados após a instalação</string>
     <string name="pref_filter_fdroid_title">Filtrar apps do F-Droid</string>
@@ -233,9 +233,9 @@
     <string name="session_init">Deixando tudo certo…</string>
     <string name="download_paused">Pausado • <xliff:g id="completed_downloads">%1$d</xliff:g> / <xliff:g id="all_downloads">%2$d</xliff:g></string>
     <string name="action_import">Importar</string>
-    <string name="download_eta_hrs">%1$dh %2$dm %3$ds restando</string>
-    <string name="download_eta_min">%1$dm %2$ds restando</string>
-    <string name="download_eta_sec">%1$ds restando</string>
+    <string name="download_eta_hrs">%1$dh %2$dm %3$ds restantes</string>
+    <string name="download_eta_min">%1$dm %2$ds restantes</string>
+    <string name="download_eta_sec">%1$ds restantes</string>
     <string name="session_good">Tudo certo.</string>
     <string name="session_login_failed_google">Não foi possível se conectar pelo Google</string>
     <string name="session_verifying">Verificando a sessão</string>
@@ -259,7 +259,7 @@
     <string name="server_maintenance">O servidor está fora do ar para manutenção</string>
     <string name="error">Ocorreu um erro!</string>
     <string name="update_available">atualização disponível</string>
-    <string name="search_hint">Buscar por apps &amp; jogos</string>
+    <string name="search_hint">Buscar por apps e jogos</string>
     <string name="expand">Expandir</string>
     <string name="notification_channel_updates">Notificações de atualização</string>
     <string name="notification_updates_available_1"><xliff:g id="apps_count">%1$d</xliff:g> atualização disponível</string>
@@ -348,7 +348,7 @@
     <string name="session_login">Conecte-se à sua conta do Google Play</string>
     <string name="about_aurora_store_title">Sobre a Aurora Store</string>
     <string name="about_aurora_store_subtitle">Saiba mais sobre a Aurora Store</string>
-    <string name="about_aurora_store_summary">A Aurora Store permite que você busque e instale apps da Google Play Store oficial. Você pode ver as descrições dos apps, capturas de tela, atualizações, os comentários dos usuários e baixar o APK diretamente da Google Play no seu dispositivo. Para usar a Aurora Store, conecte-se a uma conta do Google Play ao abrir e configurar pela primeira vez.\n\nDiferentemente de uma loja de apps tradicional, a Aurora Store não tem propriedade, licencia ou distribui nenhum app. Todos os apps, as descrições dos apps, capturas de tela e outros conteúdos da Aurora Store são acessados, baixados e/ou exibidos do Google Play. A Aurora Store funciona exatamente como uma porta ou navegador, permitindo que você entre na sua conta do Google Play e encontre os apps do Google Play.\n\nObserva que a Aurora Store não possui qualquer aprovação, patrocínio ou autorização do Google, Google Play, apps baixados pela Aurora Store ou qualquer desenvolvedor dos apps, nem possui qualquer afiliação, cooperação ou conexão com eles.</string>
+    <string name="about_aurora_store_summary">A Aurora Store permite que você busque e instale apps da Google Play Store oficial. Você pode ver as descrições dos apps, capturas de tela, atualizações, os comentários dos usuários e baixar o APK diretamente da Google Play no seu dispositivo. Para usar a Aurora Store, conecte-se a uma conta do Google Play ao abrir e configurar pela primeira vez.\n\nDiferentemente de uma loja de apps tradicional, a Aurora Store não tem propriedade, licencia ou distribui nenhum app. Todos os apps, as descrições dos apps, capturas de tela e outros conteúdos da Aurora Store são acessados, baixados e/ou exibidos do Google Play. A Aurora Store funciona exatamente como uma porta ou navegador, permitindo que você entre na sua conta do Google Play e encontre os apps do Google Play.\n\nObserve que a Aurora Store não possui qualquer aprovação, patrocínio ou autorização do Google, Google Play, apps baixados pela Aurora Store ou qualquer desenvolvedor dos apps, nem possui qualquer afiliação, cooperação ou conexão com eles.</string>
     <string name="toast_app_unavailable">App não disponível para seu dispositivo</string>
     <string name="toast_fav_import_failed">Falha ao importar os curtidos!</string>
     <string name="details_no_favourites">Não há apps curtidos</string>
@@ -394,7 +394,7 @@
     <string name="filter_latest">Mais recentes</string>
     <string name="toast_black_import_failed">Falha ao importar a lista de aplicativos com atualizações bloqueadas!</string>
     <string name="toast_black_export_failed">Falha ao exportar a lista de apps com atualizações bloqueadas!</string>
-    <string name="toast_black_import_success">A lista de apps com atualizações bloqueadasrfoi importada!</string>
+    <string name="toast_black_import_success">A lista de apps com atualizações bloqueadas foi importada!</string>
     <string name="toast_black_export_success">A lista de aplicativos com atualizações bloqueadas foi exportada!</string>
     <string name="action_unarchive">Desarquivar</string>
     <string name="status_verifying">Verificando</string>
@@ -434,14 +434,14 @@
     <string name="app_info_min_android">Versão do Android mínima</string>
     <string name="permissions_requested"><xliff:g id="number_of_permissions">%1$d</xliff:g> permissões</string>
     <string name="action_install_microG">Instalar o conjunto do microG</string>
-    <string name="onboarding_title_gsf">Compatibilidade de apps</string>
+    <string name="onboarding_title_gsf">Compatibilidade de aplicativo</string>
     <string name="onboarding_title_gsf_desc">Dependências ausentes</string>
-    <string name="onboarding_gms_agreement">Eu li e concordo com os termos de serviço e a política de privacidade do microG</string>
-    <string name="onboarding_gms_missing">Não foi possível encontrar o Google Play Services no seu dispositivo, muitos apps populares requerem ele para funcionar corretamente!</string>
-    <string name="onboarding_gms_microg">O microG é uma implementação de código aberto e livre que fornece funcionalidade similar para a execução de apps que dependem no Google Play Services em dispositivos Android, através da reimplementação.\n\nO microG permite que apps acessem essas APIs do Google, melhorando a compatibilidade para os usuários enquanto melhora oferece benefícios à privacidade.\n\nO microG é executado automaticamente em segundo plano ao abrir aplicativos que dependem do Google Mobile Services.</string>
-    <string name="microg_privacy_policy">Ler a política de privacidade do microG</string>
-    <string name="microg_license_agreement">Ler a licença do microG</string>
-    <string name="microg_website">Visitar o site do projeto do microG</string>
+    <string name="onboarding_gms_agreement">Eu li e concordo com os Termos de Serviço e a Política de Privacidade do microG</string>
+    <string name="onboarding_gms_missing">Não foi possível encontrar o Google Play Services no seu dispositivo, muitos apps populares o exigem para funcionar corretamente!</string>
+    <string name="onboarding_gms_microg">O microG é uma implementação de código aberto e livre que fornece funcionalidade similar para a execução de apps que dependem no Google Play Services em dispositivos Android, através da reimplementação.\n\nO microG permite que apps acessem essas APIs do Google, melhorando a compatibilidade para os usuários enquanto oferece benefícios à privacidade.\n\nO microG será executado automaticamente em segundo plano ao abrir aplicativos que dependem do Google Mobile Services.</string>
+    <string name="microg_privacy_policy">Ler a Política de Privacidade do microG</string>
+    <string name="microg_license_agreement">Ler a Licença do microG</string>
+    <string name="microg_website">Visitar o Site do Projeto do microG</string>
     <string name="details_data_safety_collect">Dados que este app pode coletar</string>
     <string name="details_data_safety_collect_none">O desenvolvedor diz que este app não coleta dados do usuário.</string>
     <string name="details_data_safety_shared">Dados que este app pode compartilhar</string>
@@ -460,7 +460,7 @@
     <string name="preparing_to_install">Preparando para instalar</string>
     <plurals name="permissions_required">
         <item quantity="one">Permissão necessária</item>
-        <item quantity="many">Permissões necessárias</item>
+        <item quantity="many">de permissões necessárias</item>
         <item quantity="other">Permissões necessárias</item>
     </plurals>
     <string name="installer_microg_misconfigured">O instalador do microG falhou ao instalar o app, provavelmente devido a má configuração.</string>
@@ -570,7 +570,7 @@
     <string name="details_review_delete_message">A sua avaliação será removida do Google Play.</string>
     <string name="details_your_review">Sua avaliação</string>
     <string name="confirm_deeplink_title">Confirmar links externos</string>
-    <string name="confirm_deeplink_summary">Perguntar antes de abrir a página de um app a partir de um link, impede que anúncios abram a Aurora sem seu consentimento.</string>
+    <string name="confirm_deeplink_summary">Perguntar antes de abrir a página de um app a partir de um link, impedindo que anúncios abram a Aurora sem seu consentimento.</string>
     <string name="confirm_deeplink_sheet_title">Continuar na Aurora Store?</string>
     <string name="confirm_deeplink_sheet_message">Um app externo quer abrir a Aurora Store</string>
     <string name="confirm_deeplink_sheet_source">Aberto por %1$s</string>
@@ -587,4 +587,64 @@
         <item quantity="many">%1$d de favoritos</item>
         <item quantity="other">%1$d favoritos</item>
     </plurals>
+    <string name="account_set_default">Configurar como padrão</string>
+    <string name="account_default">Padrão</string>
+    <string name="account_remove">Remover</string>
+    <string name="account_remove_last_message">Esta é a sua única conta. Removê-la te desconectará, e não poderá usar a Aurora Store até se conectar novamente.</string>
+    <string name="account_add">Adicionar conta</string>
+    <string name="account_add_device">Contas do dispositivo</string>
+    <string name="account_add_google">Conectar-se com Google</string>
+    <string name="account_add_anonymous">Adicionar conta anônima</string>
+    <string name="account_set_default_title">Trocar a conta padrão?</string>
+    <string name="account_set_default_message">A Aurora Store reiniciará para usar a nova conta padrão.</string>
+    <string name="account_switching">Trocando de conta…</string>
+    <string name="account_adding">Adicionando conta…</string>
+    <string name="account_refresh_all">Recarregar todas as contas</string>
+    <string name="account_refreshing">Recarregando contas…</string>
+    <string name="account_refresh_done">Todas as contas foram recarregadas</string>
+    <string name="account_switch_failed">Não foi possível recarregar aquela conta, então a padrão não mudou.</string>
+    <string name="account_add_failed">Não foi possível adicionar aquela conta. Tente novamente.</string>
+    <string name="action_switch_account">Trocar de conta</string>
+    <plurals name="account_count">
+        <item quantity="one">Total de %1$d conta</item>
+        <item quantity="many">Total de %1$d de contas</item>
+        <item quantity="other">Total de %1$d contas</item>
+    </plurals>
+    <plurals name="account_refresh_failed">
+        <item quantity="one">Não foi possível recarregar %1$d conta</item>
+        <item quantity="many">Não foi possível recarregar %1$d de contas</item>
+        <item quantity="other">Não foi possível recarregar %1$d contas</item>
+    </plurals>
+    <string name="account_remove_title">Remover conta?</string>
+    <string name="account_remove_message">Remover %1$s da Aurora Store?</string>
+    <string name="account_exists">A conta já foi adicionada</string>
+    <string name="action_update_anyway">Atualizar mesmo assim</string>
+    <string name="exodus_report_history">Histórico de versões</string>
+    <string name="exodus_history_version">%1$s (%2$s)</string>
+    <string name="exodus_history_subtitle">%1$s • %2$d rastreadores</string>
+    <string name="exodus_latest">Mais recente</string>
+    <string name="pref_updates_warn_trackers">Avisar sobre novos rastreadores em atualizações de apps</string>
+    <string name="pref_updates_warn_trackers_desc">Exibir aviso antes de atualizar quando a nova versão adiciona rastreadores que não estavam na versão instalada</string>
+    <string name="tracker_warning_title">Novos rastreadores detectados</string>
+    <string name="tracker_warning_desc">Esta atualização adiciona rastreadores que não estavam na versão instalada:</string>
+    <string name="manual_download_lookup">Buscar versões</string>
+    <string name="manual_download_select_version">Selecione uma versão</string>
+    <string name="manual_download_no_versions">Nenhuma versão conhecida encontrada</string>
+    <string name="manual_download_availability_warning">Algumas versões podem estar indisponíveis para baixar ou ser incompatíveis com seu dispositivo.</string>
+    <string name="details_more_certificate_hash">Hash do certificado</string>
+    <string name="action_free_up_space">Libere espaço</string>
+    <string name="installer_provider">%1$s · Fornecido por %2$s</string>
+    <string name="insufficient_storage_title">Não há espaço suficiente</string>
+    <string name="insufficient_storage_desc">%1$s precisa de %2$s, mas apenas %3$s está disponível.</string>
+    <string name="insufficient_storage_hint">Libere %1$s e tente novamente.</string>
+    <string name="status_awaiting_install">Aguardando por confirmação</string>
+    <string name="notification_install_prompt_pending">Toque para finalizar a instalação</string>
+    <string name="notification_none">Nada para ver aqui</string>
+    <string name="details_more_files">Arquivos</string>
+    <plurals name="insufficient_storage_desc_multiple">
+        <item quantity="one">%1$d aplicativo precisa de %2$s, mas apenas %3$s está disponível.</item>
+        <item quantity="many">%1$d de aplicativos precisam de %2$s, mas apenas %3$s está disponível.</item>
+        <item quantity="other">%1$d aplicativos precisam de %2$s, mas apenas %3$s está disponível.</item>
+    </plurals>
+    <string name="download_sort_date_downloaded">Data de download</string>
 </resources>

@@ -20,7 +20,6 @@ plugins {
     alias(libs.plugins.google.ksp) apply false
     alias(libs.plugins.androidx.navigation) apply false
     alias(libs.plugins.ktlint) apply false
-    alias(libs.plugins.rikka.tools.refine.plugin) apply false
     alias(libs.plugins.hilt.android.plugin) apply false
     alias(libs.plugins.google.firebase.crashlytics) apply false
 }

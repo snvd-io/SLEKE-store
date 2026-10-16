@@ -617,4 +617,34 @@
         <item quantity="few">Nu s-au putut reîmprospăta %1$d conturi</item>
         <item quantity="other">Nu s-au putut reîmprospăta %1$d de conturi</item>
     </plurals>
+    <string name="account_exists">Cont adăugat deja</string>
+    <string name="action_update_anyway">Actualizare oricum</string>
+    <string name="exodus_report_history">Istoric versiune</string>
+    <string name="exodus_history_version">%1$s (%2$s)</string>
+    <string name="exodus_history_subtitle">%1$s • %2$d urmăritori</string>
+    <string name="exodus_latest">Ultimul</string>
+    <string name="pref_updates_warn_trackers">Avertizează cu privire la noile urmăritoare în actualizările aplicațiilor</string>
+    <string name="pref_updates_warn_trackers_desc">Afișează un avertisment înainte de actualizare atunci când noua versiune adaugă urmăritoare care nu erau în versiunea instalată</string>
+    <string name="tracker_warning_title">Urmăritoare noi detectate</string>
+    <string name="tracker_warning_desc">Această actualizare adaugă urmăritoare care nu au fost în versiunea instalată:</string>
+    <string name="manual_download_lookup">Vezi versiuni</string>
+    <string name="manual_download_select_version">Alege versiunea</string>
+    <string name="manual_download_no_versions">Nu s-au găsit versiuni cunoscute</string>
+    <string name="manual_download_availability_warning">Unele versiuni pot fi indisponibile pentru descărcare sau sunt incompatibile cu acest dispozitiv.</string>
+    <string name="details_more_certificate_hash">Hash de certificat</string>
+    <string name="action_free_up_space">Eliberează spațiu</string>
+    <string name="installer_provider">%1$s · Furnizat de %2$s</string>
+    <string name="insufficient_storage_title">Nu este suficient spațiu</string>
+    <string name="insufficient_storage_desc">%1$s necesită %2$s, însă sunt disponibili doar %3$s.</string>
+    <string name="insufficient_storage_hint">Eliberează %1$s și încearcă din nou.</string>
+    <string name="status_awaiting_install">Se așteaptă confirmarea</string>
+    <string name="notification_install_prompt_pending">Atinge pentru a finaliza instalarea</string>
+    <string name="notification_none">Nimic de văzut aici</string>
+    <string name="details_more_files">Fișiere</string>
+    <plurals name="insufficient_storage_desc_multiple">
+        <item quantity="one">%1$d aplicație necesită %2$s, însă sunt disponibili doar %3$s.</item>
+        <item quantity="few">%1$d aplicații necesită %2$s, însă sunt disponibili doar %3$s.</item>
+        <item quantity="other">%1$d aplicații necesită %2$s, însă sunt disponibili doar %3$s.</item>
+    </plurals>
+    <string name="download_sort_date_downloaded">Data descărcării</string>
 </resources>
