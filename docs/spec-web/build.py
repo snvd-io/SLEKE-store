@@ -14,6 +14,16 @@ ROOT = HERE.parents[1]
 DIST = HERE / "dist"
 DESIGN = ROOT / "docs/superpowers/specs/2026-10-16-sleke-module-refactor-design.md"
 CHANGE = ROOT / "openspec/changes/isolate-sleke-features"
+PLAN_ROOT = ROOT / "docs/superpowers/plans"
+PLAN_PAGES = [
+    (PLAN_ROOT / "2026-10-16-sleke-module-refactor-plan.md", "implementation.html", "Full implementation plan"),
+    (PLAN_ROOT / "2026-10-16-sleke-module-refactor/01-catalog.md", "plan-catalog.html", "Catalog and presentation"),
+    (PLAN_ROOT / "2026-10-16-sleke-module-refactor/02-sessions.md", "plan-sessions.html", "Enterprise sessions"),
+    (PLAN_ROOT / "2026-10-16-sleke-module-refactor/03-downloads.md", "plan-downloads.html", "Custom downloads"),
+    (PLAN_ROOT / "2026-10-16-sleke-module-refactor/04-support-integration.md", "plan-support.html", "Support and integration"),
+]
+DOCUMENT_LINKS = {DESIGN.resolve(): "index.html", **{path.resolve(): name for path, name, _ in PLAN_PAGES}}
+CURRENT_DOCUMENT = DESIGN
 
 
 def inline(value):
@@ -25,8 +35,14 @@ def inline(value):
         return "CODETOKEN" + str(len(protected) - 1) + "ENDTOKEN"
 
     value = re.sub(r"`([^`]+)`", code, value)
-    value = re.sub(r"\[([^\]]+)\]\((https://[^)]+)\)",
-                   r'<a href="\2" target="_blank" rel="noreferrer">\1</a>', value)
+    def link(match):
+        label, href = match[1], html.unescape(match[2])
+        if href.startswith("https://"):
+            return f'<a href="{html.escape(href, quote=True)}" target="_blank" rel="noreferrer">{label}</a>'
+        target = DOCUMENT_LINKS.get((CURRENT_DOCUMENT.parent / href).resolve())
+        return f'<a href="{target}">{label}</a>' if target else label
+
+    value = re.sub(r"\[([^\]]+)\]\(([^\s)]+)\)", link, value)
     value = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", value)
     for i, fragment in enumerate(protected):
         value = value.replace("CODETOKEN" + str(i) + "ENDTOKEN", fragment)
@@ -67,9 +83,11 @@ def markdown(value):
         if re.match(r"^(?:- |\d+\. )", line):
             ordered = bool(re.match(r"^\d+\. ", line))
             tag = "ol" if ordered else "ul"
-            out.append("<" + tag + ">")
+            steps = line.startswith("- [ ] ")
+            out.append("<" + tag + (' class="plan-steps"' if steps else "") + ">")
             while i < len(lines) and re.match(r"^(?:- |\d+\. )", lines[i].strip()):
-                out.append("<li>" + inline(re.sub(r"^(?:- |\d+\. )", "", lines[i].strip())) + "</li>")
+                item = re.sub(r"^(?:- |\d+\. )", "", lines[i].strip())
+                out.append("<li>" + inline(item.removeprefix("[ ] ")) + "</li>")
                 i += 1
             out.append("</" + tag + ">")
             continue
@@ -130,10 +148,41 @@ def requirement_cards():
     return "\n".join(groups), total
 
 
+def plan_page(file, filename, label, revision):
+    global CURRENT_DOCUMENT
+    CURRENT_DOCUMENT = file
+    source = file.read_text()
+    title = source.splitlines()[0].removeprefix("# ")
+    chunks = re.split(r"^## (.+)\n", source, flags=re.M)
+    prelude = "\n".join(line for line in chunks[0].splitlines()[1:]
+                        if not line.startswith(">") and line.strip() != "---")
+    sections, nav = [], []
+    for index in range(1, len(chunks), 2):
+        heading = chunks[index]
+        slug = re.sub(r"[^a-z0-9]+", "-", heading.lower()).strip("-")
+        body = re.sub(r"^---\s*$", "", chunks[index + 1], flags=re.M)
+        sections.append(f'<section id="{slug}" class="spec-section"><div class="section-heading"><h2>{inline(heading)}</h2></div>{markdown(body)}</section>')
+        nav.append(f'<a href="#{slug}">{inline(heading)}</a>')
+    other_plans = "".join(f'<a href="{name}"' + (' aria-current="page"' if name == filename else "") + f'>{text}</a>' for _, name, text in PLAN_PAGES)
+    task_count = len(re.findall(r"^## Task ", source, flags=re.M))
+    summary = (f"{task_count} reviewable tasks in the full 15-task plan. Each task defines file ownership, shared interfaces and acceptance checks."
+               if task_count else "15 reviewable tasks across eight delivery stages. File ownership, shared interfaces and evidence gates travel with each task.")
+    template = (HERE / "plan-template.html").read_text()
+    values = {"TITLE": html.escape(title), "LABEL": html.escape(label), "INTRO": markdown(prelude),
+              "CONTENT": "\n".join(sections), "NAV": "\n".join(nav), "PLANS": other_plans, "SUMMARY": summary, "REVISION": revision}
+    for key, value in values.items():
+        template = template.replace("{{" + key + "}}", value)
+    assert not re.search(r"\{\{[A-Z]+\}\}", template)
+    (DIST / filename).write_text(template)
+
+
 def build():
+    global CURRENT_DOCUMENT
+    CURRENT_DOCUMENT = DESIGN
     DIST.mkdir(parents=True, exist_ok=True)
     files = [DESIGN, CHANGE / "proposal.md", CHANGE / "design.md", CHANGE / "tasks.md", CHANGE / ".openspec.yaml", ROOT / "openspec/config.yaml"]
     files += sorted((CHANGE / "specs").glob("*/spec.md"))
+    files += [file for file, _, _ in PLAN_PAGES]
     manifest = {str(f.relative_to(ROOT)): hashlib.sha256(f.read_bytes()).hexdigest() for f in files}
     revision = hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest()[:12]
     source = DESIGN.read_text()
@@ -152,6 +201,8 @@ def build():
         template = template.replace("{{" + key + "}}", value)
     assert not re.search(r"\{\{[A-Z]+\}\}", template)
     (DIST / "index.html").write_text(template)
+    for file, filename, label in PLAN_PAGES:
+        plan_page(file, filename, label, revision)
     for name in ("style.css", "reader.js"):
         shutil.copy2(HERE / name, DIST / name)
     for file in files:
@@ -164,7 +215,7 @@ def build():
             entry = zipfile.ZipInfo(str(file.relative_to(ROOT)))
             entry.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(entry, file.read_bytes())
-    print(f"Built specification reader: {len(sections)} sections, {count} requirements, revision {revision}")
+    print(f"Built reader: {len(sections)} design sections, {count} requirements, {len(PLAN_PAGES)} plan pages, revision {revision}")
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@
 
 Let SLEKE users request, observe and cancel a validated APK operation with a controlled handoff to their preferred installer, independently of screen observation.
 
-This is a draft contract. Requested-install continuation, consistent preferred-installer handling for updates/manual retries and cancellation of unsubmitted enterprise work on access loss were confirmed on 16 October 2026. The complete architecture remains a draft for review.
+This contract was approved on 16 October 2026. Requested-install continuation, consistent preferred-installer handling for updates/manual retries and cancellation of unsubmitted enterprise work on access loss were confirmed on 16 October 2026. The complete architecture is approved; its detailed implementation plan is ready for review.
 
 ## ADDED Requirements
 

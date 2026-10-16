@@ -15,7 +15,7 @@
   <header class="topbar">
     <a class="wordmark" href="#main" aria-label="SLEKE specification home">SLEKE<span>.</span></a>
     <span class="document-label">Engineering / Architecture</span>
-    <span class="status"><span></span>Draft for review</span>
+    <span class="status approved"><span></span>Design approved</span>
   </header>
   <div class="page-layout">
     <aside class="sidebar">
@@ -24,6 +24,7 @@
         <nav aria-label="Specification contents">
           {{NAV}}
           <a href="#requirements"><span>13</span>Search requirements</a>
+          <a href="implementation.html"><span>→</span>Implementation plan</a>
         </nav>
       </details>
       <div class="sidebar-note"><span class="small-label">SOURCE WORKFLOWS</span><p>Superpowers design<br>OpenSpec behavior contracts</p><a href="sleke-module-specification.zip" download>Download source bundle <span aria-hidden="true">↗</span></a></div>
@@ -31,12 +32,12 @@
     <main id="main">
       <div class="hero">
         <h1>SLEKE module<br>architecture</h1>
-        <p class="doc-meta">Refactoring specification · 16 October 2026</p>
+        <p class="doc-meta">Approved architecture · 16 October 2026</p>
         <p class="hero-summary">Give product behavior a clear home. Keep the app’s upstream integrations small, reusable, and easy to review.</p>
-        <div class="hero-actions"><a class="primary-link" href="#ownership-and-dependency-direction">Explore the architecture <span aria-hidden="true">↓</span></a><a class="quiet-link" href="#review-decisions">Review decisions <span aria-hidden="true">↗</span></a></div>
+        <div class="hero-actions"><a class="primary-link" href="implementation.html">Read implementation plan <span aria-hidden="true">→</span></a><a class="quiet-link" href="#ownership-and-dependency-direction">Explore architecture <span aria-hidden="true">↓</span></a></div>
         <p class="baseline-line"><strong>Current baseline</strong> 2 modules · 13 feature files still in app · 10 conflicts in the last merge</p>
       </div>
-      <div class="review-note"><span class="note-mark" aria-hidden="true">i</span><div><strong>Specification first.</strong><p>No application implementation in this phase. The three installation and access decisions are confirmed. The complete architecture and acceptance scenarios remain a draft for your review.</p></div><a href="#review-decisions">Review scope <span aria-hidden="true">→</span></a></div>
+      <div class="review-note"><span class="note-mark" aria-hidden="true">i</span><div><strong>Architecture approved.</strong><p>The complete design and all three installation/access decisions are approved. The full implementation plan is ready for review; product implementation has not started.</p></div><a href="implementation.html">Read the plan <span aria-hidden="true">→</span></a></div>
       {{CONTENT}}
       <section id="requirements" class="spec-section requirements-section">
         <div class="section-heading"><span>13</span><h2>Behavior requirements</h2></div>

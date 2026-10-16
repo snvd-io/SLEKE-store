@@ -1,16 +1,16 @@
 # SLEKE module architecture
 
-Refactoring specification · Draft for review · 16 October 2026
+Refactoring specification · Approved · 16 October 2026
 
 Move SLEKE product behavior into `:sleke`, expose small contracts for host services, and keep Aurora changes easy to review. Preserve the current catalog, enterprise entry, branding and recovery behavior while correcting the concrete reliability defects identified below.
 
-The repository snapshot is `c58f58eb0`, the merge of [PR 5](https://github.com/snvd-io/SLEKE-store/pull/5). This phase produces the specification and web reader. Application implementation begins after review.
+The repository snapshot is `c58f58eb0`, the merge of [PR 5](https://github.com/snvd-io/SLEKE-store/pull/5). The architecture was approved on 16 October 2026. The [full implementation plan](../plans/2026-10-16-sleke-module-refactor-plan.md) defines task order, file boundaries and acceptance gates.
 
 ## 1. Outcome and scope
 
 The finished refactor has two existing Gradle modules with the dependency `:app → :sleke`. SLEKE owns its feature UI, state, domain rules, Firebase data access and download workflow. The application owns navigation, Play integration, Aurora installers and Android packaging.
 
-The scope includes the five follow-ups from PR 5, the app-details recovery extraction and the reliability corrections necessary to make those boundaries dependable. It includes focused regression tests, architecture checks, dependency cleanup and the existing SLEKE style debt. The three installation/access decisions are confirmed: continue requested installs, use the preferred installer consistently for updates/manual retries, and cancel unsubmitted enterprise work when access ends. The complete architecture remains a draft for review.
+The scope includes the five follow-ups from PR 5, the app-details recovery extraction and the reliability corrections necessary to make those boundaries dependable. It includes focused regression tests, architecture checks, dependency cleanup and the existing SLEKE style debt. The three installation/access decisions are confirmed: continue requested installs, use the preferred installer consistently for updates/manual retries, and cancel unsubmitted enterprise work when access ends. The complete architecture and all three product decisions are approved.
 
 Application ID `com.sleke.store`, versionCode 76, versionName `4.8.4`, minimum SDK 26, database version 13, preference keys, signing configuration and supported product flavors remain compatible. Keep the current ViewModel, Flow, Compose, Hilt and WorkManager approach. Keep backend deployments, release publication and unrelated upstream feature redesign outside this change.
 
@@ -149,7 +149,7 @@ Move product diagnostics and owned assets into `:sleke`. Pass application debug/
 
 ## 9. Delivery sequence and rollback
 
-Each stage is an independently buildable change with its own behavior tests and review. Implementation planning follows approval of this specification.
+Each stage is an independently buildable change with its own behavior tests and review. The linked implementation plan refines task dependencies within these stages.
 
 1. **Characterize the baseline.** Pin catalog mapping/paging, auth scopes, retained work IDs, cancellation, package validation and policy truth tables before moving code.
 2. **Introduce contracts and domain models.** Add boundary mappings and Hilt adapter bindings while current entry points continue to work.
@@ -182,7 +182,7 @@ The prior merge baseline had six passing recovery JVM tests, successful vanilla-
 
 ## 11. Review decisions
 
-Approve the ownership model, scoped sign-out table, preserved eligibility modes and explicit reliability corrections together. The three installation/access decisions in section 7 are confirmed. Review the complete architecture and acceptance scenarios before finalizing the execution plan.
+The ownership model, scoped sign-out table, preserved eligibility modes, reliability corrections and acceptance scenarios were approved on 16 October 2026. The three installation/access decisions in section 7 are confirmed. The detailed implementation plan is ready for review; implementation has not started.
 
 Implementation details left to the builder include private class names, constructor layout, pure helper decomposition and the exact test harness. They must not alter the public responsibilities or observable scenarios above.
 

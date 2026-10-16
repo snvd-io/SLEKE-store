@@ -35,4 +35,4 @@ None. There are no existing OpenSpec capability files.
 
 The work affects the two existing Gradle modules, the SLEKE presentation files currently in `:app`, their host adapters, Firebase session/repository code and custom download workers. Application ID `com.sleke.store`, version `76 / 4.8.4`, database version 13, stored preference keys, Android signing, upstream installer implementations and backend deployment configuration remain compatible. No new application framework or Gradle module is required.
 
-The specification and web reader are the deliverables of this phase. Product implementation follows review of the completed design.
+The specification and web reader are the deliverables of this phase. The completed architecture was approved on 16 October 2026; product implementation follows review of its full implementation plan.

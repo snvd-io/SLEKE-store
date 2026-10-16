@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SLEKE implementation tasks, concrete interfaces, regression tests and staged acceptance gates.">
+  <meta name="color-scheme" content="light">
+  <title>{{TITLE}}</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="reader.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to implementation plan</a>
+  <div id="reading-progress" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="wordmark" href="index.html" aria-label="SLEKE specification home">SLEKE<span>.</span></a>
+    <span class="document-label">Engineering / Implementation</span>
+    <span class="status"><span></span>Plan ready for review</span>
+  </header>
+  <div class="page-layout">
+    <aside class="sidebar">
+      <details class="contents" open>
+        <summary>On this page <span>⌄</span></summary>
+        <nav aria-label="Plan contents">{{NAV}}</nav>
+      </details>
+      <div class="sidebar-note plan-links"><span class="small-label">IMPLEMENTATION PLANS</span><nav aria-label="Implementation plans">{{PLANS}}<a href="index.html">Approved architecture</a></nav></div>
+    </aside>
+    <main id="main" class="plan-document">
+      <div class="hero">
+        <p class="doc-meta">Approved architecture · Implementation plan · 16 October 2026</p>
+        <h1>{{LABEL}}</h1>
+        <p class="hero-summary">{{SUMMARY}}</p>
+        <div class="plan-switcher" aria-label="Read another implementation plan">{{PLANS}}</div>
+      </div>
+      <div class="review-note"><span class="note-mark" aria-hidden="true">i</span><div><strong>Design approved. Plan ready.</strong><p>The architecture and all three installation/access decisions are approved. Product implementation has not started. Task steps below describe work to execute and verify.</p></div></div>
+      <div class="plan-intro">{{INTRO}}</div>
+      {{CONTENT}}
+      <footer class="document-footer"><div><strong>SLEKE implementation plan</strong><p>Source revision <code>{{REVISION}}</code></p></div><div><a href="index.html">Approved architecture</a><a href="sleke-module-specification.zip" download>Source bundle</a><button type="button" id="print-spec">Print plan</button></div></footer>
+    </main>
+  </div>
+</body>
+</html>

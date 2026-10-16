@@ -1,14 +1,15 @@
 # SLEKE module refactoring stages
 
-This is the implementation outline for the draft specification. Product code must not be changed until the human-readable design and its installation/access decisions have been reviewed. A detailed Superpowers execution plan follows that review.
+The architecture and all three installation/access decisions were approved on 16 October 2026. The full task-by-task plan is `docs/superpowers/plans/2026-10-16-sleke-module-refactor-plan.md`. Its C/E/D/S task IDs define the implementation and evidence gates below. Plan review/execution-method selection precedes product changes.
 
 ## 1. Review the design
 
-- [ ] 1.1 Review the ownership model and capability scenarios.
+- [x] 1.1 Review the ownership model and capability scenarios.
 - [x] 1.2 Confirm requested-install continuation after navigation and process recreation.
 - [x] 1.3 Confirm preferred-installer handling for older installed versions and manual retries.
 - [x] 1.4 Confirm enterprise access-loss behavior.
-- [ ] 1.5 Finalize the staged execution plan and exact test interfaces.
+- [x] 1.5 Write and self-review the staged execution plan and exact test interfaces.
+- [ ] 1.6 Review the completed plan and select execution method.
 
 ## 2. Characterize behavior and introduce contracts
 

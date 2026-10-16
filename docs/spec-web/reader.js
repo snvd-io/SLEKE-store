@@ -23,9 +23,7 @@ const observer = new IntersectionObserver(entries => {
 }, { rootMargin: '-90px 0px -65% 0px', threshold: 0 });
 document.querySelectorAll('main section').forEach(section => observer.observe(section));
 navLinks.forEach(link => link.addEventListener('click', () => {
-  const narrowScreen = window.matchMedia('(max-width: 800px)');
-if (narrowScreen.matches) contents.open = false;
-narrowScreen.addEventListener('change', event => { contents.open = !event.matches; });
+  if (narrowScreen.matches) contents.open = false;
 }));
 
 const search = document.querySelector('#requirement-search');
@@ -33,7 +31,7 @@ const groups = [...document.querySelectorAll('.capability')];
 const cards = [...document.querySelectorAll('.requirement')];
 const status = document.querySelector('#search-status');
 const empty = document.querySelector('#no-results');
-search.addEventListener('input', () => {
+search?.addEventListener('input', () => {
   const query = search.value.trim().toLocaleLowerCase();
   let visible = 0;
   let groupCount = 0;
@@ -52,8 +50,8 @@ search.addEventListener('input', () => {
 });
 document.addEventListener('keydown', event => {
   const editing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '') || document.activeElement?.isContentEditable;
-  if (event.key === '/' && !editing) { event.preventDefault(); search.focus(); }
-  if (event.key === 'Escape' && document.activeElement === search) {
+  if (search && event.key === '/' && !editing) { event.preventDefault(); search.focus(); }
+  if (search && event.key === 'Escape' && document.activeElement === search) {
     search.value = '';
     search.dispatchEvent(new Event('input'));
     search.blur();

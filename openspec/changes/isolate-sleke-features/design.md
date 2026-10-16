@@ -36,4 +36,4 @@ Moving files without changing dependencies leaves reverse coupling and duplicate
 
 ## Migration Plan
 
-Follow the eight independently verifiable stages in the human-readable design. No product code is changed in this specification phase. Revert an individual failed implementation stage rather than resetting application data.
+The architecture was approved on 16 October 2026. Follow the full implementation plan at `docs/superpowers/plans/2026-10-16-sleke-module-refactor-plan.md`, which refines the eight independently verifiable stages in the human-readable design. No product code is changed in this planning phase. Revert an individual failed implementation stage rather than resetting application data.
