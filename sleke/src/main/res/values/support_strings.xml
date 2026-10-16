@@ -1,0 +1,4 @@
+<resources>
+    <string name="sleke_catalog_unavailable">Catalog unavailable. Try again.</string>
+    <string name="sleke_catalog_retry">Retry</string>
+</resources>

@@ -10,7 +10,10 @@ import android.content.Intent
 import android.util.Log
 import com.aurora.extensions.TAG
 import com.aurora.store.R
+import com.aurora.store.data.installer.base.HostInstallReceipt
 import com.aurora.store.data.installer.base.InstallerBase
+import com.aurora.store.data.installer.base.OwnedInstallRequest
+import com.aurora.store.data.installer.base.OwnedPreAcceptanceException
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
 import com.aurora.store.data.room.download.Download
@@ -43,8 +46,8 @@ class AMInstaller @Inject constructor(
             )
     }
 
-    override fun install(download: Download) {
-        if (isAlreadyQueued(download.packageName)) {
+    override fun installInternal(download: Download, owned: OwnedInstallRequest?) {
+        if (owned == null && isAlreadyQueued(download.packageName)) {
             Log.i(TAG, "${download.packageName} already queued")
         } else {
             Log.i(TAG, "Received AM install request for ${download.packageName}")
@@ -63,20 +66,49 @@ class AMInstaller @Inject constructor(
                 }
             }
 
-            val zipFile = PathUtil.getZipFile(context, download.packageName, download.versionCode)
-            fileList.add(zip(getFiles(download.packageName, download.versionCode), zipFile))
-
-            install(fileList)
+            val zipFile = if (owned == null) {
+                PathUtil.getZipFile(context, download.packageName, download.versionCode)
+            } else {
+                File(owned.files.first().parentFile, "owned-${owned.operationId}.apks")
+            }
+            try {
+                fileList.add(
+                    zip(
+                        getFiles(download.packageName, download.versionCode, owned = owned),
+                        zipFile
+                    )
+                )
+            } catch (exception: java.io.IOException) {
+                if (owned !=
+                    null
+                ) {
+                    throw OwnedPreAcceptanceException("Unable to stage owned APK", exception)
+                }
+                throw exception
+            }
+            install(fileList, owned)
         }
     }
 
-    private fun install(files: List<File>) {
+    private fun install(files: List<File>, owned: OwnedInstallRequest?) {
         val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
             type = "application/x-apks"
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
             putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(files.map { getUri(it) }))
         }
-        context.startActivity(intent)
+        val receipt = owned?.let { HostInstallReceipt("am", it.operationId) }
+        if (owned != null && receipt != null) owned.onPrepared(receipt)
+        try {
+            context.startActivity(intent)
+        } catch (exception: android.content.ActivityNotFoundException) {
+            if (owned !=
+                null
+            ) {
+                throw OwnedPreAcceptanceException("App Manager unavailable", exception)
+            }
+            throw exception
+        }
+        if (owned != null && receipt != null) owned.onAccepted(receipt)
     }
 
     fun zip(files: List<File>, zipFile: File): File {

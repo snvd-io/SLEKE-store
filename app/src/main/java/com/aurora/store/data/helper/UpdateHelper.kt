@@ -36,6 +36,7 @@ import com.aurora.store.util.Preferences.PREFERENCES_UPDATES_RESTRICTIONS_BATTER
 import com.aurora.store.util.Preferences.PREFERENCES_UPDATES_RESTRICTIONS_IDLE
 import com.aurora.store.util.Preferences.PREFERENCES_UPDATES_RESTRICTIONS_METERED
 import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_CHECK_INTERVAL
+import com.sleke.library.eligibility.domain.CatalogEligibilityPolicy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import java.util.concurrent.TimeUnit.HOURS
@@ -101,7 +102,10 @@ class UpdateHelper @Inject constructor(
         get() = Preferences.getBoolean(context, Preferences.PREFERENCE_UPDATES_EXTENDED)
 
     private val filteredUpdates = updateDao.updates()
-        .map { list -> if (!isExtendedUpdateEnabled) list.filter { it.hasValidCert } else list }
+        .map { list ->
+            list.filter { CatalogEligibilityPolicy.isAutomatedUpdateAllowed(it.packageName) }
+                .filter { isExtendedUpdateEnabled || it.hasValidCert }
+        }
 
     /**
      * Updates surfaced to the UI / notifications. Updates muted by the user via

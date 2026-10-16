@@ -23,9 +23,11 @@ import com.aurora.store.data.room.account.Account
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_AUTH_DATA
 import com.aurora.store.util.Preferences.PREFERENCE_DISPENSER_URLS
+import com.sleke.library.enterprise.data.SessionMutationGate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -39,7 +41,8 @@ class AuthProvider @Inject constructor(
     private val spoofProvider: SpoofProvider,
     private val httpClient: IHttpClient,
     private val accountRepository: AccountRepository,
-    private val tokenProvider: GoogleAccountTokenProvider
+    private val tokenProvider: GoogleAccountTokenProvider,
+    private val mutationGate: SessionMutationGate
 ) {
     private companion object {
         val SPOOF_IDENTITY_KEYS = listOf(
@@ -147,6 +150,7 @@ class AuthProvider @Inject constructor(
                     )
                 )
             } catch (exception: Exception) {
+                if (exception is CancellationException) throw exception
                 Log.e(TAG, "Failed to generate Session", exception)
                 return@withContext Result.failure(exception)
             }
@@ -179,6 +183,7 @@ class AuthProvider @Inject constructor(
                     )
                 )
             } catch (exception: Exception) {
+                if (exception is CancellationException) throw exception
                 Log.e(TAG, "Failed to generate AuthData", exception)
                 return@withContext Result.failure(exception)
             }
@@ -200,6 +205,7 @@ class AuthProvider @Inject constructor(
      * callers omit it and rely on a non-interactive token mint.
      */
     suspend fun refresh(accountId: String, activity: Activity? = null): Result<AuthData> {
+        val epoch = mutationGate.capture()
         val account = accountRepository.getById(accountId)
             ?: return Result.failure(IllegalStateException("No account $accountId"))
         return runCatching {
@@ -224,22 +230,34 @@ class AuthProvider @Inject constructor(
                     }
                 }
             }
-            accountRepository.upsertAccount(
-                account.copy(
-                    email = authData.email,
-                    authDataJson = json.encodeToString(authData),
-                    displayName = authData.userProfile?.name ?: account.displayName,
-                    profilePicUrl = authData.userProfile?.artwork?.url ?: account.profilePicUrl
-                )
-            )
+            check(
+                mutationGate.commitIfCurrent(epoch) {
+                    accountRepository.upsertAccount(
+                        account.copy(
+                            email = authData.email,
+                            authDataJson = json.encodeToString(authData),
+                            displayName = authData.userProfile?.name ?: account.displayName,
+                            profilePicUrl =
+                            authData.userProfile?.artwork?.url ?: account.profilePicUrl
+                        )
+                    )
+                }
+            ) { "Session refresh was superseded" }
             authData
-        }
+        }.onFailure { if (it is CancellationException) throw it }
     }
 
     /** Refreshes the target account, then marks it default. Leaves the old default if it fails. */
-    suspend fun setDefaultAccount(accountId: String): Result<Unit> = refresh(accountId).map {
-        accountRepository.setDefault(accountId)
-        syncDefaultToPrefs()
+    suspend fun setDefaultAccount(accountId: String): Result<Unit> {
+        val epoch = mutationGate.capture()
+        return refresh(accountId).map {
+            check(
+                mutationGate.commitIfCurrent(epoch) {
+                    accountRepository.setDefault(accountId)
+                    syncDefaultToPrefsUnlocked()
+                }
+            ) { "Account switch was superseded" }
+        }
     }
 
     /**
@@ -249,6 +267,11 @@ class AuthProvider @Inject constructor(
      * account removal) to keep them in sync with the DB. Clears the prefs when no default remains.
      */
     suspend fun syncDefaultToPrefs() {
+        val epoch = mutationGate.capture()
+        mutationGate.commitIfCurrent(epoch) { syncDefaultToPrefsUnlocked() }
+    }
+
+    private suspend fun syncDefaultToPrefsUnlocked() {
         val account = accountRepository.getDefault()
         if (account == null) {
             AccountProvider.logout(context)
@@ -273,8 +296,9 @@ class AuthProvider @Inject constructor(
         authData: AuthData,
         accountType: AccountType,
         authViaMicroG: Boolean,
-        makeDefault: Boolean = true
-    ) {
+        makeDefault: Boolean = true,
+        epoch: Long
+    ): Boolean = mutationGate.commitIfCurrent(epoch) {
         val tokenType =
             if (authData.aasToken.isBlank()) AuthHelper.Token.AUTH else AuthHelper.Token.AAS
         val account = Account(
@@ -293,18 +317,8 @@ class AuthProvider @Inject constructor(
         accountRepository.upsertAccount(account)
         if (makeDefault) {
             accountRepository.setDefault(account.id)
-            syncDefaultToPrefs()
+            syncDefaultToPrefsUnlocked()
         }
-    }
-
-    /**
-     * Full sign-out: removes every account from the DB and clears the legacy single-account
-     * prefs. Used by the auth-failure / reset paths so a stale account row can't linger as the
-     * DB is now the source of truth. Uses `runBlocking` (see [authData]); call sparingly.
-     */
-    fun logout() = runBlocking {
-        accountRepository.getAll().forEach { accountRepository.removeAccount(it.id) }
-        AccountProvider.logout(context)
     }
 
     /**
@@ -322,6 +336,11 @@ class AuthProvider @Inject constructor(
     }
 
     private suspend fun importLegacyAccountIfNeeded() {
+        val epoch = mutationGate.capture()
+        mutationGate.commitIfCurrent(epoch) { importLegacyAccountUnlocked() }
+    }
+
+    private suspend fun importLegacyAccountUnlocked() {
         if (accountRepository.getAll().isNotEmpty()) return
         if (!Preferences.getBoolean(context, Constants.ACCOUNT_SIGNED_IN, false)) return
 

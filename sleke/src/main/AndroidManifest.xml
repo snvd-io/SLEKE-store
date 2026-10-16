@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name="com.sleke.library.downloads.presentation.OwnedInstallerResultActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Sleke.OwnedInstallerTheme" />
+        <receiver android:name="com.sleke.library.downloads.data.CancelDownloadReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

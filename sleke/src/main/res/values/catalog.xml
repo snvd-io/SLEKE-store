@@ -1,0 +1,21 @@
+<resources>
+    <string name="catalog_search">Search apps…</string>
+    <string name="catalog_empty">No apps found</string>
+    <string name="catalog_error">Unable to load apps</string>
+    <string name="catalog_retry">Retry</string>
+    <string name="catalog_download">Download</string>
+    <string name="catalog_install">Install</string>
+    <string name="catalog_open">Open</string>
+    <string name="catalog_uninstall">Uninstall</string>
+    <string name="catalog_installed">Installed</string>
+    <string name="catalog_queued">Waiting</string>
+    <string name="catalog_installing">Installing…</string>
+    <string name="catalog_confirmation">Confirm installation on your device</string>
+    <string name="catalog_awaiting_access">Refresh enterprise access to continue</string>
+    <string name="catalog_reconcile">Check the installer before retrying</string>
+    <string name="catalog_enterprise">Enterprise Apps</string>
+    <string name="catalog_back">Back</string>
+    <string name="catalog_sign_out">Sign out of enterprise</string>
+    <string name="catalog_membership_retry">Retry enterprise access</string>
+    <string name="catalog_sleke">Sleke Apps</string>
+</resources>

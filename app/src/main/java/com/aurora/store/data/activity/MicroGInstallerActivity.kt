@@ -26,7 +26,12 @@ class MicroGInstallerActivity : Activity() {
         const val EXTRA_FILES = "extra_files"
         const val EXTRA_PACKAGE_NAME = "extra_package_name"
 
-        fun launch(context: Context, packageName: String, files: List<File>) {
+        fun launch(
+            context: Context,
+            packageName: String,
+            files: List<File>,
+            owned: com.aurora.store.data.installer.base.OwnedInstallRequest? = null
+        ) {
             val uris = files.map { file ->
                 val uri = FileProvider.getUriForFile(
                     context,
@@ -41,6 +46,16 @@ class MicroGInstallerActivity : Activity() {
                 )
 
                 uri
+            }
+
+            if (owned != null) {
+                com.sleke.integration.downloads.AuroraInstallPrompts.launchOrNotify(
+                    context,
+                    owned,
+                    "microg",
+                    buildMicroGInstallIntent(ArrayList(uris))
+                )
+                return
             }
 
             val intent = Intent(context, MicroGInstallerActivity::class.java).apply {

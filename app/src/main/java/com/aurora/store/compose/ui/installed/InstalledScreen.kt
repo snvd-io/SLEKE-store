@@ -64,12 +64,17 @@ fun InstalledScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val installers by viewModel.installers.collectAsStateWithLifecycle()
     val metadata by viewModel.metadata.collectAsStateWithLifecycle()
+    val catalogUnavailable by viewModel.catalogUnavailable.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
 
     ScreenContent(
         apps = apps,
         state = state,
         installers = installers,
         metadata = metadata,
+        catalogUnavailable = catalogUnavailable,
+        loading = loading,
+        onRetry = viewModel::retryCatalog,
         onStateChange = viewModel::updateState,
         onNavigateTo = onNavigateTo
     )
@@ -81,6 +86,9 @@ private fun ScreenContent(
     state: SortFilterState = SortFilterState(),
     installers: Map<String, String> = emptyMap(),
     metadata: Map<String, InstalledAppMeta> = emptyMap(),
+    catalogUnavailable: Boolean = false,
+    loading: Boolean = false,
+    onRetry: () -> Unit = {},
     onStateChange: (SortFilterState) -> Unit = {},
     onNavigateTo: (Destination) -> Unit = {}
 ) {
@@ -114,6 +122,21 @@ private fun ScreenContent(
                 .fillMaxSize()
         ) {
             when {
+                catalogUnavailable -> {
+                    Placeholder(
+                        painter = painterResource(R.drawable.ic_apps_outage),
+                        message = stringResource(
+                            com.sleke.library.R.string.sleke_catalog_unavailable
+                        ),
+                        actionLabel = stringResource(
+                            com.sleke.library.R.string.sleke_catalog_retry
+                        ),
+                        onAction = onRetry
+                    )
+                }
+
+                loading -> ContainedLoadingIndicator()
+
                 apps.loadState.refresh is LoadState.Loading && initialLoad -> {
                     ContainedLoadingIndicator()
                 }

@@ -17,9 +17,13 @@ import com.aurora.store.data.model.AccountType
 import com.aurora.store.data.providers.AccountProvider
 import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.data.providers.GoogleAccountTokenProvider
+import com.aurora.store.usecase.LogoutUseCase
 import com.aurora.store.util.Preferences
+import com.sleke.library.enterprise.data.SessionMutationGate
+import com.sleke.library.enterprise.data.SignOutScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CancellationException
 
 /**
  * Worker to refresh [AuthData] in background
@@ -29,11 +33,14 @@ import dagger.assisted.AssistedInject
 open class AuthWorker @AssistedInject constructor(
     private val authProvider: AuthProvider,
     private val tokenProvider: GoogleAccountTokenProvider,
+    private val mutationGate: SessionMutationGate,
+    private val logoutUseCase: LogoutUseCase,
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+        val epoch = mutationGate.capture()
         if (!AccountProvider.isLoggedIn(context)) {
             Log.i(TAG, "User has logged out!")
             return Result.failure()
@@ -81,8 +88,11 @@ open class AuthWorker @AssistedInject constructor(
                 }
             }
 
-            require(verifyAndSaveAuth(authData, accountType) != null)
-            authProvider.persistAccount(
+            if (authData.authToken.isEmpty() || authData.deviceConfigToken.isEmpty()) {
+                logoutUseCase(SignOutScope.PLAY_RESET)
+                return Result.failure()
+            }
+            val committed = authProvider.persistAccount(
                 authData = authData,
                 accountType = accountType,
                 authViaMicroG = Preferences.getBoolean(
@@ -90,30 +100,16 @@ open class AuthWorker @AssistedInject constructor(
                     Preferences.PREFERENCE_AUTH_VIA_MICROG,
                     false
                 ),
-                makeDefault = true
+                makeDefault = true,
+                epoch = epoch
             )
+            if (!committed) return Result.failure()
             Log.i(TAG, "Refreshed AuthData successfully")
             return Result.success()
         } catch (exception: Exception) {
+            if (exception is CancellationException) throw exception
             Log.e(TAG, "Failed to refresh authData!", exception)
             return Result.failure()
         }
     }
-
-    private fun verifyAndSaveAuth(authData: AuthData, accountType: AccountType): AuthData? =
-        if (authData.authToken.isNotEmpty() && authData.deviceConfigToken.isNotEmpty()) {
-            authProvider.saveAuthData(authData)
-            AccountProvider.login(
-                context,
-                authData.email,
-                authData.aasToken.ifBlank { authData.authToken },
-                if (authData.aasToken.isBlank()) AuthHelper.Token.AUTH else AuthHelper.Token.AAS,
-                accountType
-            )
-            authData
-        } else {
-            authProvider.removeAuthData(context)
-            authProvider.logout()
-            null
-        }
 }

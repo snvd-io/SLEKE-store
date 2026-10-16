@@ -40,13 +40,14 @@ fun Context.uninstallApp(packageName: String) {
         }
         startActivity(uninstallIntent)
     }.onFailure {
-        Timber.tag("SlekeAppsScreen").e(it, "Failed to uninstall app with package name: $packageName")
+        Timber.tag(
+            "SlekeAppsScreen"
+        ).e(it, "Failed to uninstall app with package name: $packageName")
     }
 }
 
-fun Context.extractPackageName(apkFilePath: String): String? {
-    return extractApkInfo(apkFilePath)?.packageName
-}
+fun Context.extractPackageName(apkFilePath: String): String? =
+    extractApkInfo(apkFilePath)?.packageName
 
 /**
  * Metadata extracted from a downloaded APK archive, used to stage the file into the
@@ -77,11 +78,9 @@ fun Context.extractApkInfo(apkFilePath: String): ApkInfo? {
     return ApkInfo(packageName, versionCode, targetSdk)
 }
 
-fun Context.isAppInstalled(packageName: String): Boolean {
-    return try {
-        packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
-        true
-    } catch (e: PackageManager.NameNotFoundException) {
-        false
-    }
+fun Context.isAppInstalled(packageName: String): Boolean = try {
+    packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
+    true
+} catch (e: PackageManager.NameNotFoundException) {
+    false
 }

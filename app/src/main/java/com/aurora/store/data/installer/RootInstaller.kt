@@ -12,7 +12,9 @@ import com.aurora.extensions.TAG
 import com.aurora.store.AuroraApp
 import com.aurora.store.R
 import com.aurora.store.data.event.InstallerEvent
+import com.aurora.store.data.installer.base.HostInstallReceipt
 import com.aurora.store.data.installer.base.InstallerBase
+import com.aurora.store.data.installer.base.OwnedInstallRequest
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
 import com.aurora.store.data.room.download.Download
@@ -42,8 +44,8 @@ class RootInstaller @Inject constructor(
             )
     }
 
-    override fun install(download: Download) {
-        if (isAlreadyQueued(download.packageName)) {
+    override fun installInternal(download: Download, owned: OwnedInstallRequest?) {
+        if (owned == null && isAlreadyQueued(download.packageName)) {
             Log.i(TAG, "${download.packageName} already queued")
         } else {
             if (Shell.getShell().isRoot) {
@@ -53,13 +55,16 @@ class RootInstaller @Inject constructor(
                         xInstall(download.packageName, download.versionCode, it.packageName)
                     }
                 }
-                xInstall(download.packageName, download.versionCode)
+                xInstall(download.packageName, download.versionCode, owned = owned)
             } else {
-                postError(
-                    download.packageName,
-                    context.getString(R.string.installer_status_failure),
-                    context.getString(R.string.installer_root_unavailable)
-                )
+                owned?.onFinished?.invoke(false)
+                if (owned == null) {
+                    postError(
+                        download.packageName,
+                        context.getString(R.string.installer_status_failure),
+                        context.getString(R.string.installer_root_unavailable)
+                    )
+                }
                 Log.e(
                     TAG,
                     " >>>>>>>>>>>>>>>>>>>>>>>>>> NO ROOT ACCESS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
@@ -68,10 +73,15 @@ class RootInstaller @Inject constructor(
         }
     }
 
-    private fun xInstall(packageName: String, versionCode: Long, sharedLibPkgName: String = "") {
+    private fun xInstall(
+        packageName: String,
+        versionCode: Long,
+        sharedLibPkgName: String = "",
+        owned: OwnedInstallRequest? = null
+    ) {
         var totalSize = 0
 
-        for (file in getFiles(packageName, versionCode, sharedLibPkgName)) {
+        for (file in getFiles(packageName, versionCode, sharedLibPkgName, owned)) {
             totalSize += file.length().toInt()
         }
 
@@ -89,42 +99,58 @@ class RootInstaller @Inject constructor(
         if (found) {
             val sessionId = sessionIdMatcher.group(1)?.toInt()
             if (Shell.getShell().isRoot && sessionId != null) {
-                for (file in getFiles(packageName, versionCode, sharedLibPkgName)) {
+                for (file in getFiles(packageName, versionCode, sharedLibPkgName, owned)) {
                     Shell.cmd(
                         "cat \"${file.absoluteFile}\" | pm install-write -S ${file.length()} $sessionId \"${file.name}\""
                     )
                         .exec()
                 }
 
+                val receipt = HostInstallReceipt("root", sessionId.toString())
+                owned?.onPrepared?.invoke(receipt)
                 val shellResult = Shell.cmd("pm install-commit $sessionId").exec()
 
                 if (shellResult.isSuccess) {
                     // Installation is not yet finished if this is a shared library
-                    if (packageName == download?.packageName) onInstallationSuccess()
+                    owned?.onAccepted?.invoke(receipt)
+                    if (owned != null ||
+                        packageName == download?.packageName
+                    ) {
+                        onInstallationSuccess(owned)
+                    }
                 } else {
-                    removeFromInstallQueue(packageName)
-                    AuroraApp.events.send(
-                        InstallerEvent.Failed(
-                            packageName = packageName,
-                            error = parseError(shellResult)
+                    owned?.onFinished?.invoke(false)
+                    if (owned == null) removeFromInstallQueue(packageName)
+                    if (owned == null) {
+                        AuroraApp.events.send(
+                            InstallerEvent.Failed(
+                                packageName = packageName,
+                                error = parseError(shellResult)
+                            )
                         )
-                    )
+                    }
                 }
             } else {
-                removeFromInstallQueue(packageName)
+                owned?.onFinished?.invoke(false)
+                if (owned == null) removeFromInstallQueue(packageName)
+                if (owned == null) {
+                    postError(
+                        packageName,
+                        context.getString(R.string.installer_status_failure),
+                        context.getString(R.string.installer_root_unavailable)
+                    )
+                }
+            }
+        } else {
+            owned?.onFinished?.invoke(false)
+            if (owned == null) removeFromInstallQueue(packageName)
+            if (owned == null) {
                 postError(
                     packageName,
                     context.getString(R.string.installer_status_failure),
-                    context.getString(R.string.installer_root_unavailable)
+                    context.getString(R.string.installer_status_failure_session)
                 )
             }
-        } else {
-            removeFromInstallQueue(packageName)
-            postError(
-                packageName,
-                context.getString(R.string.installer_status_failure),
-                context.getString(R.string.installer_status_failure_session)
-            )
         }
     }
 

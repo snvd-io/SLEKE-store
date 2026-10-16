@@ -322,11 +322,12 @@ object NotificationUtil {
         context: Context,
         packageName: String,
         displayName: String,
-        confirmIntent: Intent
+        confirmIntent: Intent,
+        operationId: String? = null
     ) {
         val pendingIntent = PendingIntentCompat.getActivity(
             context,
-            packageName.hashCode().absoluteValue,
+            (operationId ?: packageName).hashCode().absoluteValue,
             confirmIntent,
             PendingIntent.FLAG_UPDATE_CURRENT,
             false
@@ -352,8 +353,12 @@ object NotificationUtil {
             )
             .build()
 
-        context.getSystemService<NotificationManager>()!!
-            .notify(packageName.hashCode(), notification)
+        val manager = context.getSystemService<NotificationManager>()!!
+        if (operationId == null) {
+            manager.notify(packageName.hashCode(), notification)
+        } else {
+            manager.notify("sleke-install:$operationId", operationId.hashCode(), notification)
+        }
     }
 
     /**

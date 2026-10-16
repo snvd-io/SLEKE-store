@@ -14,6 +14,8 @@ import com.aurora.extensions.TAG
 import com.aurora.extensions.runOnUiThread
 import com.aurora.store.R
 import com.aurora.store.data.installer.base.InstallerBase
+import com.aurora.store.data.installer.base.OwnedInstallRequest
+import com.aurora.store.data.installer.base.OwnedPreAcceptanceException
 import com.aurora.store.data.model.BuildType
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
@@ -42,16 +44,18 @@ class NativeInstaller @Inject constructor(
             )
     }
 
-    override fun install(download: Download) {
-        if (isAlreadyQueued(download.packageName)) {
+    override fun installInternal(download: Download, owned: OwnedInstallRequest?) {
+        if (owned == null && isAlreadyQueued(download.packageName)) {
             Log.i(TAG, "${download.packageName} already queued")
         } else {
             Log.i(TAG, "Received native install request for ${download.packageName}")
-            getFiles(download.packageName, download.versionCode).forEach { xInstall(it) }
+            getFiles(download.packageName, download.versionCode, owned = owned).forEach {
+                xInstall(it, owned)
+            }
         }
     }
 
-    private fun xInstall(file: File) {
+    private fun xInstall(file: File, owned: OwnedInstallRequest?) {
         val intent: Intent
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -67,6 +71,19 @@ class NativeInstaller @Inject constructor(
 
         intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
         intent.putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, context.packageName)
-        runOnUiThread { context.startActivity(intent) }
+        if (owned == null) {
+            runOnUiThread { context.startActivity(intent) }
+        } else {
+            try {
+                com.sleke.integration.downloads.AuroraInstallPrompts.launchOrNotify(
+                    context,
+                    owned,
+                    "native",
+                    intent
+                )
+            } catch (exception: android.content.ActivityNotFoundException) {
+                throw OwnedPreAcceptanceException("No system installer available", exception)
+            }
+        }
     }
 }

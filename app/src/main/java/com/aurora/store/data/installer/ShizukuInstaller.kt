@@ -13,7 +13,9 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.aurora.extensions.TAG
 import com.aurora.store.R
+import com.aurora.store.data.installer.base.HostInstallReceipt
 import com.aurora.store.data.installer.base.InstallerBase
+import com.aurora.store.data.installer.base.OwnedInstallRequest
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
 import com.aurora.store.data.room.download.Download
@@ -73,10 +75,10 @@ class ShizukuInstaller @Inject constructor(
             Regex("""\[(\d+)]""").find(output)?.groupValues?.get(1)?.toIntOrNull()
     }
 
-    override fun install(download: Download) {
-        super.install(download)
+    override fun installInternal(download: Download, owned: OwnedInstallRequest?) {
+        super.installInternal(download, owned)
 
-        if (isAlreadyQueued(download.packageName)) {
+        if (owned == null && isAlreadyQueued(download.packageName)) {
             Log.i(TAG, "${download.packageName} already queued")
         } else {
             download.sharedLibs.forEach {
@@ -85,17 +87,27 @@ class ShizukuInstaller @Inject constructor(
                     install(download.packageName, download.versionCode, it.packageName)
                 }
             }
-            install(download.packageName, download.versionCode)
+            install(download.packageName, download.versionCode, owned = owned)
         }
     }
 
-    private fun install(packageName: String, versionCode: Long, sharedLibPkgName: String = "") {
+    private fun install(
+        packageName: String,
+        versionCode: Long,
+        sharedLibPkgName: String = "",
+        owned: OwnedInstallRequest? = null
+    ) {
         val target = sharedLibPkgName.ifBlank { packageName }
         Log.i(TAG, "Received session install request for $target")
 
-        val files = getFiles(packageName, versionCode, sharedLibPkgName)
+        val files = getFiles(packageName, versionCode, sharedLibPkgName, owned)
         if (files.isEmpty()) {
-            fail(packageName, context.getString(R.string.installer_status_failure_session))
+            owned?.onFinished?.invoke(false)
+            fail(
+                packageName,
+                context.getString(R.string.installer_status_failure_session),
+                owned = owned
+            )
             return
         }
 
@@ -112,13 +124,20 @@ class ShizukuInstaller @Inject constructor(
                 files.sumOf { it.length() }.toString()
             )
         ).getOrElse { error ->
-            fail(packageName, error.localizedMessage, error.stackTraceToString())
+            owned?.onFinished?.invoke(false)
+            fail(packageName, error.localizedMessage, error.stackTraceToString(), owned)
             return
         }
 
         val sessionId = parseSessionId(created)
         if (sessionId == null) {
-            fail(packageName, context.getString(R.string.installer_status_failure_session), created)
+            owned?.onFinished?.invoke(false)
+            fail(
+                packageName,
+                context.getString(R.string.installer_status_failure_session),
+                created,
+                owned
+            )
             return
         }
 
@@ -137,23 +156,41 @@ class ShizukuInstaller @Inject constructor(
             )
             exec(command, input = file).onFailure { error ->
                 exec(listOf("pm", "install-abandon", sessionId.toString()))
-                fail(packageName, error.localizedMessage, error.stackTraceToString())
+                owned?.onFinished?.invoke(false)
+                fail(packageName, error.localizedMessage, error.stackTraceToString(), owned)
                 return
             }
         }
 
         Log.i(TAG, "Committing session $sessionId for $target")
+        val receipt = HostInstallReceipt("shizuku", sessionId.toString())
+        owned?.onPrepared?.invoke(receipt)
         exec(listOf("pm", "install-commit", sessionId.toString()))
             .onSuccess {
                 // Installation is not yet finished if this is a shared library
-                if (packageName == download?.packageName) onInstallationSuccess()
+                owned?.onAccepted?.invoke(receipt)
+                if (owned != null ||
+                    packageName == download?.packageName
+                ) {
+                    onInstallationSuccess(owned)
+                }
             }
             .onFailure { error ->
-                fail(packageName, error.localizedMessage, error.stackTraceToString())
+                // An explicit pm rejection is final; loss of the binder/response is ambiguous.
+                if (error is CommandRejectedException) owned?.onFinished?.invoke(false)
+                fail(packageName, error.localizedMessage, error.stackTraceToString(), owned)
             }
     }
 
-    private fun fail(packageName: String, error: String?, extra: String? = null) {
+    private class CommandRejectedException(message: String) : IOException(message)
+
+    private fun fail(
+        packageName: String,
+        error: String?,
+        extra: String? = null,
+        owned: OwnedInstallRequest? = null
+    ) {
+        if (owned != null) return
         removeFromInstallQueue(packageName)
         postError(
             packageName,
@@ -198,7 +235,15 @@ class ShizukuInstaller @Inject constructor(
         reader.join(STREAM_TIMEOUT_MS)
         val err = errText.toString().trim()
 
-        if (exitCode != 0) throw IOException(err.ifBlank { out.ifBlank { "pm exited $exitCode" } })
+        if (exitCode !=
+            0
+        ) {
+            throw CommandRejectedException(
+                err.ifBlank {
+                    out.ifBlank { "pm exited $exitCode" }
+                }
+            )
+        }
         out.ifBlank { err }
     }
 }

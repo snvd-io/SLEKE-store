@@ -59,9 +59,8 @@ import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_WARN_TRACKERS
 import com.aurora.store.util.StorageUtil
 import com.aurora.store.viewmodel.all.UpdatesViewModel
 import com.aurora.store.viewmodel.notifications.NotificationsViewModel
-import com.sleke.presentation.screens.EnterpriseAppsPane
-import com.sleke.presentation.screens.SlekeAppsScreen
-import com.sleke.presentation.screens.SlekeHomeScreen
+import com.sleke.library.catalog.presentation.HomeRoute
+import com.sleke.library.catalog.presentation.SlekeAppsRoute
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -103,7 +102,6 @@ fun MainScreen(
 
     var showMoreSheet by remember { mutableStateOf(false) }
     var appUpdateTarget by remember { mutableStateOf<Update?>(null) }
-    var showSlekeEnterprise by remember { mutableStateOf(false) }
     var trackerWarning by remember {
         mutableStateOf<Pair<Update, List<ExodusTracker>>?>(null)
     }
@@ -249,16 +247,15 @@ fun MainScreen(
                 modifier = Modifier.fillMaxSize()
             ) { page ->
                 when (MainTab.entries[page]) {
-                    MainTab.APPS -> SlekeHomeScreen(
-                        onAppClick = { app ->
-                            onNavigateTo(Destination.AppDetails(app.packageName))
-                        }
+                    MainTab.APPS -> HomeRoute(onOpenPackage = { packageName ->
+                        onNavigateTo(Destination.AppDetails(packageName))
+                    })
+                    MainTab.SLEKE_APPS -> SlekeAppsRoute(
+                        onOpenPackage = { packageName ->
+                            onNavigateTo(Destination.AppDetails(packageName))
+                        },
+                        isActive = pagerState.currentPage == page
                     )
-                    MainTab.SLEKE_APPS -> if (showSlekeEnterprise) {
-                        EnterpriseAppsPane(upPress = { showSlekeEnterprise = false })
-                    } else {
-                        SlekeAppsScreen(onNavigateToEnterprise = { showSlekeEnterprise = true })
-                    }
                     MainTab.UPDATES -> {
                         UpdatesScreen(
                             viewModel = updatesViewModel,
