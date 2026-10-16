@@ -30,6 +30,7 @@ import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.google.android.material.color.DynamicColors
+import com.jakewharton.processphoenix.ProcessPhoenix
 import com.sleke.library.downloads.data.CustomDownloadCoordinatorImpl
 import com.sleke.library.downloads.data.OwnedInstallReceiptStore
 import com.sleke.library.runtime.RuntimeConfig
@@ -81,6 +82,8 @@ class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Fa
     }
 
     override fun onCreate() {
+        // Hilt injects Firebase-backed dependencies in super.onCreate(); skip the restart process first.
+        if (ProcessPhoenix.isPhoenixProcess(this)) return
         ComposeMaterial3Flags.isCheckboxStylingFixEnabled = true
         super.onCreate()
         SlekeRuntime.initialize(this, RuntimeConfig(debug = BuildConfig.DEBUG))
