@@ -14,14 +14,15 @@ import com.aurora.extensions.TAG
 import com.aurora.store.AuroraApp
 import com.aurora.store.R
 import com.aurora.store.data.event.InstallerEvent
+import com.aurora.store.data.installer.base.IInstaller
 import com.aurora.store.data.room.download.Download
 import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PathUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_AUTO_DELETE
 import com.sleke.library.util.SlekeConstants
-import com.aurora.store.data.installer.base.IInstaller
 import java.io.File
+import java.util.concurrent.atomic.AtomicReference
 
 abstract class InstallerBase(private val context: Context) : IInstaller {
 
@@ -62,8 +63,41 @@ abstract class InstallerBase(private val context: Context) : IInstaller {
     var download: Download? = null
         private set
 
-    override fun install(download: Download) {
-        this.download = download
+    override fun install(download: Download) = installInternal(download, null)
+
+    protected open fun installInternal(download: Download, owned: OwnedInstallRequest?) {
+        if (owned == null) this.download = download
+    }
+
+    final override fun installOwned(request: OwnedInstallRequest): OwnedInstallSubmission {
+        val result = AtomicReference<OwnedInstallSubmission>(OwnedInstallSubmission.Unknown)
+        val owned = request.copy(
+            files = request.files.toList(),
+            onAccepted = { receipt ->
+                request.onAccepted(receipt)
+                result.updateAndGet { previous ->
+                    if (previous == OwnedInstallSubmission.Completed ||
+                        previous == OwnedInstallSubmission.Rejected
+                    ) {
+                        previous
+                    } else {
+                        OwnedInstallSubmission.Accepted(receipt)
+                    }
+                }
+            },
+            onFinished = { success ->
+                request.onFinished(success)
+                result.set(
+                    if (success) {
+                        OwnedInstallSubmission.Completed
+                    } else {
+                        OwnedInstallSubmission.Rejected
+                    }
+                )
+            }
+        )
+        installInternal(owned.download, owned)
+        return result.get()
     }
 
     override fun clearQueue() {
@@ -77,12 +111,17 @@ abstract class InstallerBase(private val context: Context) : IInstaller {
         AuroraApp.enqueuedInstalls.remove(packageName)
     }
 
-    fun onInstallationSuccess() {
-        download?.let {
+    fun onInstallationSuccess(owned: OwnedInstallRequest? = null) {
+        owned?.onFinished?.invoke(true)
+        (owned?.download ?: download)?.let {
             notifyInstallation(context, it.displayName, it.packageName)
             if (Preferences.getBoolean(context, PREFERENCE_AUTO_DELETE)) {
-                PathUtil.getAppDownloadDir(context, it.packageName, it.versionCode)
-                    .deleteRecursively()
+                if (owned != null) {
+                    owned.files.forEach { file -> file.delete() }
+                } else {
+                    PathUtil.getAppDownloadDir(context, it.packageName, it.versionCode)
+                        .deleteRecursively()
+                }
             }
         }
     }
@@ -101,8 +140,19 @@ abstract class InstallerBase(private val context: Context) : IInstaller {
     fun getFiles(
         packageName: String,
         versionCode: Long,
-        sharedLibPackageName: String = ""
+        sharedLibPackageName: String = "",
+        owned: OwnedInstallRequest? = null
     ): List<File> {
+        if (owned != null) {
+            require(
+                packageName == owned.download.packageName &&
+                    versionCode == owned.download.versionCode
+            )
+            require(sharedLibPackageName.isEmpty()) {
+                "Owned artifacts cannot include shared library directories"
+            }
+            return owned.files
+        }
         val downloadDir = if (sharedLibPackageName.isNotBlank()) {
             PathUtil.getLibDownloadDir(context, packageName, versionCode, sharedLibPackageName)
         } else {

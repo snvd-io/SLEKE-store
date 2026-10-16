@@ -19,6 +19,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.Lifecycle
@@ -68,13 +69,15 @@ import com.aurora.store.data.event.AuthEvent
 import com.aurora.store.data.event.InstallerEvent
 import com.aurora.store.data.model.AccountType
 import com.aurora.store.data.providers.AccountProvider
-import com.aurora.store.data.providers.AuthProvider
+import com.aurora.store.usecase.LogoutUseCase
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
+import com.sleke.integration.auth.SignOutScope
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.launch
 
 /**
  * Shared spring for the horizontal slide of both the entering and leaving screen. Using a single
@@ -95,12 +98,12 @@ private val navSlideSpec = spring<IntOffset>(
 private val navFadeSpec = spring<Float>(stiffness = 380f)
 
 /**
- * Lets this VM-less navigation host reach the [AuthProvider] singleton for full sign-out.
+ * Lets this VM-less navigation host reach scoped Play-session cleanup.
  */
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 internal interface NavDisplayEntryPoint {
-    fun authProvider(): AuthProvider
+    fun logoutUseCase(): LogoutUseCase
 }
 
 /**
@@ -111,6 +114,7 @@ internal interface NavDisplayEntryPoint {
 fun NavDisplay(startDestination: NavKey) {
     val backstack = rememberNavBackStack(startDestination)
     val context = LocalContext.current
+    val authScope = rememberCoroutineScope()
 
     fun isMicroGAuthInvalidated(): Boolean =
         Preferences.getBoolean(context, Preferences.PREFERENCE_AUTH_VIA_MICROG, false) &&
@@ -119,15 +123,14 @@ fun NavDisplay(startDestination: NavKey) {
 
     fun handleMicroGRemoved() {
         context.toast(R.string.microg_removed_auth_warning)
-        // Full sign-out: clears the account DB rows (incl. the now-invalid microG account) as
-        // well as the legacy prefs, so the stale account can't linger as the DB is the source
-        // of truth.
-        EntryPointAccessors.fromApplication(context, NavDisplayEntryPoint::class.java)
-            .authProvider().logout()
-        val intent = Intent(context, ComposeActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        authScope.launch {
+            EntryPointAccessors.fromApplication(context, NavDisplayEntryPoint::class.java)
+                .logoutUseCase()(SignOutScope.PLAY_RESET)
+            val intent = Intent(context, ComposeActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
         }
-        context.startActivity(intent)
     }
 
     // Check every time the screen resumes in case microG was removed while Aurora was in background.
@@ -161,7 +164,7 @@ fun NavDisplay(startDestination: NavKey) {
             is Destination.Splash -> {
                 // Clear the backstack when navigating to Splash to prevent going back to the previous screen when the user is sent back to the splash screen (e.g. after logout).
                 backstack.clear()
-                backstack.add(Screen.Splash(destination.packageName))
+                backstack.add(Screen.Splash(destination.packageName, destination.developerId))
             }
 
             is Destination.Main -> {
@@ -186,7 +189,13 @@ fun NavDisplay(startDestination: NavKey) {
             is Destination.DevProfile -> backstack.add(Screen.DevProfile(destination.devId))
             is Destination.AppUpdate -> Unit
             is Destination.StreamBrowse -> backstack.add(Screen.StreamBrowse(destination.cluster))
-            is Destination.GoogleLogin -> backstack.add(Screen.GoogleLogin(destination.addAccount))
+            is Destination.GoogleLogin -> backstack.add(
+                Screen.GoogleLogin(
+                    destination.addAccount,
+                    destination.packageName,
+                    destination.developerId
+                )
+            )
 
             Destination.Search -> backstack.add(Screen.Search)
             Destination.Downloads -> backstack.add(Screen.Downloads)
@@ -311,6 +320,7 @@ fun NavDisplay(startDestination: NavKey) {
             entry<Screen.Splash> { screen ->
                 SplashScreen(
                     deepLinkPackageName = screen.packageName,
+                    deepLinkDevId = screen.developerId,
                     onNavigateTo = ::navigate
                 )
             }
@@ -318,6 +328,8 @@ fun NavDisplay(startDestination: NavKey) {
             entry<Screen.GoogleLogin> { screen ->
                 GoogleLoginScreen(
                     addAccount = screen.addAccount,
+                    deepLinkPackageName = screen.packageName,
+                    deepLinkDeveloperId = screen.developerId,
                     onNavigateTo = ::navigate
                 )
             }

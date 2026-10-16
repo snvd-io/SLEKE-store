@@ -28,16 +28,20 @@ import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.PathUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_AUTO_DELETE
+import com.sleke.integration.downloads.OwnedInstallReceiptStore
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 internal interface InstallerStatusEntryPoint {
     fun downloadDao(): DownloadDao
+    fun ownedInstallReceipts(): OwnedInstallReceiptStore
 }
 
 abstract class BaseInstallerStatusReceiver : BroadcastReceiver() {
@@ -56,6 +60,46 @@ abstract class BaseInstallerStatusReceiver : BroadcastReceiver() {
                 TAG,
                 "$packageName ($versionCode) sessionId=$sessionId, status=$status, extra=$extra"
             )
+
+            if (intent.hasExtra(OwnedInstallReceiptStore.EXTRA_OPERATION_ID)) {
+                val pending = goAsync()
+                AuroraApp.scope.launch(Dispatchers.IO) {
+                    try {
+                        val receipts = EntryPointAccessors.fromApplication(
+                            context,
+                            InstallerStatusEntryPoint::class.java
+                        )
+                            .ownedInstallReceipts()
+                        val matched = receipts.recordStatus(
+                            intent.getStringExtra(OwnedInstallReceiptStore.EXTRA_OPERATION_ID),
+                            sessionId,
+                            packageName,
+                            versionCode,
+                            status
+                        )
+                        if (matched) {
+                            when (status) {
+                                PackageInstaller.STATUS_SUCCESS -> InstallerBase.notifyInstallation(
+                                    context,
+                                    displayName,
+                                    packageName
+                                )
+                                PackageInstaller.STATUS_PENDING_USER_ACTION -> withContext(
+                                    Dispatchers.Main.immediate
+                                ) {
+                                    doAppropriatePrompt(context, intent, sessionId)
+                                }
+                                else -> notifyUser(context, packageName, displayName, status)
+                            }
+                        }
+                    } catch (exception: Exception) {
+                        Log.e(TAG, "Unable to record owned installation callback", exception)
+                    } finally {
+                        pending.finish()
+                    }
+                }
+                return
+            }
 
             // If package was successfully installed, exit after notifying user and doing cleanup
             if (status == PackageInstaller.STATUS_SUCCESS) {

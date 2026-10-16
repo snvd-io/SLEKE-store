@@ -34,9 +34,4 @@
 
     <style name="Chip.Filter" parent="@style/Widget.Material3.Chip.Filter" />
 
-    <style name="FirebaseUITheme" parent="AppTheme">
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:fitsSystemWindows">true</item>
-    </style>
 </resources>

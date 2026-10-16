@@ -55,3 +55,7 @@ signing.properties
 .kotlin/*
 /app/google-services.json
 /.claude/settings.local.json
+
+# Python verification scripts
+__pycache__/
+*.pyc

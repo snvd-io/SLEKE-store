@@ -36,16 +36,24 @@ import com.aurora.store.data.room.update.IgnoredUpdateDao
 import com.aurora.store.data.room.update.Update
 import com.aurora.store.data.room.update.UpdateDao
 import com.aurora.store.data.room.update.isIgnoredBy
+import com.aurora.store.usecase.LogoutUseCase
 import com.aurora.store.util.CertUtil
 import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_SELF_UPDATE_ENABLED
 import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_AUTO
-import com.sleke.library.data.repository.ApkRepository
+import com.sleke.integration.auth.SessionMutationGate
+import com.sleke.library.catalog.domain.CatalogRepository
+import com.sleke.library.catalog.domain.CatalogScope
+import com.sleke.library.eligibility.domain.CatalogEligibilityPolicy
+import com.sleke.library.eligibility.domain.EligibilityResult
+import com.sleke.library.eligibility.domain.PackageFacts
+import com.sleke.library.eligibility.domain.UpdateFilterOptions
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.Locale
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -74,11 +82,13 @@ class UpdateWorker @AssistedInject constructor(
     private val downloadHelper: DownloadHelper,
     private val authProvider: AuthProvider,
     tokenProvider: GoogleAccountTokenProvider,
+    mutationGate: SessionMutationGate,
+    logoutUseCase: LogoutUseCase,
     private val appDetailsHelper: AppDetailsHelper,
-    private val firebaseApkRepository: ApkRepository,
+    private val catalogRepository: CatalogRepository,
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters
-) : AuthWorker(authProvider, tokenProvider, context, workerParams) {
+) : AuthWorker(authProvider, tokenProvider, mutationGate, logoutUseCase, context, workerParams) {
 
     companion object {
         private const val NOTIFICATION_ID = 100
@@ -180,6 +190,10 @@ class UpdateWorker @AssistedInject constructor(
             filteredUpdates.first.forEach { downloadHelper.enqueueUpdate(it) }
 
             return Result.success()
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (_: CatalogUnavailableException) {
+            return Result.retry()
         } catch (exception: Exception) {
             Log.e(TAG, "Failed to fetch updates", exception)
             return Result.failure()
@@ -206,30 +220,32 @@ class UpdateWorker @AssistedInject constructor(
                 context,
                 Preferences.PREFERENCE_FILTER_INSTALLERS
             )
-            val filteredPackages = if (isAuroraOnlyFilterEnabled) {
-//                packages.filter { CertUtil.isAuroraStoreApp(context, it.packageName) }
-                val firebasePackages = firebaseApkRepository.getAllApks()
-                val packagesAfterFilter = packages.filter { pkg ->
-                    firebasePackages.any { it.packageName == pkg.packageName }
-                }
-                packagesAfterFilter
-            } else {
-                packages.filterNot { pkg ->
-                    if (isFDroidFilterEnabled && CertUtil.isFDroidApp(context, pkg.packageName)) {
-                        return@filterNot true
-                    }
-                    if (installerFilters.isNotEmpty()) {
-                        val installer = PackageUtil.getInstallerPackageName(
-                            context,
-                            pkg.packageName
-                        )
-                        installer != null && installer in installerFilters
-                    } else {
-                        false
-                    }
-                }
-            }.map { it.packageName }
-
+            val catalogOnly = isAuroraOnlyFilterEnabled
+            val eligibility = CatalogEligibilityPolicy.updates(
+                facts = packages.map { pkg ->
+                    PackageFacts(
+                        packageName = pkg.packageName,
+                        enabled = pkg.applicationInfo!!.enabled,
+                        fdroid = !catalogOnly &&
+                            isFDroidFilterEnabled &&
+                            CertUtil.isFDroidApp(context, pkg.packageName),
+                        installerPackage = if (!catalogOnly && installerFilters.isNotEmpty()) {
+                            PackageUtil.getInstallerPackageName(context, pkg.packageName)
+                        } else {
+                            null
+                        }
+                    )
+                },
+                options = UpdateFilterOptions(
+                    catalogOnly = catalogOnly,
+                    extended = isExtendedUpdateEnabled,
+                    excludeFdroid = isFDroidFilterEnabled,
+                    excludedInstallers = installerFilters
+                ),
+                catalog = if (catalogOnly) catalogRepository.load(CatalogScope.Regular) else null
+            )
+            if (eligibility !is EligibilityResult.Allowed) throw CatalogUnavailableException()
+            val filteredPackages = eligibility.packages.toList()
 
             Timber.Forest.tag("UpdateWorker").d(
                 "Found ${filteredPackages.size} packages to check for updates"
@@ -248,6 +264,7 @@ class UpdateWorker @AssistedInject constructor(
             }
 
             val updates = appDetailsHelper.getAppByPackageName(filteredPackages)
+                .filter { CatalogEligibilityPolicy.isAutomatedUpdateAllowed(it.packageName) }
                 .filter { it.displayName.isNotEmpty() }
                 .filter { PackageUtil.isUpdatable(context, it.packageName, it.versionCode) }
                 .toMutableList()
@@ -313,11 +330,18 @@ class UpdateWorker @AssistedInject constructor(
         return@withContext null
     }
 
+    private class CatalogUnavailableException : Exception()
+
     private fun notifyUpdates(updates: List<Update>) {
         with(context.getSystemService<NotificationManager>()!!) {
             notify(
                 NOTIFICATION_ID,
-                NotificationUtil.getUpdateNotification(context, updates)
+                NotificationUtil.getUpdateNotification(
+                    context,
+                    updates.filter {
+                        CatalogEligibilityPolicy.isAutomatedUpdateAllowed(it.packageName)
+                    }
+                )
             )
         }
     }

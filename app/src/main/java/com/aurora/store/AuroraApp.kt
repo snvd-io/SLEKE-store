@@ -26,17 +26,20 @@ import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.helper.UpdateHelper
 import com.aurora.store.data.receiver.PackageManagerReceiver
 import com.aurora.store.util.CommonUtil
-import com.aurora.store.util.CrashlyticsTreeT
 import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.google.android.material.color.DynamicColors
-import com.google.firebase.FirebaseApp
+import com.sleke.integration.downloads.OwnedInstallReceiptStore
+import com.sleke.library.downloads.data.CustomDownloadCoordinatorImpl
+import com.sleke.library.runtime.RuntimeConfig
+import com.sleke.library.runtime.SlekeRuntime
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
-import timber.log.Timber
 
 @HiltAndroidApp
 class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Factory {
@@ -52,6 +55,12 @@ class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Fa
 
     @Inject
     lateinit var updateHelper: UpdateHelper
+
+    @Inject
+    lateinit var customDownloads: CustomDownloadCoordinatorImpl
+
+    @Inject
+    lateinit var ownedInstallReceipts: OwnedInstallReceiptStore
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -74,12 +83,7 @@ class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Fa
     override fun onCreate() {
         ComposeMaterial3Flags.isCheckboxStylingFixEnabled = true
         super.onCreate()
-        FirebaseApp.initializeApp(this)
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        } else {
-            Timber.plant(CrashlyticsTreeT())
-        }
+        SlekeRuntime.initialize(this, RuntimeConfig(debug = BuildConfig.DEBUG))
 
         // Set the app theme
         val themeStyle = Preferences.getInteger(this, Preferences.PREFERENCE_THEME_STYLE)
@@ -110,7 +114,12 @@ class AuroraApp : Application(), Configuration.Provider, SingletonImageLoader.Fa
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
-        CommonUtil.cleanupInstallationSessions(applicationContext)
+        scope.launch(Dispatchers.IO) {
+            runCatching { ownedInstallReceipts.retainedSessionIds() }.onSuccess { retained ->
+                CommonUtil.cleanupInstallationSessions(applicationContext, retained)
+            }
+            customDownloads.initialize()
+        }
     }
 
     private val foregroundTracker = object : ActivityLifecycleCallbacks {

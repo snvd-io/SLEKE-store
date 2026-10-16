@@ -1,0 +1,9 @@
+<resources>
+    <color name="sleke_enterprise_accent">#6C63FF</color>
+    <style name="Sleke.EnterpriseEmailTheme" parent="Theme.Material3.DynamicColors.Light.NoActionBar">
+        <item name="colorPrimary">@color/sleke_enterprise_accent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
+</resources>

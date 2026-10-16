@@ -34,11 +34,9 @@ import com.aurora.store.data.helper.DownloadHelper
 import com.aurora.store.data.model.AppState
 import com.aurora.store.data.model.DownloadStatus
 import com.aurora.store.data.model.PlexusReport
-import com.aurora.store.data.model.Recovery
 import com.aurora.store.data.model.Report
 import com.aurora.store.data.model.Scores
 import com.aurora.store.data.model.StorageRequirement
-import com.aurora.store.data.model.decideRecovery
 import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.data.room.download.Download
 import com.aurora.store.data.room.favourite.Favourite
@@ -49,10 +47,13 @@ import com.aurora.store.data.room.review.ReviewDao
 import com.aurora.store.util.CertUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
-import com.aurora.store.util.Preferences.PREFERENCE_ERROR_RESTART_TS
 import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_EXTENDED
 import com.aurora.store.util.StorageUtil
 import com.jakewharton.processphoenix.ProcessPhoenix
+import com.sleke.library.recovery.domain.AppDetailsRecoveryPolicy
+import com.sleke.library.recovery.domain.RETRY_DELAY_MS
+import com.sleke.library.recovery.domain.Recovery
+import com.sleke.library.recovery.domain.RecoveryGuardStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -76,9 +77,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-// Delay before a silent in-place retry of a failed app-details load
-private const val RETRY_DELAY_MS = 1000L
-
 @HiltViewModel
 class AppDetailsViewModel @Inject constructor(
     val authProvider: AuthProvider,
@@ -92,7 +90,8 @@ class AppDetailsViewModel @Inject constructor(
     private val httpClient: IHttpClient,
     private val json: Json,
     private val accountRepository: AccountRepository,
-    private val exodusRepository: ExodusRepository
+    private val exodusRepository: ExodusRepository,
+    private val recoveryGuardStore: RecoveryGuardStore
 ) : ViewModel() {
 
     private val _app = MutableStateFlow<App?>(null)
@@ -219,7 +218,7 @@ class AppDetailsViewModel @Inject constructor(
                     isInstalled = PackageUtil.isInstalled(context, packageName)
                 )
                 // Healthy load clears any pending restart guard
-                Preferences.putLong(context, PREFERENCE_ERROR_RESTART_TS, 0L)
+                recoveryGuardStore.clear()
 
                 val existingDownload = downloadHelper.getDownload(packageName)
 
@@ -267,13 +266,13 @@ class AppDetailsViewModel @Inject constructor(
     }
 
     /**
-     * Recovers from an app-details load failure via [decideRecovery]: silent in-place
+     * Recovers from an app-details load failure via [AppDetailsRecoveryPolicy.decide]: silent in-place
      * retry first, then a one-shot background restart, finally a user-facing message.
      */
     private suspend fun handleLoadFailure(packageName: String) {
-        val decision = decideRecovery(
+        val decision = AppDetailsRecoveryPolicy.decide(
             retryAttempted = retryAttempted,
-            lastRestartMs = Preferences.getLong(context, PREFERENCE_ERROR_RESTART_TS),
+            lastRestartMs = recoveryGuardStore.read(),
             nowMs = System.currentTimeMillis()
         )
 
@@ -286,11 +285,7 @@ class AppDetailsViewModel @Inject constructor(
             }
 
             Recovery.RESTART -> {
-                Preferences.putLong(
-                    context,
-                    PREFERENCE_ERROR_RESTART_TS,
-                    System.currentTimeMillis()
-                )
+                recoveryGuardStore.record(System.currentTimeMillis())
                 ProcessPhoenix.triggerRebirth(context)
             }
 

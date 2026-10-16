@@ -13,7 +13,9 @@ import com.aurora.Constants.PACKAGE_NAME_PLAY_STORE
 import com.aurora.extensions.TAG
 import com.aurora.store.R
 import com.aurora.store.data.activity.MicroGInstallerActivity
+import com.aurora.store.data.installer.base.HostInstallReceipt
 import com.aurora.store.data.installer.base.InstallerBase
+import com.aurora.store.data.installer.base.OwnedInstallRequest
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
 import com.aurora.store.data.room.download.Download
@@ -46,29 +48,34 @@ class MicroGInstaller @Inject constructor(
             }
     }
 
-    override fun install(download: Download) {
-        super.install(download)
+    override fun installInternal(download: Download, owned: OwnedInstallRequest?) {
+        super.installInternal(download, owned)
 
         when {
-            isAlreadyQueued(download.packageName) -> {
+            owned == null && isAlreadyQueued(download.packageName) -> {
                 Log.i(TAG, "${download.packageName} already queued")
             }
 
             hasMicroGCompanion(context) -> {
                 Log.i(TAG, "Received microG install request for ${download.packageName}")
 
-                val files = getFiles(download.packageName, download.versionCode)
-                MicroGInstallerActivity.launch(context, download.packageName, files)
+                val files = getFiles(download.packageName, download.versionCode, owned = owned)
+                val receipt = owned?.let { HostInstallReceipt("microg", it.operationId) }
+                if (owned != null && receipt != null) owned.onPrepared(receipt)
+                MicroGInstallerActivity.launch(context, download.packageName, files, owned)
 
                 Log.i(TAG, "Sent install request to microG installer for ${download.packageName}")
             }
 
             else -> {
-                postError(
-                    download.packageName,
-                    context.getString(R.string.installer_status_failure),
-                    context.getString(R.string.installer_microg_misconfigured)
-                )
+                owned?.onFinished?.invoke(false)
+                if (owned == null) {
+                    postError(
+                        download.packageName,
+                        context.getString(R.string.installer_status_failure),
+                        context.getString(R.string.installer_microg_misconfigured)
+                    )
+                }
             }
         }
     }

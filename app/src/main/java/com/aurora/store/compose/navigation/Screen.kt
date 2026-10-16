@@ -51,7 +51,11 @@ sealed class Screen : NavKey, Parcelable {
     data object Accounts : Screen()
 
     @Serializable
-    data class GoogleLogin(val addAccount: Boolean = false) : Screen()
+    data class GoogleLogin(
+        val addAccount: Boolean = false,
+        val packageName: String? = null,
+        val developerId: String? = null
+    ) : Screen()
 
     @Serializable
     data object About : Screen()
@@ -108,7 +112,7 @@ sealed class Screen : NavKey, Parcelable {
     data object SecurityPreference : Screen()
 
     @Serializable
-    data class Splash(val packageName: String? = null) : Screen()
+    data class Splash(val packageName: String? = null, val developerId: String? = null) : Screen()
 
     @Serializable
     data class Main(val initialTab: Int = 0) : Screen()

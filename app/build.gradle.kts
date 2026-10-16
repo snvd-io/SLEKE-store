@@ -215,8 +215,16 @@ configurations.all {
 dependencies {
     implementation(project(":sleke"))
 
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    implementation("androidx.room:room-paging:2.8.3")
+    implementation(libs.timber)
+    // Library Hilt provider types appear in the generated application component.
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.ktor.client.core)
+    // DataStore is read directly only by the isolated preference compatibility test.
+    androidTestImplementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.androidx.compose.material.icons.extended)
     // Google's Goodies
     implementation(libs.google.android.material)
     implementation(libs.google.protobuf.javalite)
@@ -248,9 +256,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
 
-    // Paging Compose
-    implementation("androidx.paging:paging-compose:3.3.6")
-
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
@@ -276,6 +281,8 @@ dependencies {
     implementation(libs.rikka.shizuku.provider)
 
     // Test
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation(libs.junit)
     testImplementation(libs.androidx.junit)
     testImplementation(libs.google.truth)
@@ -301,7 +308,7 @@ dependencies {
 
     implementation(libs.process.phoenix)
 
-//    "huaweiImplementation"(libs.huawei.hms.coreservice)
+    "huaweiImplementation"(libs.huawei.hms.coreservice)
 
     // LeakCanary
     debugImplementation(libs.squareup.leakcanary.android)

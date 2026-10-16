@@ -46,12 +46,14 @@ import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.data.providers.GoogleAccountTokenProvider
 import com.aurora.store.data.room.download.Download
 import com.aurora.store.data.room.download.DownloadDao
+import com.aurora.store.usecase.LogoutUseCase
 import com.aurora.store.util.CertUtil
 import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.PathUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_NOTIFICATION_PROGRESS
+import com.sleke.integration.auth.SessionMutationGate
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.File
@@ -80,13 +82,15 @@ import kotlinx.coroutines.withContext
 class DownloadWorker @AssistedInject constructor(
     private val authProvider: AuthProvider,
     tokenProvider: GoogleAccountTokenProvider,
+    mutationGate: SessionMutationGate,
+    logoutUseCase: LogoutUseCase,
     private val downloadDao: DownloadDao,
     private val appInstaller: AppInstaller,
     private val httpClient: IHttpClient,
     private val accountRepository: AccountRepository,
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters
-) : AuthWorker(authProvider, tokenProvider, context, workerParams) {
+) : AuthWorker(authProvider, tokenProvider, mutationGate, logoutUseCase, context, workerParams) {
 
     companion object {
         private const val NOTIFICATION_ID: Int = 200

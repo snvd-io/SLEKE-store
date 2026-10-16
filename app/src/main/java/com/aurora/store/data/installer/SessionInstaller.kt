@@ -34,7 +34,11 @@ import com.aurora.store.data.installer.AppInstaller.Companion.ACTION_INSTALL_STA
 import com.aurora.store.data.installer.AppInstaller.Companion.EXTRA_DISPLAY_NAME
 import com.aurora.store.data.installer.AppInstaller.Companion.EXTRA_PACKAGE_NAME
 import com.aurora.store.data.installer.AppInstaller.Companion.EXTRA_VERSION_CODE
+import com.aurora.store.data.installer.base.HostInstallReceipt
 import com.aurora.store.data.installer.base.InstallerBase
+import com.aurora.store.data.installer.base.OwnedInstallRequest
+import com.aurora.store.data.installer.base.OwnedPreAcceptanceException
+import com.aurora.store.data.installer.base.withOwnedStaging
 import com.aurora.store.data.model.BuildType
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
@@ -55,11 +59,12 @@ class SessionInstaller @Inject constructor(
 ) : InstallerBase(context) {
 
     val currentSessionId: Int?
-        get() = enqueuedSessions.firstOrNull()?.last()?.sessionId
+        get() = synchronized(this) { enqueuedSessions.firstOrNull()?.lastOrNull()?.sessionId }
 
     private val packageInstaller = context.packageManager.packageInstaller
     private val enqueuedSessions = mutableListOf<MutableSet<SessionInfo>>()
     private val committedSessions = ConcurrentHashMap.newKeySet<Int>()
+    private val ownedSessions = ConcurrentHashMap<Int, OwnedInstallRequest>()
 
     val callback = object : PackageInstaller.SessionCallback() {
         override fun onCreated(sessionId: Int) {}
@@ -69,12 +74,12 @@ class SessionInstaller @Inject constructor(
         override fun onActiveChanged(sessionId: Int, active: Boolean) {}
 
         override fun onProgressChanged(sessionId: Int, progress: Float) {
-            val packageName = enqueuedSessions
-                .find { set -> set.any { it.sessionId == sessionId } }
-                ?.first()
-                ?.packageName
+            val packageName = synchronized(this@SessionInstaller) {
+                enqueuedSessions.find { set -> set.any { it.sessionId == sessionId } }
+                    ?.firstOrNull()?.packageName
+            }
 
-            if (packageName != null && progress > 0.0) {
+            if (packageName != null && progress > 0.0 && !ownedSessions.containsKey(sessionId)) {
                 AuroraApp.events.send(
                     InstallerEvent.Installing(
                         packageName = packageName,
@@ -85,32 +90,36 @@ class SessionInstaller @Inject constructor(
         }
 
         override fun onFinished(sessionId: Int, success: Boolean) {
-            committedSessions.remove(sessionId)
+            synchronized(this@SessionInstaller) {
+                committedSessions.remove(sessionId)
+                ownedSessions.remove(sessionId)
 
-            val sessionSet =
-                enqueuedSessions.find { it.any { session -> session.sessionId == sessionId } }
-                    ?: return
+                val sessionSet =
+                    enqueuedSessions.find { it.any { session -> session.sessionId == sessionId } }
+                        ?: return
 
-            // Find session safely, if not found return
-            val sessionToRemove = sessionSet.firstOrNull { it.sessionId == sessionId } ?: return
+                // Find session safely, if not found return
+                val sessionToRemove = sessionSet.firstOrNull { it.sessionId == sessionId } ?: return
 
-            // Remove the session safely
-            sessionSet.remove(sessionToRemove)
+                // Remove the session safely
+                sessionSet.remove(sessionToRemove)
 
-            if (success && sessionSet.isNotEmpty()) {
-                commitInstall(sessionSet.first()) // Proceed with next session (shared lib), if any
-                return
-            }
-
-            // Manually remove empty sets using iterator (for API 21 support)
-            val iterator = enqueuedSessions.iterator()
-            while (iterator.hasNext()) {
-                if (iterator.next().isEmpty()) {
-                    iterator.remove()
+                if (success && sessionSet.isNotEmpty()) {
+                    // Proceed with the next shared library session, if any.
+                    commitInstall(sessionSet.first())
+                    return
                 }
-            }
 
-            commitNextPending()
+                // Manually remove empty sets using iterator (for API 21 support)
+                val iterator = enqueuedSessions.iterator()
+                while (iterator.hasNext()) {
+                    if (iterator.next().isEmpty()) {
+                        iterator.remove()
+                    }
+                }
+
+                commitNextPending()
+            }
         }
     }
 
@@ -131,11 +140,18 @@ class SessionInstaller @Inject constructor(
         runOnUiThread { packageInstaller.registerSessionCallback(callback) }
     }
 
-    override fun install(download: Download) {
-        super.install(download)
+    @Synchronized
+    override fun installInternal(download: Download, owned: OwnedInstallRequest?) {
+        super.installInternal(download, owned)
 
-        val sessionSet =
-            enqueuedSessions.find { set -> set.any { it.packageName == download.packageName } }
+        val sessionSet = if (owned != null) {
+            null
+        } else {
+            enqueuedSessions.find { set ->
+                set.none { ownedSessions.containsKey(it.sessionId) } &&
+                    set.any { it.packageName == download.packageName }
+            }
+        }
         if (sessionSet != null) {
             Log.i(TAG, "${download.packageName} already queued")
             commitInstall(sessionSet.first())
@@ -156,7 +172,12 @@ class SessionInstaller @Inject constructor(
                 }
             }
 
-            stageInstall(download.packageName, download.versionCode)?.let { sessionID ->
+            stageInstall(
+                download.packageName,
+                download.versionCode,
+                owned = owned
+            )?.let { sessionID ->
+                if (owned != null) ownedSessions[sessionID] = owned
                 sessionInfoSet.add(
                     SessionInfo(
                         sessionID,
@@ -167,15 +188,23 @@ class SessionInstaller @Inject constructor(
                 )
             }
 
+            if (owned != null && sessionInfoSet.isEmpty()) {
+                throw OwnedPreAcceptanceException("Unable to stage owned APK")
+            }
             // Enqueue and trigger installation
             enqueuedSessions.add(sessionInfoSet)
             commitInstall(sessionInfoSet.first())
         }
     }
 
+    @Synchronized
     override fun cancelInstall(packageName: String) {
         val sessionSet = enqueuedSessions
-            .find { set -> set.any { it.packageName == packageName } } ?: return
+            .find { set ->
+                set.none { ownedSessions.containsKey(it.sessionId) } &&
+                    set.any { it.packageName == packageName }
+            }
+            ?: return
 
         Log.i(TAG, "Abandoning staged session(s) for $packageName")
         sessionSet.forEach {
@@ -205,36 +234,44 @@ class SessionInstaller @Inject constructor(
     private fun stageInstall(
         packageName: String,
         versionCode: Long,
-        sharedLibPkgName: String = ""
+        sharedLibPkgName: String = "",
+        owned: OwnedInstallRequest? = null
     ): Int? {
         val resolvedPackageName = sharedLibPkgName.ifBlank { packageName }
 
         // Size hint lets the system reserve space (and evict its cache) for the staged copy.
         val totalSize = runCatching {
-            getFiles(packageName, versionCode, sharedLibPkgName).sumOf { it.length() }
+            getFiles(packageName, versionCode, sharedLibPkgName, owned).sumOf { it.length() }
         }.getOrDefault(0L)
 
         val sessionParams = buildSessionParams(resolvedPackageName, totalSize)
-        val sessionId = packageInstaller.createSession(sessionParams)
-        val session = packageInstaller.openSession(sessionId)
-
+        var createdSessionId: Int? = null
         return try {
-            Log.i(TAG, "Writing splits to session for $packageName")
-            getFiles(packageName, versionCode, sharedLibPkgName).forEach { file ->
-                file.inputStream().use { input ->
-                    session.openWrite(
-                        "${resolvedPackageName}_${file.name}",
-                        0,
-                        file.length()
-                    ).use { output ->
-                        input.copyTo(output)
-                        session.fsync(output)
+            withOwnedStaging(owned != null, {
+                createdSessionId?.let { packageInstaller.abandonSession(it) }
+            }) {
+                val sessionId = packageInstaller.createSession(sessionParams)
+                createdSessionId = sessionId
+                packageInstaller.openSession(sessionId).use { session ->
+                    Log.i(TAG, "Writing splits to session for $packageName")
+                    getFiles(packageName, versionCode, sharedLibPkgName, owned).forEach { file ->
+                        file.inputStream().use { input ->
+                            session.openWrite(
+                                "${resolvedPackageName}_${file.name}",
+                                0,
+                                file.length()
+                            ).use { output ->
+                                input.copyTo(output)
+                                session.fsync(output)
+                            }
+                        }
                     }
                 }
+                sessionId
             }
-            sessionId
         } catch (exception: IOException) {
-            session.abandon()
+            // Keep legacy failure publication; owned IO failures were classified by the boundary above.
+            createdSessionId?.let { runCatching { packageInstaller.abandonSession(it) } }
             removeFromInstallQueue(packageName)
             postError(packageName, exception.localizedMessage, exception.stackTraceToString())
             null
@@ -268,34 +305,85 @@ class SessionInstaller @Inject constructor(
         }
 
     private fun commitInstall(sessionInfo: SessionInfo) {
+        if (sessionInfo.sessionId in committedSessions) return
         try {
             Log.i(TAG, "Starting install session for ${sessionInfo.packageName}")
 
             val existingSessionInfo = packageInstaller.getSessionInfo(sessionInfo.sessionId)
             if (existingSessionInfo == null) {
                 Log.e(TAG, "Session ${sessionInfo.sessionId} is no longer valid.")
-                return removeFromInstallQueue(sessionInfo.packageName)
+                if (!ownedSessions.containsKey(
+                        sessionInfo.sessionId
+                    )
+                ) {
+                    removeFromInstallQueue(sessionInfo.packageName)
+                }
+                return
             }
 
             commitSession(sessionInfo)
+        } catch (safe: OwnedPreAcceptanceException) {
+            throw safe
         } catch (e: Exception) {
             Log.e(TAG, "Error committing session: ${e.message}")
-            removeFromInstallQueue(sessionInfo.packageName)
-            postError(sessionInfo.packageName, e.localizedMessage, e.stackTraceToString())
+            if (!ownedSessions.containsKey(sessionInfo.sessionId)) {
+                removeFromInstallQueue(sessionInfo.packageName)
+                postError(sessionInfo.packageName, e.localizedMessage, e.stackTraceToString())
+            }
         }
     }
 
     private fun commitSession(sessionInfo: SessionInfo) {
         try {
+            val owned = ownedSessions[sessionInfo.sessionId]
+            val receipt = HostInstallReceipt("session", sessionInfo.sessionId.toString())
+            // The durable operation receipt must exist before commit can send its first callback.
             committedSessions.add(sessionInfo.sessionId)
-            val session = packageInstaller.openSession(sessionInfo.sessionId)
-            session.commit(getCallBackIntent(sessionInfo)!!.intentSender)
-            session.close()
-        } catch (e: Exception) {
+            try {
+                owned?.onPrepared?.invoke(receipt)
+            } catch (exception: Exception) {
+                // No commit has begun: a revoked/cancelled operation must leave no staged session.
+                packageInstaller.abandonSession(sessionInfo.sessionId)
+                throw exception
+            }
+            withOwnedStaging(owned != null, {
+                packageInstaller.abandonSession(sessionInfo.sessionId)
+            }) {
+                packageInstaller.openSession(sessionInfo.sessionId)
+            }.use { session ->
+                val receiver = getCallBackIntent(sessionInfo)!!.intentSender
+                // Opening the session/PendingIntent can wait on Binder; recheck before commit.
+                try {
+                    owned?.onPrepared?.invoke(receipt)
+                } catch (exception: Exception) {
+                    session.abandon()
+                    throw exception
+                }
+                session.commit(receiver)
+            }
+            owned?.onAccepted?.invoke(receipt)
+        } catch (safe: OwnedPreAcceptanceException) {
+            ownedSessions.remove(sessionInfo.sessionId)
             committedSessions.remove(sessionInfo.sessionId)
+            enqueuedSessions.removeAll { set -> set.any { it.sessionId == sessionInfo.sessionId } }
+            throw safe
+        } catch (e: Exception) {
+            // A failed commit call may already have reached PackageInstaller. Owned requests
+            // remain marked attempted so queue advancement cannot commit them a second time.
+            if (!ownedSessions.containsKey(
+                    sessionInfo.sessionId
+                )
+            ) {
+                committedSessions.remove(sessionInfo.sessionId)
+            }
             Log.e(TAG, "Error committing session: ${e.message}")
         } finally {
-            removeFromInstallQueue(sessionInfo.packageName)
+            if (!ownedSessions.containsKey(
+                    sessionInfo.sessionId
+                )
+            ) {
+                removeFromInstallQueue(sessionInfo.packageName)
+            }
         }
     }
 
@@ -307,6 +395,12 @@ class SessionInstaller @Inject constructor(
             putExtra(EXTRA_PACKAGE_NAME, sessionInfo.packageName)
             putExtra(EXTRA_VERSION_CODE, sessionInfo.versionCode)
             putExtra(EXTRA_DISPLAY_NAME, sessionInfo.displayName)
+            ownedSessions[sessionInfo.sessionId]?.let {
+                putExtra(
+                    com.sleke.integration.downloads.OwnedInstallReceiptStore.EXTRA_OPERATION_ID,
+                    it.operationId
+                )
+            }
             putExtra(SlekeConstants.EXTRA_IS_CUSTOM_STORE, true)
             addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
         }

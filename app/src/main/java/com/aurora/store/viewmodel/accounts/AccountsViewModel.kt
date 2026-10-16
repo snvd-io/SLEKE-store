@@ -14,8 +14,10 @@ import com.aurora.store.data.model.AccountType
 import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.data.providers.GoogleAccountTokenProvider
 import com.aurora.store.data.room.account.Account
+import com.sleke.integration.auth.SessionMutationGate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,7 +29,8 @@ import kotlinx.coroutines.launch
 class AccountsViewModel @Inject constructor(
     val authProvider: AuthProvider,
     private val accountRepository: AccountRepository,
-    private val tokenProvider: GoogleAccountTokenProvider
+    private val tokenProvider: GoogleAccountTokenProvider,
+    private val mutationGate: SessionMutationGate
 ) : ViewModel() {
 
     val accounts = accountRepository.accounts
@@ -87,6 +90,7 @@ class AccountsViewModel @Inject constructor(
 
     /** Adds an anonymous account (non-default) so it can be used without making it active. */
     fun addAnonymousAccount() {
+        val epoch = mutationGate.capture()
         viewModelScope.launch(Dispatchers.IO) {
             val added = runCatching {
                 val authData = authProvider.buildAnonymousAuthData().getOrThrow()
@@ -94,9 +98,10 @@ class AccountsViewModel @Inject constructor(
                     authData = authData,
                     accountType = AccountType.ANONYMOUS,
                     authViaMicroG = false,
-                    makeDefault = false
+                    makeDefault = false,
+                    epoch = epoch
                 )
-            }.isSuccess
+            }.onFailure { if (it is CancellationException) throw it }.getOrDefault(false)
             _addResult.emit(added)
         }
     }
@@ -109,6 +114,7 @@ class AccountsViewModel @Inject constructor(
 
     /** Adds a device (microG) Google account by minting an AUTH token and building AuthData. */
     fun addSystemAccount(email: String, activity: Activity?) {
+        val epoch = mutationGate.capture()
         viewModelScope.launch(Dispatchers.IO) {
             val added = runCatching {
                 val token = tokenProvider.fetchAuthToken(email = email, activity = activity)
@@ -119,9 +125,10 @@ class AccountsViewModel @Inject constructor(
                     authData = authData,
                     accountType = AccountType.GOOGLE,
                     authViaMicroG = true,
-                    makeDefault = false
+                    makeDefault = false,
+                    epoch = epoch
                 )
-            }.isSuccess
+            }.onFailure { if (it is CancellationException) throw it }.getOrDefault(false)
             _addResult.emit(added)
         }
     }

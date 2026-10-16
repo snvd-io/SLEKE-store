@@ -34,6 +34,7 @@ import com.aurora.store.data.work.DownloadWorker
 import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.PathUtil
+import com.sleke.library.eligibility.domain.CatalogEligibilityPolicy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -239,6 +240,7 @@ class DownloadHelper @Inject constructor(
      * @param update [Update] to download
      */
     suspend fun enqueueUpdate(update: Update) {
+        if (!CatalogEligibilityPolicy.isAutomatedUpdateAllowed(update.packageName)) return
         enqueue(Download.fromUpdate(update))
     }
 
@@ -247,6 +249,7 @@ class DownloadHelper @Inject constructor(
      * binding; a non-default account is persisted so this and future updates use it.
      */
     suspend fun enqueueUpdate(update: Update, accountId: String) {
+        if (!CatalogEligibilityPolicy.isAutomatedUpdateAllowed(update.packageName)) return
         accountRepository.bindApp(update.packageName, accountId)
         enqueueUpdate(update)
     }
