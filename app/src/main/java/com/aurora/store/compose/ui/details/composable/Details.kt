@@ -8,7 +8,6 @@ package com.aurora.store.compose.ui.details.composable
 
 import android.text.format.Formatter
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

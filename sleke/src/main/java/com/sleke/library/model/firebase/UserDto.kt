@@ -4,5 +4,5 @@ import com.google.firebase.firestore.IgnoreExtraProperties
 
 @IgnoreExtraProperties
 data class UserDto(
-    val enterprise: String? = null,
+    val enterprise: String? = null
 )
