@@ -53,7 +53,7 @@ import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.PathUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_NOTIFICATION_PROGRESS
-import com.sleke.integration.auth.SessionMutationGate
+import com.sleke.library.enterprise.data.SessionMutationGate
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.File

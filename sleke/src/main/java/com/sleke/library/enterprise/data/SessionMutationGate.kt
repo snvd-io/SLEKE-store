@@ -1,4 +1,4 @@
-package com.sleke.integration.auth
+package com.sleke.library.enterprise.data
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -50,8 +50,7 @@ class SessionMutationGate internal constructor(private val storage: SessionEpoch
         durableReady = false
         UUID.randomUUID().mostSignificantBits
     }
-    internal suspend fun captureAttempt(): Long =
-        currentCoroutineContext()[AttemptEpoch]?.epoch ?: capture()
+    suspend fun captureAttempt(): Long = currentCoroutineContext()[AttemptEpoch]?.epoch ?: capture()
     internal suspend fun <T> withAttempt(epoch: Long, block: suspend () -> T): T =
         withContext(AttemptEpoch(epoch)) { block() }
     internal suspend fun cleanup(block: suspend () -> Unit) = mutation.withLock { block() }

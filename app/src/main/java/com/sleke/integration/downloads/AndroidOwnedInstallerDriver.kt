@@ -10,8 +10,9 @@ import com.aurora.store.data.installer.ServiceInstaller
 import com.aurora.store.data.installer.SessionInstaller
 import com.aurora.store.data.installer.ShizukuInstaller
 import com.aurora.store.data.installer.base.IInstaller
-import com.aurora.store.data.installer.base.OwnedInstallRequest
-import com.aurora.store.data.installer.base.OwnedInstallSubmission
+import com.sleke.library.downloads.data.OwnedApkInstallRequest
+import com.sleke.library.downloads.data.OwnedInstallerDriver
+import com.sleke.library.downloads.domain.InstallSubmission
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -42,8 +43,10 @@ class AndroidOwnedInstallerDriver @Inject constructor(
     }
 
     override fun systemPrompt() = "native"
-    override fun submit(installer: String, request: OwnedInstallRequest): OwnedInstallSubmission =
-        requireNotNull(installers[installer]).installOwned(request)
+    override fun submit(installer: String, request: OwnedApkInstallRequest): InstallSubmission =
+        requireNotNull(installers[installer])
+            .installOwned(request.toAuroraInstallRequest())
+            .toDomainSubmission()
 
     override fun hasOwnedSession(sessionId: Int, packageName: String): Boolean =
         context.packageManager.packageInstaller.mySessions.any {

@@ -29,18 +29,9 @@ sealed interface OwnedInstallSubmission {
     data object Unknown : OwnedInstallSubmission
 }
 
-/** Only throw when the failing call is known not to have handed off an installation. */
-class OwnedPreAcceptanceException(
-    message: String,
-    cause: Throwable? = null
-) : Exception(message, cause)
+typealias OwnedPreAcceptanceException =
+    com.sleke.library.downloads.data.OwnedPreAcceptanceException
 
 /** Only surrounds staging/opening calls, never a commit or external launch. */
 internal inline fun <T> withOwnedStaging(owned: Boolean, abandon: () -> Unit, stage: () -> T): T =
-    try {
-        stage()
-    } catch (exception: java.io.IOException) {
-        if (!owned) throw exception
-        runCatching(abandon)
-        throw OwnedPreAcceptanceException("Unable to stage owned APK", exception)
-    }
+    com.sleke.library.downloads.data.withOwnedStaging(owned, abandon, stage)

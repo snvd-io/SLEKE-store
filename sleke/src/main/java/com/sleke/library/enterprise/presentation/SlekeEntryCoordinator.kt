@@ -1,6 +1,7 @@
-package com.sleke.integration.auth
+package com.sleke.library.enterprise.presentation
 
 import androidx.lifecycle.SavedStateHandle
+import com.sleke.library.enterprise.data.SessionMutationGate
 import com.sleke.library.enterprise.domain.EnterpriseEntryPolicy
 import com.sleke.library.enterprise.domain.EnterpriseSessionRepository
 import com.sleke.library.enterprise.domain.EntryDestination

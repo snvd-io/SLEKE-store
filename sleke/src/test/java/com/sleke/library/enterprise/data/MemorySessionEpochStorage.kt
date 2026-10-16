@@ -1,4 +1,4 @@
-package com.sleke.integration.auth
+package com.sleke.library.enterprise.data
 
 class MemorySessionEpochStorage(var epoch: Long = 0L) : SessionEpochStorage {
     var failAdvance = false

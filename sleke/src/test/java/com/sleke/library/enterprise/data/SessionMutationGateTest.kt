@@ -1,4 +1,4 @@
-package com.sleke.integration.auth
+package com.sleke.library.enterprise.data
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi

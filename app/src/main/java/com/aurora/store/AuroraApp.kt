@@ -30,8 +30,8 @@ import com.aurora.store.util.NotificationUtil
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.google.android.material.color.DynamicColors
-import com.sleke.integration.downloads.OwnedInstallReceiptStore
 import com.sleke.library.downloads.data.CustomDownloadCoordinatorImpl
+import com.sleke.library.downloads.data.OwnedInstallReceiptStore
 import com.sleke.library.runtime.RuntimeConfig
 import com.sleke.library.runtime.SlekeRuntime
 import dagger.hilt.android.HiltAndroidApp

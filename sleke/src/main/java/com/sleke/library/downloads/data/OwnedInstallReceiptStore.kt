@@ -1,9 +1,5 @@
-package com.sleke.integration.downloads
+package com.sleke.library.downloads.data
 
-import com.sleke.library.downloads.data.AccessDecision
-import com.sleke.library.downloads.data.DownloadAccessSource
-import com.sleke.library.downloads.data.FileOperationStore
-import com.sleke.library.downloads.data.OperationRecord
 import com.sleke.library.downloads.domain.DownloadFailure
 import com.sleke.library.downloads.domain.DownloadHandle
 import com.sleke.library.downloads.domain.DownloadState

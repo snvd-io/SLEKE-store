@@ -14,7 +14,7 @@ import com.aurora.store.data.model.AccountType
 import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.data.providers.GoogleAccountTokenProvider
 import com.aurora.store.data.room.account.Account
-import com.sleke.integration.auth.SessionMutationGate
+import com.sleke.library.enterprise.data.SessionMutationGate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException

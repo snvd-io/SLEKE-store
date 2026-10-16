@@ -1,4 +1,4 @@
-package com.sleke.integration.auth
+package com.sleke.library.enterprise.data
 
 import com.sleke.library.downloads.domain.CustomDownloadCoordinator
 import com.sleke.library.enterprise.domain.CleanupFailure

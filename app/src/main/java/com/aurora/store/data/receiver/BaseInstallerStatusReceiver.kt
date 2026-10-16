@@ -28,7 +28,7 @@ import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.PathUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_AUTO_DELETE
-import com.sleke.integration.downloads.OwnedInstallReceiptStore
+import com.sleke.library.downloads.data.OwnedInstallReceiptStore
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors

@@ -1,7 +1,5 @@
-package com.sleke.integration.downloads
+package com.sleke.library.downloads.data
 
-import com.sleke.library.downloads.data.AccessDecision
-import com.sleke.library.downloads.data.DownloadAccessSource
 import com.sleke.library.downloads.domain.DownloadOwner
 
 /** Runs on Main, without suspension or disk access, at the external launch boundary. */

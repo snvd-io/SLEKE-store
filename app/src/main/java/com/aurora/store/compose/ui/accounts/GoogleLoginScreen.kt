@@ -37,7 +37,7 @@ import com.aurora.store.data.model.AuthState
 import com.aurora.store.util.AC2DMUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.viewmodel.auth.AuthViewModel
-import com.sleke.integration.auth.EntryIntent
+import com.sleke.library.enterprise.presentation.EntryIntent
 
 private const val EMBEDDED_SETUP_URL = "https://accounts.google.com/EmbeddedSetup"
 private const val AUTH_TOKEN = "oauth_token"
@@ -129,13 +129,14 @@ fun GoogleLoginScreen(
 
     LaunchedEffect(entryNavigation?.id) {
         val effect = entryNavigation ?: return@LaunchedEffect
+        val (packageName, developerId) = effect.intent
         if (!viewModel.consumeEntryNavigation(effect.id)) return@LaunchedEffect
         when {
-            !effect.intent.developerId.isNullOrBlank() -> onNavigateTo(
-                Destination.DevProfile(effect.intent.developerId)
+            !developerId.isNullOrBlank() -> onNavigateTo(
+                Destination.DevProfile(developerId)
             )
-            !effect.intent.packageName.isNullOrBlank() -> onNavigateTo(
-                Destination.AppDetails(effect.intent.packageName)
+            !packageName.isNullOrBlank() -> onNavigateTo(
+                Destination.AppDetails(packageName)
             )
             else -> onNavigateTo(
                 Destination.Main(

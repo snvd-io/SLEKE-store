@@ -4,13 +4,15 @@ import android.content.Context
 import android.content.pm.PackageInstaller
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.aurora.store.data.installer.base.OwnedInstallRequest
-import com.aurora.store.data.installer.base.OwnedInstallSubmission
 import com.aurora.store.util.CommonUtil
 import com.sleke.library.downloads.data.AccessDecision
 import com.sleke.library.downloads.data.DownloadAccessSource
 import com.sleke.library.downloads.data.FileOperationStore
 import com.sleke.library.downloads.data.OperationRecord
+import com.sleke.library.downloads.data.OwnedApkInstallRequest
+import com.sleke.library.downloads.data.OwnedInstallReceiptStore
+import com.sleke.library.downloads.data.OwnedInstallerDriver
+import com.sleke.library.downloads.data.PreferredApkInstallGateway
 import com.sleke.library.downloads.domain.CustomDownloadRequest
 import com.sleke.library.downloads.domain.DownloadHandle
 import com.sleke.library.downloads.domain.DownloadOwner
@@ -18,6 +20,7 @@ import com.sleke.library.downloads.domain.DownloadState
 import com.sleke.library.downloads.domain.InstallCancellation
 import com.sleke.library.downloads.domain.InstallReceipt
 import com.sleke.library.downloads.domain.InstallReconciliation
+import com.sleke.library.downloads.domain.InstallSubmission
 import com.sleke.library.downloads.domain.InstalledPackageSource
 import com.sleke.library.downloads.domain.ValidatedApk
 import java.io.File
@@ -101,8 +104,8 @@ class OwnedInstallRecoveryTest {
                 override fun systemPrompt() = error("Recovery must not launch a prompt")
                 override fun submit(
                     installer: String,
-                    request: OwnedInstallRequest
-                ): OwnedInstallSubmission = error("Recovery must not submit again")
+                    request: OwnedApkInstallRequest
+                ): InstallSubmission = error("Recovery must not submit again")
                 override fun hasOwnedSession(sessionId: Int, packageName: String) =
                     platform.mySessions.any {
                         it.sessionId ==
@@ -118,7 +121,7 @@ class OwnedInstallRecoveryTest {
                 override fun check(owner: DownloadOwner) = AccessDecision.ALLOWED
             }
             val gateway =
-                AuroraApkInstallGateway(driver, FileOperationStore(root), packages, access, {
+                PreferredApkInstallGateway(driver, FileOperationStore(root), packages, access, {
                     error("No artifact replay")
                 })
             assertEquals(InstallReconciliation.Pending, gateway.reconcile(handle))

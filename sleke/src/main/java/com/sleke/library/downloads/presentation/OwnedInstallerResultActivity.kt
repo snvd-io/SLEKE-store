@@ -1,4 +1,4 @@
-package com.sleke.integration.downloads
+package com.sleke.library.downloads.presentation
 
 import android.app.Activity
 import android.app.NotificationManager
@@ -7,13 +7,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.core.content.IntentCompat
-import com.aurora.store.AuroraApp
-import com.aurora.store.data.installer.base.HostInstallReceipt
-import com.aurora.store.data.installer.base.OwnedInstallRequest
-import com.aurora.store.util.NotificationUtil
 import com.sleke.library.downloads.data.AccessDecision
 import com.sleke.library.downloads.data.DownloadAccessSource
 import com.sleke.library.downloads.data.FileOperationStore
+import com.sleke.library.downloads.data.OwnedInstallReceiptStore
+import com.sleke.library.downloads.data.runOwnedExternalLaunch
 import com.sleke.library.downloads.domain.DownloadHandle
 import com.sleke.library.downloads.domain.DownloadState
 import com.sleke.library.downloads.domain.InstallReceipt
@@ -37,11 +35,13 @@ interface OwnedInstallerResultEntryPoint {
     fun receipts(): OwnedInstallReceiptStore
     fun access(): DownloadAccessSource
     fun packages(): InstalledPackageSource
+    fun uiHost(): InstallerUiHost
 }
 
 /** Owns the result of one native/microG confirmation without re-launching it on recreation. */
 class OwnedInstallerResultActivity : Activity() {
     companion object {
+        private val completionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         private const val REQUEST_CODE = 1
         private const val EXTRA_INSTALL_INTENT = "owned_install_intent"
         private const val EXTRA_KIND = "owned_install_kind"
@@ -51,31 +51,29 @@ class OwnedInstallerResultActivity : Activity() {
 
         fun launchOrNotify(
             context: Context,
-            request: OwnedInstallRequest,
+            request: InstallPromptRequest,
             kind: String,
             installIntent: Intent
         ) {
-            val receipt = HostInstallReceipt(kind, request.operationId)
+            val receipt = InstallReceipt(kind, request.operationId)
             val wrapper = Intent(context, OwnedInstallerResultActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
                 data = Uri.parse("sleke-owned-install://${request.operationId}/$kind")
                 putExtra(OwnedInstallReceiptStore.EXTRA_OPERATION_ID, request.operationId)
-                putExtra(EXTRA_PACKAGE, request.download.packageName)
-                putExtra(EXTRA_VERSION, request.download.versionCode)
+                putExtra(EXTRA_PACKAGE, request.packageName)
+                putExtra(EXTRA_VERSION, request.versionCode)
                 putExtra(EXTRA_KIND, kind)
                 putExtra(EXTRA_INSTALL_INTENT, installIntent)
             }
+            val uiHost = EntryPointAccessors.fromApplication(
+                context.applicationContext,
+                OwnedInstallerResultEntryPoint::class.java
+            ).uiHost()
             request.onPrepared(receipt)
-            if (AuroraApp.isForeground) {
+            if (uiHost.isForeground) {
                 context.startActivity(wrapper)
             } else {
-                NotificationUtil.notifyInstallPrompt(
-                    context,
-                    request.download.packageName,
-                    request.download.displayName,
-                    wrapper,
-                    operationId = request.operationId
-                )
+                uiHost.notifyInstallPrompt(request, wrapper)
             }
             request.onAccepted(receipt)
         }
@@ -221,7 +219,7 @@ class OwnedInstallerResultActivity : Activity() {
         val installerKind = kind
         val requestedPackage = packageNameRequested
         val requestedVersion = versionRequested
-        AuroraApp.scope.launch(Dispatchers.IO) {
+        completionScope.launch {
             try {
                 val installed = if (success) {
                     entryPoint.packages().versionCode(

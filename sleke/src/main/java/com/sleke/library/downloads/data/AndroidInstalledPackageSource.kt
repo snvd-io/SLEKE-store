@@ -1,4 +1,4 @@
-package com.sleke.integration.downloads
+package com.sleke.library.downloads.data
 
 import android.content.Context
 import android.content.pm.PackageManager

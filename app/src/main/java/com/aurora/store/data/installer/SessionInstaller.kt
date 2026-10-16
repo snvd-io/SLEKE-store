@@ -397,7 +397,7 @@ class SessionInstaller @Inject constructor(
             putExtra(EXTRA_DISPLAY_NAME, sessionInfo.displayName)
             ownedSessions[sessionInfo.sessionId]?.let {
                 putExtra(
-                    com.sleke.integration.downloads.OwnedInstallReceiptStore.EXTRA_OPERATION_ID,
+                    com.sleke.library.downloads.data.OwnedInstallReceiptStore.EXTRA_OPERATION_ID,
                     it.operationId
                 )
             }

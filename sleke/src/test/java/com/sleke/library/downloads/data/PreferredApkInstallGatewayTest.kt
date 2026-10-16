@@ -1,13 +1,5 @@
-package com.sleke.integration.downloads
+package com.sleke.library.downloads.data
 
-import com.aurora.store.data.installer.base.HostInstallReceipt
-import com.aurora.store.data.installer.base.OwnedInstallRequest
-import com.aurora.store.data.installer.base.OwnedInstallSubmission
-import com.aurora.store.data.installer.base.OwnedPreAcceptanceException
-import com.sleke.library.downloads.data.AccessDecision
-import com.sleke.library.downloads.data.DownloadAccessSource
-import com.sleke.library.downloads.data.FileOperationStore
-import com.sleke.library.downloads.data.OperationRecord
 import com.sleke.library.downloads.domain.CustomDownloadRequest
 import com.sleke.library.downloads.domain.DownloadHandle
 import com.sleke.library.downloads.domain.DownloadOwner
@@ -29,7 +21,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-class AuroraApkInstallGatewayTest {
+class PreferredApkInstallGatewayTest {
     @get:Rule val temporary = TemporaryFolder()
     private val handle = DownloadHandle(UUID.randomUUID().toString())
     private val apk = ValidatedApk("private-reference", "test.package", 11, 35)
@@ -45,7 +37,7 @@ class AuroraApkInstallGatewayTest {
     private val journal by lazy { FileOperationStore(temporary.newFolder("journal")) }
     private val artifact by lazy { temporary.newFile("validated.apk").apply { writeText("owned") } }
 
-    private fun gateway(): AuroraApkInstallGateway {
+    private fun gateway(): PreferredApkInstallGateway {
         if (journal.read(handle) == null) {
             journal.write(
                 OperationRecord(
@@ -57,7 +49,7 @@ class AuroraApkInstallGatewayTest {
                 )
             )
         }
-        return AuroraApkInstallGateway(driver, journal, installed, access, { artifact })
+        return PreferredApkInstallGateway(driver, journal, installed, access, { artifact })
     }
 
     @Test fun preferredInstallerIsUsed() = runBlocking {
@@ -81,29 +73,29 @@ class AuroraApkInstallGatewayTest {
     @Test fun synchronousPreAcceptanceFailureCanPromptOnce() = runBlocking {
         driver.install = { kind, request ->
             if (kind == "preferred") throw OwnedPreAcceptanceException("not launched")
-            request.onPrepared(HostInstallReceipt("native", request.operationId))
-            request.onAccepted(HostInstallReceipt("native", request.operationId))
-            OwnedInstallSubmission.Accepted(HostInstallReceipt("native", request.operationId))
+            request.onPrepared(InstallReceipt("native", request.operationId))
+            request.onAccepted(InstallReceipt("native", request.operationId))
+            InstallSubmission.Accepted(InstallReceipt("native", request.operationId))
         }
         assertTrue(gateway().submit(handle, apk) is InstallSubmission.Accepted)
         assertEquals(listOf("preferred", "native"), driver.calls)
     }
 
     @Test fun asynchronousFailureNeverFallsBack() = runBlocking {
-        driver.install = { _, _ -> OwnedInstallSubmission.Unknown }
+        driver.install = { _, _ -> InstallSubmission.Unknown }
         assertEquals(InstallSubmission.Unknown, gateway().submit(handle, apk))
         assertEquals(listOf("preferred"), driver.calls)
     }
 
     @Test fun userRejectionNeverFallsBack() = runBlocking {
-        driver.install = { _, _ -> OwnedInstallSubmission.Rejected }
+        driver.install = { _, _ -> InstallSubmission.Rejected }
         assertEquals(InstallSubmission.Rejected, gateway().submit(handle, apk))
         assertEquals(listOf("preferred"), driver.calls)
     }
 
     @Test fun ambiguousExceptionNeverFallsBack() = runBlocking {
         driver.install = { _, request ->
-            request.onPrepared(HostInstallReceipt("native", request.operationId))
+            request.onPrepared(InstallReceipt("native", request.operationId))
             throw IllegalStateException("launch result lost")
         }
         assertEquals(InstallSubmission.Unknown, gateway().submit(handle, apk))
@@ -123,12 +115,12 @@ class AuroraApkInstallGatewayTest {
     @Test fun preparedReceiptPrecedesCommitAndAcceptanceIsDurable() = runBlocking {
         val gateway = gateway()
         driver.install = { _, request ->
-            val receipt = HostInstallReceipt("session", "42")
+            val receipt = InstallReceipt("session", "42")
             request.onPrepared(receipt)
             assertEquals(InstallReceipt("session", "42"), journal.read(handle)?.receipt)
             assertFalse(journal.read(handle)!!.accepted)
             request.onAccepted(receipt)
-            OwnedInstallSubmission.Accepted(receipt)
+            InstallSubmission.Accepted(receipt)
         }
         gateway.submit(handle, apk)
         assertTrue(journal.read(handle)!!.accepted)
@@ -176,7 +168,7 @@ class AuroraApkInstallGatewayTest {
                 nextApk
             )
         )
-        AuroraApkInstallGateway(driver, journal, installed, access, { reference ->
+        PreferredApkInstallGateway(driver, journal, installed, access, { reference ->
             if (reference == nextApk.reference) nextFile else artifact
         }).submit(next, nextApk)
         assertEquals(listOf(listOf(artifact), listOf(nextFile)), driver.requests.map { it.files })
@@ -184,24 +176,24 @@ class AuroraApkInstallGatewayTest {
     }
 
     @Test fun deferredHandoffRechecksAuthorityEvenBeforeJournalCatchesUp() = runBlocking {
-        driver.install = { _, _ -> OwnedInstallSubmission.Unknown }
+        driver.install = { _, _ -> InstallSubmission.Unknown }
         gateway().submit(handle, apk)
         accessDecision = AccessDecision.REVOKED
         val prepared =
             runCatching {
-                driver.requests.single().onPrepared(HostInstallReceipt("service", handle.value))
+                driver.requests.single().onPrepared(InstallReceipt("service", handle.value))
             }
         assertTrue(prepared.isFailure)
         assertEquals(InstallReceipt("attempt", handle.value), journal.read(handle)?.receipt)
     }
 
     @Test fun deferredHandoffHonoursCancellationTombstone() = runBlocking {
-        driver.install = { _, _ -> OwnedInstallSubmission.Unknown }
+        driver.install = { _, _ -> InstallSubmission.Unknown }
         gateway().submit(handle, apk)
         journal.update(handle) { it.copy(cancelRequested = true) }
         assertTrue(
             runCatching {
-                driver.requests.single().onPrepared(HostInstallReceipt("service", handle.value))
+                driver.requests.single().onPrepared(InstallReceipt("service", handle.value))
             }.isFailure
         )
     }
@@ -229,21 +221,18 @@ class AuroraApkInstallGatewayTest {
 
     private class FakeDriver : OwnedInstallerDriver {
         val calls = mutableListOf<String>()
-        val requests = mutableListOf<OwnedInstallRequest>()
+        val requests = mutableListOf<OwnedApkInstallRequest>()
         val sessions = mutableSetOf<Int>()
         val abandoned = mutableListOf<Int>()
-        var install: (String, OwnedInstallRequest) -> OwnedInstallSubmission = { _, request ->
-            val receipt = HostInstallReceipt("native", request.operationId)
+        var install: (String, OwnedApkInstallRequest) -> InstallSubmission = { _, request ->
+            val receipt = InstallReceipt("native", request.operationId)
             request.onPrepared(receipt)
             request.onAccepted(receipt)
-            OwnedInstallSubmission.Accepted(receipt)
+            InstallSubmission.Accepted(receipt)
         }
         override fun preferred() = "preferred"
         override fun systemPrompt() = "native"
-        override fun submit(
-            installer: String,
-            request: OwnedInstallRequest
-        ): OwnedInstallSubmission {
+        override fun submit(installer: String, request: OwnedApkInstallRequest): InstallSubmission {
             calls.add(installer)
             requests.add(request)
             return install(installer, request)

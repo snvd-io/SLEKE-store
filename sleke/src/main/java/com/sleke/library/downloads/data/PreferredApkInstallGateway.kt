@@ -1,14 +1,5 @@
-package com.sleke.integration.downloads
+package com.sleke.library.downloads.data
 
-import com.aurora.store.data.installer.base.HostInstallReceipt
-import com.aurora.store.data.installer.base.OwnedInstallRequest
-import com.aurora.store.data.installer.base.OwnedInstallSubmission
-import com.aurora.store.data.installer.base.OwnedPreAcceptanceException
-import com.aurora.store.data.model.DownloadStatus
-import com.aurora.store.data.room.download.Download
-import com.sleke.library.downloads.data.AccessDecision
-import com.sleke.library.downloads.data.DownloadAccessSource
-import com.sleke.library.downloads.data.FileOperationStore
 import com.sleke.library.downloads.domain.ApkInstallGateway
 import com.sleke.library.downloads.domain.DownloadFailure
 import com.sleke.library.downloads.domain.DownloadHandle
@@ -25,16 +16,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** Platform seam: selection uses Aurora's existing availability checks and Session fallback. */
-interface OwnedInstallerDriver {
-    fun preferred(): String
-    fun systemPrompt(): String
-    fun submit(installer: String, request: OwnedInstallRequest): OwnedInstallSubmission
-    fun hasOwnedSession(sessionId: Int, packageName: String): Boolean
-    fun abandonOwnedSession(sessionId: Int)
-}
-
-class AuroraApkInstallGateway(
+class PreferredApkInstallGateway(
     private val driver: OwnedInstallerDriver,
     private val store: FileOperationStore,
     private val packages: InstalledPackageSource,
@@ -88,28 +70,8 @@ class AuroraApkInstallGateway(
                 return@withContext InstallSubmission.Rejected
             }
             if (!file.isFile || file.length() == 0L) return@withContext InstallSubmission.Rejected
-            val download =
-                Download(
-                    packageName = apk.packageName,
-                    versionCode = apk.versionCode,
-                    offerType = 0,
-                    isInstalled = false,
-                    displayName = apk.packageName,
-                    iconURL = "",
-                    size = file.length(),
-                    id = 0,
-                    status = DownloadStatus.COMPLETED,
-                    progress = 100,
-                    speed = 0,
-                    timeRemaining = 0,
-                    totalFiles = 1,
-                    downloadedFiles = 1,
-                    fileList = emptyList(),
-                    sharedLibs = emptyList(),
-                    targetSdk = apk.targetSdk
-                )
-            val request = OwnedInstallRequest(
-                download,
+            val request = OwnedApkInstallRequest(
+                apk,
                 handle.value,
                 listOf(file),
                 onPrepared = { receipt ->
@@ -124,13 +86,13 @@ class AuroraApkInstallGateway(
                             ) {
                                 "Operation cannot hand off without current access"
                             }
-                            current.copy(receipt = receipt.domain())
+                            current.copy(receipt = receipt)
                         }
                     )
                 },
                 onAccepted = { receipt ->
                     store.update(handle) {
-                        if (it.state.isTerminal || it.receipt != receipt.domain()) {
+                        if (it.state.isTerminal || it.receipt != receipt) {
                             it
                         } else {
                             it.copy(
@@ -165,9 +127,9 @@ class AuroraApkInstallGateway(
             try {
                 val preferred = driver.preferred()
                 // Even an unexpected driver failure is ambiguous after this boundary; never replay it.
-                request.onPrepared(HostInstallReceipt("attempt", handle.value))
+                request.onPrepared(InstallReceipt("attempt", handle.value))
                 try {
-                    driver.submit(preferred, request).domain()
+                    driver.submit(preferred, request)
                 } catch (safe: OwnedPreAcceptanceException) {
                     if (store.read(handle)?.accepted == true ||
                         preferred == driver.systemPrompt()
@@ -185,8 +147,8 @@ class AuroraApkInstallGateway(
                                 )
                             }
                         }
-                        request.onPrepared(HostInstallReceipt("attempt", handle.value))
-                        driver.submit(driver.systemPrompt(), request).domain()
+                        request.onPrepared(InstallReceipt("attempt", handle.value))
+                        driver.submit(driver.systemPrompt(), request)
                     }
                 }
             } catch (
@@ -271,12 +233,4 @@ class AuroraApkInstallGateway(
                 InstallCancellation.Unsupported
             }
         }
-
-    private fun HostInstallReceipt.domain() = InstallReceipt(kind, reference)
-    private fun OwnedInstallSubmission.domain(): InstallSubmission = when (this) {
-        is OwnedInstallSubmission.Accepted -> InstallSubmission.Accepted(receipt.domain())
-        OwnedInstallSubmission.Completed -> InstallSubmission.Completed
-        OwnedInstallSubmission.Rejected -> InstallSubmission.Rejected
-        OwnedInstallSubmission.Unknown -> InstallSubmission.Unknown
-    }
 }

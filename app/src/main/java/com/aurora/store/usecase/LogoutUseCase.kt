@@ -1,7 +1,7 @@
 package com.aurora.store.usecase
 
-import com.sleke.integration.auth.SignOutCoordinator
-import com.sleke.integration.auth.SignOutScope
+import com.sleke.library.enterprise.data.SignOutCoordinator
+import com.sleke.library.enterprise.data.SignOutScope
 import com.sleke.library.enterprise.domain.CleanupReport
 import javax.inject.Inject
 

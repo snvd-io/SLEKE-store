@@ -49,7 +49,7 @@ class MicroGInstallerActivity : Activity() {
             }
 
             if (owned != null) {
-                com.sleke.integration.downloads.OwnedInstallerResultActivity.launchOrNotify(
+                com.sleke.integration.downloads.AuroraInstallPrompts.launchOrNotify(
                     context,
                     owned,
                     "microg",

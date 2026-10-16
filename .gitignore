@@ -49,6 +49,7 @@ app/preload/*
 
 #Exclude signing configurations & keystore
 signing.properties
+keystore.properties
 *.keystore
 
 

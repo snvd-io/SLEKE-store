@@ -1,7 +1,5 @@
-package com.sleke.integration.downloads
+package com.sleke.library.downloads.data
 
-import com.aurora.store.data.installer.base.OwnedPreAcceptanceException
-import com.aurora.store.data.installer.base.withOwnedStaging
 import java.io.IOException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

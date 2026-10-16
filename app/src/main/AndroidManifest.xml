@@ -127,12 +127,6 @@
             android:theme="@style/AppTheme.Translucent" />
 
         <activity
-            android:name="com.sleke.integration.downloads.OwnedInstallerResultActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:theme="@style/AppTheme.Translucent" />
-
-        <activity
             android:name=".data.activity.MicroGInstallerActivity"
             android:excludeFromRecents="true"
             android:exported="false"

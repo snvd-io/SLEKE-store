@@ -87,17 +87,15 @@ configure<ApplicationExtension> {
     }
 
     signingConfigs {
-        if (File("signing.properties").exists()) {
-            create("release") {
-                val properties = Properties().apply {
-                    File("signing.properties").inputStream().use { load(it) }
-                }
-
-                keyAlias = properties["KEY_ALIAS"] as String
-                keyPassword = properties["KEY_PASSWORD"] as String
-                storeFile = file(properties["STORE_FILE"] as String)
-                storePassword = properties["KEY_PASSWORD"] as String
+        create("release") {
+            val propertiesFile = rootProject.file("keystore.properties")
+            val properties = Properties().apply {
+                if (propertiesFile.exists()) propertiesFile.inputStream().use { load(it) }
             }
+            keyAlias = properties.getProperty("keyAlias")
+            keyPassword = properties.getProperty("keyPassword")
+            storeFile = properties.getProperty("storeFile")?.let { rootProject.file(it) }
+            storePassword = properties.getProperty("storePassword")
         }
         create("aosp") {
             // Generated from the AOSP test key:
@@ -118,7 +116,7 @@ configure<ApplicationExtension> {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
 
         register("nightly") {
@@ -126,6 +124,7 @@ configure<ApplicationExtension> {
             isShrinkResources = false
             isDebuggable = true
             initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
             applicationIdSuffix = ".nightly"
             versionNameSuffix = "-${lastCommitHash.get()}"
         }
@@ -281,8 +280,6 @@ dependencies {
     implementation(libs.rikka.shizuku.provider)
 
     // Test
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation(libs.junit)
     testImplementation(libs.androidx.junit)
     testImplementation(libs.google.truth)

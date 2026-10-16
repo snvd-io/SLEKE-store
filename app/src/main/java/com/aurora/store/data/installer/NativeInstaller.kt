@@ -75,7 +75,7 @@ class NativeInstaller @Inject constructor(
             runOnUiThread { context.startActivity(intent) }
         } else {
             try {
-                com.sleke.integration.downloads.OwnedInstallerResultActivity.launchOrNotify(
+                com.sleke.integration.downloads.AuroraInstallPrompts.launchOrNotify(
                     context,
                     owned,
                     "native",

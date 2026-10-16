@@ -72,7 +72,7 @@ import com.aurora.store.data.providers.AccountProvider
 import com.aurora.store.usecase.LogoutUseCase
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
-import com.sleke.integration.auth.SignOutScope
+import com.sleke.library.enterprise.data.SignOutScope
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors

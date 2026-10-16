@@ -19,8 +19,8 @@ import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.data.providers.GoogleAccountTokenProvider
 import com.aurora.store.usecase.LogoutUseCase
 import com.aurora.store.util.Preferences
-import com.sleke.integration.auth.SessionMutationGate
-import com.sleke.integration.auth.SignOutScope
+import com.sleke.library.enterprise.data.SessionMutationGate
+import com.sleke.library.enterprise.data.SignOutScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException

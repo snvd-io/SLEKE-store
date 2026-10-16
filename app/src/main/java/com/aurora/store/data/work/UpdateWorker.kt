@@ -43,13 +43,13 @@ import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_SELF_UPDATE_ENABLED
 import com.aurora.store.util.Preferences.PREFERENCE_UPDATES_AUTO
-import com.sleke.integration.auth.SessionMutationGate
 import com.sleke.library.catalog.domain.CatalogRepository
 import com.sleke.library.catalog.domain.CatalogScope
 import com.sleke.library.eligibility.domain.CatalogEligibilityPolicy
 import com.sleke.library.eligibility.domain.EligibilityResult
 import com.sleke.library.eligibility.domain.PackageFacts
 import com.sleke.library.eligibility.domain.UpdateFilterOptions
+import com.sleke.library.enterprise.data.SessionMutationGate
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.Locale

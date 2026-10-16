@@ -14,7 +14,7 @@ import com.aurora.store.data.providers.NativeDeviceInfoProvider
 import com.aurora.store.data.providers.SpoofProvider
 import com.aurora.store.usecase.LogoutUseCase
 import com.aurora.store.util.PathUtil
-import com.sleke.integration.auth.SignOutScope
+import com.sleke.library.enterprise.data.SignOutScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale

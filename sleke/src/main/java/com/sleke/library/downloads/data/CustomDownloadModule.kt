@@ -24,6 +24,22 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object CustomDownloadModule {
     @Provides @Singleton
+    fun installedPackages(source: AndroidInstalledPackageSource): InstalledPackageSource = source
+
+    @Provides @Singleton
+    fun gateway(
+        driver: OwnedInstallerDriver,
+        journal: FileOperationStore,
+        packages: InstalledPackageSource,
+        files: ApkArtifactFiles,
+        access: DownloadAccessSource
+    ): ApkInstallGateway =
+        PreferredApkInstallGateway(driver, journal, packages, access, files::resolve)
+
+    @Provides @Singleton
+    fun receipts(journal: FileOperationStore) = OwnedInstallReceiptStore(journal)
+
+    @Provides @Singleton
     fun journal(@ApplicationContext context: Context): FileOperationStore =
         FileOperationStore(File(context.noBackupFilesDir, "sleke-download-journal"))
 

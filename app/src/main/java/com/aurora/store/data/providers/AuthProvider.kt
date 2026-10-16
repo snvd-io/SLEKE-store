@@ -23,7 +23,7 @@ import com.aurora.store.data.room.account.Account
 import com.aurora.store.util.Preferences
 import com.aurora.store.util.Preferences.PREFERENCE_AUTH_DATA
 import com.aurora.store.util.Preferences.PREFERENCE_DISPENSER_URLS
-import com.sleke.integration.auth.SessionMutationGate
+import com.sleke.library.enterprise.data.SessionMutationGate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton

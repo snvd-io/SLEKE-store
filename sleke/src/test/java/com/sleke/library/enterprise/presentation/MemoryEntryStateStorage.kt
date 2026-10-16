@@ -1,4 +1,4 @@
-package com.sleke.integration.auth
+package com.sleke.library.enterprise.presentation
 
 class MemoryEntryStateStorage : EntryStateStorage {
     override var intent = EntryIntent(null, null)
