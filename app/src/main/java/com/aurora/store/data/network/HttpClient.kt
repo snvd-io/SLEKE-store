@@ -9,9 +9,6 @@ import android.util.Log
 import com.aurora.extensions.TAG
 import com.aurora.gplayapi.data.models.PlayResponse
 import com.aurora.gplayapi.network.IHttpClient
-import com.aurora.store.BuildConfig.APPLICATION_ID
-import com.aurora.store.BuildConfig.VERSION_CODE
-import com.aurora.store.BuildConfig.VERSION_NAME
 import com.sleke.library.util.SlekeConstants
 import java.io.IOException
 import javax.inject.Inject
@@ -152,8 +149,8 @@ class HttpClient @Inject constructor(private val okHttpClient: OkHttpClient) : I
         responseBytes = response.body.bytes(),
         errorString = if (!response.isSuccessful) response.message else String()
     ).also {
-            val isCached = if (response.cacheResponse != null) "CACHED" else "NETWORK"
-            _responseCode.value = response.code
-            Log.i(TAG, "OKHTTP [$isCached] [${response.code}] ${response.request.url}")
+        val isCached = if (response.cacheResponse != null) "CACHED" else "NETWORK"
+        _responseCode.value = response.code
+        Log.i(TAG, "OKHTTP [$isCached] [${response.code}] ${response.request.url}")
     }
 }

@@ -24,7 +24,7 @@ private const val TARGET_VALUE_ANIMATION = 2f
 
 fun Modifier.shimmer(
     initialValue: Float = INITIAL_VALUE_ANIMATION,
-    targetValue: Float = TARGET_VALUE_ANIMATION,
+    targetValue: Float = TARGET_VALUE_ANIMATION
 ): Modifier = composed {
     var size by remember {
         mutableStateOf(IntSize.Zero)
@@ -32,7 +32,7 @@ fun Modifier.shimmer(
     val width = size.width.toFloat()
     val startOffsetX by animateTransitionFloat(
         initialValue = initialValue * width,
-        targetValue = targetValue * width,
+        targetValue = targetValue * width
     )
     val transparent = Color.LightGray.copy(alpha = 0.2f)
     val white = Color.LightGray.copy(alpha = 0.6f)
@@ -42,7 +42,7 @@ fun Modifier.shimmer(
             0f to transparent,
             0.45f to white,
             0.55f to white,
-            1f to transparent,
+            1f to transparent
         )
     }
 
@@ -50,8 +50,8 @@ fun Modifier.shimmer(
         brush = Brush.horizontalGradient(
             colorStops = colorStops,
             startX = startOffsetX,
-            endX = startOffsetX + width,
-        ),
+            endX = startOffsetX + width
+        )
     ).onGloballyPositioned {
         size = it.size
     }
@@ -62,15 +62,15 @@ private fun animateTransitionFloat(
     initialValue: Float,
     targetValue: Float,
     durationMillis: Int = 2500,
-    label: String = "animateTransitionFloat",
+    label: String = "animateTransitionFloat"
 ): State<Float> {
     val transition = rememberInfiniteTransition(label = "rememberInfiniteTransition")
     return transition.animateFloat(
         initialValue = initialValue,
         targetValue = targetValue,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = durationMillis, easing = EaseOut),
+            animation = tween(durationMillis = durationMillis, easing = EaseOut)
         ),
-        label = label,
+        label = label
     )
 }

@@ -59,7 +59,7 @@ private fun ScreenContent(
     onNavigateTo: (Destination) -> Unit = {},
     onDeviceSpoofImport: (uri: Uri) -> Unit = {},
     onDeviceSpoofExport: (uri: Uri) -> Unit = {},
-    onLogout: () -> Unit = {}
+    onLogout: suspend () -> Unit = {}
 ) {
     val context = LocalContext.current
     val pagerState = rememberPagerState { pages.size }

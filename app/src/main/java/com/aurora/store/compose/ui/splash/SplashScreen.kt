@@ -12,7 +12,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Base64
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -45,6 +44,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,9 +73,9 @@ import com.aurora.store.util.CertUtil.GOOGLE_PLAY_CERT
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.viewmodel.auth.AuthViewModel
-import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.google.firebase.auth.FirebaseAuth
+import com.sleke.library.enterprise.presentation.EmailEntryResult
+import com.sleke.library.enterprise.presentation.EnterpriseEmailEntry
+import com.sleke.library.enterprise.presentation.EntryIntent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,6 +89,12 @@ fun SplashScreen(
     val activity = LocalActivity.current as? ComponentActivity
 
     val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val entryNavigation by viewModel.entryNavigation.collectAsStateWithLifecycle()
+    val emailBusy by viewModel.emailBusy.collectAsStateWithLifecycle()
+    val entryIntent =
+        remember(deepLinkPackageName, deepLinkDevId) {
+            EntryIntent(deepLinkPackageName, deepLinkDevId)
+        }
     val isOnline = LocalNetworkStatus.current == NetworkStatus.AVAILABLE
 
     val canMicroGLogin = PackageUtil.hasSupportedMicroGVariant(context) &&
@@ -97,6 +103,7 @@ fun SplashScreen(
     var anonymousLoading by remember { mutableStateOf(false) }
     var googleLoading by remember { mutableStateOf(false) }
     var emailLoading by remember { mutableStateOf(false) }
+    var googleProviderEpoch by rememberSaveable { mutableStateOf(viewModel.captureEntryEpoch()) }
 
     val accountLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -108,6 +115,7 @@ fun SplashScreen(
                 context = context,
                 accountName = accountName,
                 oldToken = null,
+                epoch = googleProviderEpoch,
                 activity = activity,
                 onError = { googleLoading = false }
             )
@@ -116,20 +124,23 @@ fun SplashScreen(
         }
     }
 
-    // Enterprise sign-in for SLEKE accounts, backed by our own Firebase project.
-    val emailSignInLauncher = rememberLauncherForActivityResult(
-        contract = FirebaseAuthUIActivityResultContract()
-    ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            val user = FirebaseAuth.getInstance().currentUser
-            if (user != null) {
-                viewModel.onEmailSignIn(user.uid, user.email.orEmpty())
-            } else {
-                emailLoading = false
-                Toast.makeText(context, R.string.login_failed, Toast.LENGTH_LONG).show()
-            }
-        } else {
-            emailLoading = false
+    LaunchedEffect(entryNavigation?.id) {
+        val effect = entryNavigation ?: return@LaunchedEffect
+        val (packageName, developerId) = effect.intent
+        if (!viewModel.consumeEntryNavigation(effect.id)) return@LaunchedEffect
+        ExodusTrackerWorker.enqueue(context)
+        when {
+            !developerId.isNullOrBlank() -> onNavigateTo(
+                Destination.DevProfile(developerId)
+            )
+            !packageName.isNullOrBlank() -> onNavigateTo(
+                Destination.AppDetails(packageName)
+            )
+            else -> onNavigateTo(
+                Destination.Main(
+                    Preferences.getInteger(context, Preferences.PREFERENCE_DEFAULT_SELECTED_TAB)
+                )
+            )
         }
     }
 
@@ -139,29 +150,14 @@ fun SplashScreen(
                 anonymousLoading = false
                 googleLoading = false
                 emailLoading = false
-                ExodusTrackerWorker.enqueue(context)
-                when {
-                    !deepLinkDevId.isNullOrBlank() -> onNavigateTo(
-                        Destination.DevProfile(deepLinkDevId)
-                    )
-                    !deepLinkPackageName.isNullOrBlank() -> onNavigateTo(
-                        Destination.AppDetails(deepLinkPackageName)
-                    )
-                    else -> onNavigateTo(
-                        Destination.Main(
-                            Preferences.getInteger(
-                                context,
-                                Preferences.PREFERENCE_DEFAULT_SELECTED_TAB
-                            )
-                        )
-                    )
-                }
+                if (!emailBusy) viewModel.completePlayEntry(entryIntent)
             }
             is AuthState.PendingAccountManager -> requestAuthTokenForGoogle(
                 viewModel = viewModel,
                 context = context,
                 accountName = state.email,
                 oldToken = state.token,
+                epoch = state.epoch,
                 activity = activity,
                 onError = { googleLoading = false }
             )
@@ -180,7 +176,8 @@ fun SplashScreen(
         }
     }
 
-    val isLoading = authState == AuthState.Init ||
+    val isLoading = emailBusy ||
+        authState == AuthState.Init ||
         authState == AuthState.Available ||
         authState == AuthState.Fetching ||
         authState == AuthState.Verifying ||
@@ -292,10 +289,12 @@ fun SplashScreen(
                     ) {
                         Button(
                             modifier = Modifier.width(dimensionResource(R.dimen.width_button)),
-                            enabled = !anonymousLoading && !googleLoading && !emailLoading && isOnline,
+                            enabled =
+                            !anonymousLoading && !googleLoading && !emailLoading && isOnline,
                             onClick = {
                                 if (canMicroGLogin) {
                                     googleLoading = true
+                                    googleProviderEpoch = viewModel.captureEntryEpoch()
                                     accountLauncher.launch(
                                         AccountManager.newChooseAccountIntent(
                                             null,
@@ -308,7 +307,12 @@ fun SplashScreen(
                                         )
                                     )
                                 } else {
-                                    onNavigateTo(Destination.GoogleLogin())
+                                    onNavigateTo(
+                                        Destination.GoogleLogin(
+                                            packageName = deepLinkPackageName,
+                                            developerId = deepLinkDevId
+                                        )
+                                    )
                                 }
                             }
                         ) {
@@ -317,7 +321,8 @@ fun SplashScreen(
                         if (BuildConfig.SHOW_ANONYMOUS_LOGIN) {
                             OutlinedButton(
                                 modifier = Modifier.width(dimensionResource(R.dimen.width_button)),
-                                enabled = !googleLoading && !anonymousLoading && !emailLoading && isOnline,
+                                enabled =
+                                !googleLoading && !anonymousLoading && !emailLoading && isOnline,
                                 onClick = {
                                     anonymousLoading = true
                                     viewModel.buildAnonymousAuthData()
@@ -326,23 +331,25 @@ fun SplashScreen(
                                 Text(stringResource(R.string.account_anonymous))
                             }
                         }
-                        OutlinedButton(
+                        EnterpriseEmailEntry(
                             modifier = Modifier.width(dimensionResource(R.dimen.width_button)),
-                            enabled = !googleLoading && !anonymousLoading && !emailLoading && isOnline,
-                            onClick = {
+                            enabled =
+                            !googleLoading && !anonymousLoading && !emailLoading && isOnline,
+                            onStarted = {
                                 emailLoading = true
-                                val providers = listOf(AuthUI.IdpConfig.EmailBuilder().build())
-                                val intent = AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setTheme(R.style.FirebaseUITheme)
-                                    .setLogo(com.sleke.library.R.drawable.sleke_login_logo)
-                                    .setAvailableProviders(providers)
-                                    .build()
-                                emailSignInLauncher.launch(intent)
+                                viewModel.rememberEntryIntent(entryIntent)
+                            },
+                            onResult = { result ->
+                                emailLoading = false
+                                when (result) {
+                                    EmailEntryResult.Completed -> viewModel.onEmailSignIn(
+                                        entryIntent
+                                    )
+                                    EmailEntryResult.Cancelled -> viewModel.onEmailCancelled()
+                                    is EmailEntryResult.Failed -> viewModel.onEmailFailure()
+                                }
                             }
-                        ) {
-                            Text(stringResource(R.string.account_email))
-                        }
+                        )
                         if (googleLoading || anonymousLoading || emailLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
@@ -374,6 +381,7 @@ private fun requestAuthTokenForGoogle(
     context: android.content.Context,
     accountName: String,
     oldToken: String?,
+    epoch: Long,
     activity: ComponentActivity?,
     onError: () -> Unit
 ) {
@@ -393,7 +401,7 @@ private fun requestAuthTokenForGoogle(
             { result ->
                 val token = result.result.getString(AccountManager.KEY_AUTHTOKEN)
                 if (token != null) {
-                    viewModel.buildGoogleAuthData(accountName, token, AuthHelper.Token.AUTH)
+                    viewModel.buildGoogleAuthData(accountName, token, AuthHelper.Token.AUTH, epoch)
                 } else {
                     Log.e("SplashScreen", "AccountManager returned null auth token")
                     onError()

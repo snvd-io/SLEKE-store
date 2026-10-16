@@ -94,9 +94,18 @@ object CommonUtil {
         )
     }
 
-    fun cleanupInstallationSessions(context: Context) {
+    fun cleanupInstallationSessions(
+        context: Context,
+        retainedSessionIds: Set<Int> = emptySet(),
+        candidateSessionIds: Set<Int>? = null
+    ) {
         val packageInstaller = context.packageManager.packageInstaller
         for (sessionInfo in packageInstaller.mySessions) {
+            if (sessionInfo.sessionId in retainedSessionIds ||
+                (candidateSessionIds != null && sessionInfo.sessionId !in candidateSessionIds)
+            ) {
+                continue
+            }
             try {
                 val sessionId = sessionInfo.sessionId
                 packageInstaller.abandonSession(sessionInfo.sessionId)

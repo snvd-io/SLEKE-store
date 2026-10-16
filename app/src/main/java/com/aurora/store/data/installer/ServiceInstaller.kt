@@ -23,7 +23,9 @@ import com.aurora.store.AuroraApp
 import com.aurora.store.BuildConfig
 import com.aurora.store.R
 import com.aurora.store.data.event.InstallerEvent
+import com.aurora.store.data.installer.base.HostInstallReceipt
 import com.aurora.store.data.installer.base.InstallerBase
+import com.aurora.store.data.installer.base.OwnedInstallRequest
 import com.aurora.store.data.model.Installer
 import com.aurora.store.data.model.InstallerInfo
 import com.aurora.store.data.room.download.Download
@@ -35,6 +37,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Singleton
 @Deprecated("Deprecated in favour of RootInstaller")
@@ -61,17 +65,17 @@ class ServiceInstaller @Inject constructor(
             )
     }
 
-    override fun install(download: Download) {
-        super.install(download)
+    override fun installInternal(download: Download, owned: OwnedInstallRequest?) {
+        super.installInternal(download, owned)
 
         when {
-            isAlreadyQueued(download.packageName) -> {
+            owned == null && isAlreadyQueued(download.packageName) -> {
                 Log.i(TAG, "${download.packageName} already queued")
             }
 
             PackageUtil.isInstalled(context, PRIVILEGED_EXTENSION_PACKAGE_NAME) -> {
                 Log.i(TAG, "Received service install request for ${download.packageName}")
-                val fileList = getFiles(download.packageName, download.versionCode)
+                val fileList = getFiles(download.packageName, download.versionCode, owned = owned)
                 xInstall(
                     download.packageName,
                     fileList.map { file ->
@@ -83,110 +87,202 @@ class ServiceInstaller @Inject constructor(
                             )
                         }
                     },
-                    fileList.map { it.absolutePath }
+                    fileList.map { it.absolutePath },
+                    owned
                 )
             }
 
             else -> {
-                postError(
-                    download.packageName,
-                    context.getString(R.string.installer_status_failure),
-                    context.getString(R.string.installer_service_unavailable)
-                )
+                owned?.onFinished?.invoke(false)
+                if (owned == null) {
+                    postError(
+                        download.packageName,
+                        context.getString(R.string.installer_status_failure),
+                        context.getString(R.string.installer_service_unavailable)
+                    )
+                }
             }
         }
     }
 
-    private fun xInstall(packageName: String, uriList: List<Uri>, fileList: List<String>) {
+    private fun xInstall(
+        packageName: String,
+        uriList: List<Uri>,
+        fileList: List<String>,
+        owned: OwnedInstallRequest?
+    ) {
+        val receipt = owned?.let { HostInstallReceipt("service", it.operationId) }
+        fun reportError(packageName: String, error: String?, extra: String?) {
+            if (owned == null) {
+                postError(packageName, error, extra)
+            } else {
+                Log.e(TAG, "Owned service installer error: $error")
+            }
+        }
         executor.execute {
             val readyWithAction = AtomicBoolean(false)
             Handler(Looper.getMainLooper()).post {
-                serviceConnection = object : ServiceConnection {
+                lateinit var connection: ServiceConnection
+                connection = object : ServiceConnection {
                     override fun onServiceConnected(name: ComponentName, binder: IBinder) {
-                        if (isAlreadyQueued(packageName)) {
+                        if (owned == null && isAlreadyQueued(packageName)) {
                             if (::serviceConnection.isInitialized) {
-                                context.unbindService(serviceConnection)
+                                context.unbindService(connection)
                             }
                             readyWithAction.set(true)
                             return
                         }
-                        AuroraApp.enqueuedInstalls.add(packageName)
+                        if (owned == null) AuroraApp.enqueuedInstalls.add(packageName)
                         val service = IPrivilegedService.Stub.asInterface(binder)
 
-                        if (service.hasPrivilegedPermissions()) {
-                            Log.i(TAG, context.getString(R.string.installer_service_available))
+                        fun submit() {
+                            if (service.hasPrivilegedPermissions()) {
+                                Log.i(TAG, context.getString(R.string.installer_service_available))
 
-                            val callback = object : IPrivilegedCallback.Stub() {
+                                val callback = object : IPrivilegedCallback.Stub() {
 
-                                override fun handleResult(packageName: String, returnCode: Int) {}
+                                    override fun handleResult(
+                                        packageName: String,
+                                        returnCode: Int
+                                    ) {}
 
-                                override fun handleResultX(
-                                    packageName: String,
-                                    returnCode: Int,
-                                    extra: String?
-                                ) {
-                                    removeFromInstallQueue(packageName)
-                                    handleCallback(packageName, returnCode, extra)
-                                    readyWithAction.set(true)
+                                    override fun handleResultX(
+                                        packageName: String,
+                                        returnCode: Int,
+                                        extra: String?
+                                    ) {
+                                        if (owned != null &&
+                                            packageName != owned.download.packageName
+                                        ) {
+                                            return
+                                        }
+                                        if (owned == null) removeFromInstallQueue(packageName)
+                                        if (owned ==
+                                            null
+                                        ) {
+                                            handleCallback(packageName, returnCode, extra)
+                                        } else {
+                                            AuroraApp.scope.launch(Dispatchers.IO) {
+                                                handleCallback(
+                                                    packageName,
+                                                    returnCode,
+                                                    extra,
+                                                    owned
+                                                )
+                                                runCatching { context.unbindService(connection) }
+                                            }
+                                        }
+                                        readyWithAction.set(true)
+                                    }
                                 }
-                            }
 
-                            try {
-                                if (service.isMoreMethodImplemented) {
-                                    try {
-                                        service.installSplitPackageMore(
+                                try {
+                                    if (service.isMoreMethodImplemented) {
+                                        try {
+                                            // Binding/capability checks can wait: validate authority at the actual install call.
+                                            if (owned != null &&
+                                                receipt != null
+                                            ) {
+                                                owned.onPrepared(receipt)
+                                            }
+                                            service.installSplitPackageMore(
+                                                packageName,
+                                                uriList,
+                                                ACTION_INSTALL_REPLACE_EXISTING,
+                                                BuildConfig.APPLICATION_ID,
+                                                callback,
+                                                fileList
+                                            )
+                                            if (owned != null &&
+                                                receipt != null
+                                            ) {
+                                                owned.onAccepted(receipt)
+                                            }
+                                        } catch (e: RemoteException) {
+                                            // A transport failure may happen after the service accepted the request.
+                                            if (owned == null) removeFromInstallQueue(packageName)
+                                            reportError(
+                                                packageName,
+                                                e.localizedMessage,
+                                                e.stackTraceToString()
+                                            )
+                                            readyWithAction.set(true)
+                                        }
+                                    } else if (owned != null) {
+                                        // The capability check proves the newer entry point was not called.
+                                        if (receipt != null) owned.onPrepared(receipt)
+                                        service.installSplitPackageX(
                                             packageName,
                                             uriList,
                                             ACTION_INSTALL_REPLACE_EXISTING,
                                             BuildConfig.APPLICATION_ID,
-                                            callback,
-                                            fileList
+                                            callback
+                                        )
+                                        if (owned != null &&
+                                            receipt != null
+                                        ) {
+                                            owned.onAccepted(receipt)
+                                        }
+                                    } else {
+                                        throw Exception("New method not implemented")
+                                    }
+                                } catch (th: Throwable) {
+                                    if (owned != null) {
+                                        // Unknown external acceptance: retain receipt and never invoke another entry point.
+                                        readyWithAction.set(true)
+                                        return
+                                    }
+                                    th.printStackTrace()
+                                    try {
+                                        service.installSplitPackageX(
+                                            packageName,
+                                            uriList,
+                                            ACTION_INSTALL_REPLACE_EXISTING,
+                                            BuildConfig.APPLICATION_ID,
+                                            callback
                                         )
                                     } catch (e: RemoteException) {
-                                        removeFromInstallQueue(packageName)
-                                        postError(
+                                        if (owned == null) removeFromInstallQueue(packageName)
+                                        reportError(
                                             packageName,
                                             e.localizedMessage,
                                             e.stackTraceToString()
                                         )
                                         readyWithAction.set(true)
                                     }
-                                } else {
-                                    throw Exception("New method not implemented")
                                 }
-                            } catch (th: Throwable) {
-                                th.printStackTrace()
+                            } else {
+                                owned?.onFinished?.invoke(false)
+                                if (owned == null) removeFromInstallQueue(packageName)
+                                reportError(
+                                    packageName,
+                                    context.getString(R.string.installer_status_failure),
+                                    context.getString(R.string.installer_service_misconfigured)
+                                )
+                                readyWithAction.set(true)
+                            }
+                        }
+                        if (owned == null) {
+                            submit()
+                        } else {
+                            AuroraApp.scope.launch(Dispatchers.IO) {
                                 try {
-                                    service.installSplitPackageX(
-                                        packageName,
-                                        uriList,
-                                        ACTION_INSTALL_REPLACE_EXISTING,
-                                        BuildConfig.APPLICATION_ID,
-                                        callback
-                                    )
-                                } catch (e: RemoteException) {
-                                    removeFromInstallQueue(packageName)
-                                    postError(
-                                        packageName,
-                                        e.localizedMessage,
-                                        e.stackTraceToString()
+                                    submit()
+                                } catch (exception: Exception) {
+                                    Log.e(
+                                        TAG,
+                                        "Owned service handoff could not be confirmed",
+                                        exception
                                     )
                                     readyWithAction.set(true)
+                                    runCatching { context.unbindService(connection) }
                                 }
                             }
-                        } else {
-                            removeFromInstallQueue(packageName)
-                            postError(
-                                packageName,
-                                context.getString(R.string.installer_status_failure),
-                                context.getString(R.string.installer_service_misconfigured)
-                            )
-                            readyWithAction.set(true)
                         }
                     }
 
                     override fun onServiceDisconnected(name: ComponentName) {
-                        removeFromInstallQueue(packageName)
+                        if (owned == null) removeFromInstallQueue(packageName)
                         readyWithAction.set(true)
                         Log.e(TAG, "Disconnected from Aurora Services")
                     }
@@ -195,11 +291,22 @@ class ServiceInstaller @Inject constructor(
                 val intent = Intent(PRIVILEGED_EXTENSION_SERVICE_INTENT)
                 intent.setPackage(PRIVILEGED_EXTENSION_PACKAGE_NAME)
 
-                context.bindService(
-                    intent,
-                    serviceConnection,
-                    Context.BIND_AUTO_CREATE
-                )
+                if (owned == null) serviceConnection = connection
+                if (owned == null) {
+                    context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+                } else {
+                    try {
+                        if (!context.bindService(intent, connection, Context.BIND_AUTO_CREATE)) {
+                            AuroraApp.scope.launch(Dispatchers.IO) { owned.onFinished(false) }
+                            readyWithAction.set(true)
+                        }
+                    } catch (exception: Exception) {
+                        // This is an asynchronous failure, so it cannot launch another installer.
+                        AuroraApp.scope.launch(Dispatchers.IO) { owned.onFinished(false) }
+                        readyWithAction.set(true)
+                        Log.e(TAG, "Unable to bind owned installation service", exception)
+                    }
+                }
             }
             while (!readyWithAction.get()) {
                 Thread.sleep(1000)
@@ -227,20 +334,42 @@ class ServiceInstaller @Inject constructor(
         }
     }
 
-    private fun handleCallback(packageName: String, returnCode: Int, extra: String?) {
+    private fun handleCallback(
+        packageName: String,
+        returnCode: Int,
+        extra: String?,
+        owned: OwnedInstallRequest? = null
+    ) {
         Log.i(TAG, "Services Callback : $packageName $returnCode $extra")
 
         try {
             when (returnCode) {
                 PackageInstaller.STATUS_SUCCESS -> {
-                    AuroraApp.events.send(InstallerEvent.Installed(packageName = packageName))
+                    if (owned ==
+                        null
+                    ) {
+                        AuroraApp.events.send(
+                            InstallerEvent.Installed(packageName = packageName)
+                        )
+                    }
                     // Installation is not yet finished if this is a shared library
-                    if (packageName == download?.packageName) onInstallationSuccess()
+                    if (owned != null ||
+                        packageName == download?.packageName
+                    ) {
+                        onInstallationSuccess(owned)
+                    }
                 }
 
-                else -> postError(packageName, getErrorString(context, returnCode), extra)
+                else -> {
+                    owned?.onFinished?.invoke(false)
+                    if (owned ==
+                        null
+                    ) {
+                        postError(packageName, getErrorString(context, returnCode), extra)
+                    }
+                }
             }
-            if (::serviceConnection.isInitialized) {
+            if (owned == null && ::serviceConnection.isInitialized) {
                 context.unbindService(serviceConnection)
             }
         } catch (th: Throwable) {

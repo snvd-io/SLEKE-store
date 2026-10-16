@@ -87,17 +87,15 @@ configure<ApplicationExtension> {
     }
 
     signingConfigs {
-        if (File("signing.properties").exists()) {
-            create("release") {
-                val properties = Properties().apply {
-                    File("signing.properties").inputStream().use { load(it) }
-                }
-
-                keyAlias = properties["KEY_ALIAS"] as String
-                keyPassword = properties["KEY_PASSWORD"] as String
-                storeFile = file(properties["STORE_FILE"] as String)
-                storePassword = properties["KEY_PASSWORD"] as String
+        create("release") {
+            val propertiesFile = rootProject.file("keystore.properties")
+            val properties = Properties().apply {
+                if (propertiesFile.exists()) propertiesFile.inputStream().use { load(it) }
             }
+            keyAlias = properties.getProperty("keyAlias")
+            keyPassword = properties.getProperty("keyPassword")
+            storeFile = properties.getProperty("storeFile")?.let { rootProject.file(it) }
+            storePassword = properties.getProperty("storePassword")
         }
         create("aosp") {
             // Generated from the AOSP test key:
@@ -118,7 +116,7 @@ configure<ApplicationExtension> {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
 
         register("nightly") {
@@ -126,6 +124,7 @@ configure<ApplicationExtension> {
             isShrinkResources = false
             isDebuggable = true
             initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
             applicationIdSuffix = ".nightly"
             versionNameSuffix = "-${lastCommitHash.get()}"
         }
@@ -215,8 +214,16 @@ configurations.all {
 dependencies {
     implementation(project(":sleke"))
 
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
-    implementation("androidx.room:room-paging:2.8.3")
+    implementation(libs.timber)
+    // Library Hilt provider types appear in the generated application component.
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.ktor.client.core)
+    // DataStore is read directly only by the isolated preference compatibility test.
+    androidTestImplementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.androidx.compose.material.icons.extended)
     // Google's Goodies
     implementation(libs.google.android.material)
     implementation(libs.google.protobuf.javalite)
@@ -247,9 +254,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-
-    // Paging Compose
-    implementation("androidx.paging:paging-compose:3.3.6")
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
@@ -301,7 +305,7 @@ dependencies {
 
     implementation(libs.process.phoenix)
 
-//    "huaweiImplementation"(libs.huawei.hms.coreservice)
+    "huaweiImplementation"(libs.huawei.hms.coreservice)
 
     // LeakCanary
     debugImplementation(libs.squareup.leakcanary.android)

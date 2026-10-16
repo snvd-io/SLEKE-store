@@ -37,6 +37,7 @@ import com.aurora.store.data.model.AuthState
 import com.aurora.store.util.AC2DMUtil
 import com.aurora.store.util.Preferences
 import com.aurora.store.viewmodel.auth.AuthViewModel
+import com.sleke.library.enterprise.presentation.EntryIntent
 
 private const val EMBEDDED_SETUP_URL = "https://accounts.google.com/EmbeddedSetup"
 private const val AUTH_TOKEN = "oauth_token"
@@ -55,8 +56,12 @@ private const val JS_PROFILE_EMAIL = """
 fun GoogleLoginScreen(
     onNavigateTo: (Destination) -> Unit,
     addAccount: Boolean = false,
+    deepLinkPackageName: String? = null,
+    deepLinkDeveloperId: String? = null,
     viewModel: AuthViewModel = hiltViewModel()
 ) {
+    val providerEpoch = remember { viewModel.captureEntryEpoch() }
+    val entryNavigation by viewModel.entryNavigation.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     var progress by remember { mutableFloatStateOf(0f) }
@@ -66,20 +71,31 @@ fun GoogleLoginScreen(
     LaunchedEffect(Unit) {
         AuroraApp.events.authEvent.collect { event ->
             if (event is AuthEvent.GoogleLogin) {
+                if (event.epoch != viewModel.captureEntryEpoch()) return@collect
                 if (event.success) {
                     if (addAccount) {
-                        viewModel.addGoogleAuthData(event.email, event.token)
+                        viewModel.addGoogleAuthData(event.email, event.token, event.epoch)
                     } else {
                         viewModel.buildGoogleAuthData(
                             event.email,
                             event.token,
-                            AuthHelper.Token.AAS
+                            AuthHelper.Token.AAS,
+                            event.epoch
                         )
                     }
                 } else {
                     Toast.makeText(context, R.string.toast_aas_token_failed, Toast.LENGTH_LONG)
                         .show()
-                    onNavigateTo(if (addAccount) Destination.Accounts else Destination.Splash())
+                    onNavigateTo(
+                        if (addAccount) {
+                            Destination.Accounts
+                        } else {
+                            Destination.Splash(
+                                deepLinkPackageName,
+                                deepLinkDeveloperId
+                            )
+                        }
+                    )
                 }
             }
         }
@@ -100,14 +116,33 @@ fun GoogleLoginScreen(
     } else {
         LaunchedEffect(authState) {
             when (authState) {
-                AuthState.SignedIn, AuthState.Valid -> onNavigateTo(
-                    Destination.Main(
-                        Preferences.getInteger(context, Preferences.PREFERENCE_DEFAULT_SELECTED_TAB)
-                    )
+                AuthState.SignedIn, AuthState.Valid -> viewModel.completePlayEntry(
+                    EntryIntent(deepLinkPackageName, deepLinkDeveloperId)
                 )
-                is AuthState.Failed -> onNavigateTo(Destination.Splash())
+                is AuthState.Failed -> onNavigateTo(
+                    Destination.Splash(deepLinkPackageName, deepLinkDeveloperId)
+                )
                 else -> Unit
             }
+        }
+    }
+
+    LaunchedEffect(entryNavigation?.id) {
+        val effect = entryNavigation ?: return@LaunchedEffect
+        val (packageName, developerId) = effect.intent
+        if (!viewModel.consumeEntryNavigation(effect.id)) return@LaunchedEffect
+        when {
+            !developerId.isNullOrBlank() -> onNavigateTo(
+                Destination.DevProfile(developerId)
+            )
+            !packageName.isNullOrBlank() -> onNavigateTo(
+                Destination.AppDetails(packageName)
+            )
+            else -> onNavigateTo(
+                Destination.Main(
+                    Preferences.getInteger(context, Preferences.PREFERENCE_DEFAULT_SELECTED_TAB)
+                )
+            )
         }
     }
 
@@ -152,7 +187,12 @@ fun GoogleLoginScreen(
                             val oauthToken = cookieMap[AUTH_TOKEN] ?: return
                             view.evaluateJavascript(JS_PROFILE_EMAIL) { result ->
                                 val email = result.trim('"')
-                                viewModel.buildAuthData(view.context, email, oauthToken)
+                                viewModel.buildAuthData(
+                                    view.context,
+                                    email,
+                                    oauthToken,
+                                    providerEpoch
+                                )
                             }
                         }
                     }

@@ -9,6 +9,7 @@ import com.aurora.store.data.room.download.Download
 
 interface IInstaller {
     fun install(download: Download)
+    fun installOwned(request: OwnedInstallRequest): OwnedInstallSubmission
     fun clearQueue()
     fun isAlreadyQueued(packageName: String): Boolean
     fun removeFromInstallQueue(packageName: String)

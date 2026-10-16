@@ -13,6 +13,7 @@ buildscript {
 }
 
 plugins {
+    base
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.jetbrains.kotlin.compose) apply false
     alias(libs.plugins.jetbrains.kotlin.parcelize) apply false
@@ -22,4 +23,50 @@ plugins {
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.hilt.android.plugin) apply false
     alias(libs.plugins.google.firebase.crashlytics) apply false
+}
+
+val testSlekeArchitecture by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Tests the SLEKE architecture checker against passing and violating fixtures."
+    workingDir(rootDir)
+    environment("PYTHONDONTWRITEBYTECODE", "1")
+    commandLine(
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/tests",
+        "-p",
+        "test_sleke_architecture.py"
+    )
+    inputs.file("scripts/check_sleke_architecture.py")
+    inputs.files(fileTree("scripts/tests") { include("test_sleke_architecture.py") })
+}
+
+val checkSlekeArchitecture by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Checks SLEKE source and dependency boundaries across every source set."
+    dependsOn(testSlekeArchitecture)
+    workingDir(rootDir)
+    environment("PYTHONDONTWRITEBYTECODE", "1")
+    commandLine("python3", "scripts/check_sleke_architecture.py", "--root", rootDir.absolutePath)
+    inputs.file("scripts/check_sleke_architecture.py")
+    inputs.files(fileTree("sleke/src") { include("**/*.kt") })
+    inputs.files(fileTree("sleke") { include("build.gradle*") })
+}
+
+project(":sleke") {
+    val checkArchitecture by tasks.registering {
+        group = "verification"
+        description = "Runs the SLEKE boundary checker and its regression fixtures."
+        dependsOn(rootProject.tasks.named("checkSlekeArchitecture"))
+    }
+    tasks.matching { it.name == "check" }.configureEach {
+        dependsOn(checkArchitecture)
+    }
+}
+
+tasks.named("check") {
+    dependsOn(":app:check", ":sleke:check", checkSlekeArchitecture)
 }

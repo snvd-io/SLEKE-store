@@ -10,10 +10,11 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.aurora.extensions.TAG
-import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.data.providers.NativeDeviceInfoProvider
 import com.aurora.store.data.providers.SpoofProvider
+import com.aurora.store.usecase.LogoutUseCase
 import com.aurora.store.util.PathUtil
+import com.sleke.library.enterprise.data.SignOutScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale
@@ -25,12 +26,12 @@ import kotlinx.coroutines.flow.asStateFlow
 @HiltViewModel
 class SpoofViewModel @Inject constructor(
     private val spoofProvider: SpoofProvider,
-    private val authProvider: AuthProvider,
+    private val logoutUseCase: LogoutUseCase,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    /** Full sign-out, clearing both the account DB rows and the legacy prefs. */
-    fun logout() = authProvider.logout()
+    /** Rebuild Play device credentials while preserving enterprise identity and account bindings. */
+    suspend fun logout() = logoutUseCase(SignOutScope.PLAY_RESET)
 
     val defaultLocale: Locale = Locale.getDefault()
     val defaultProperties = NativeDeviceInfoProvider.getNativeDeviceProperties(context)

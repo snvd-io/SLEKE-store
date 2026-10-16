@@ -7,9 +7,9 @@ package com.aurora.store.viewmodel.auth
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aurora.Constants
 import com.aurora.extensions.TAG
 import com.aurora.gplayapi.data.models.AuthData
 import com.aurora.gplayapi.helpers.AuthHelper
@@ -23,17 +23,19 @@ import com.aurora.store.data.providers.AuthProvider
 import com.aurora.store.usecase.LogoutUseCase
 import com.aurora.store.util.AC2DMTask
 import com.aurora.store.util.PackageUtil
-import com.aurora.store.util.Preferences
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
-import com.sleke.library.data.datastore.SlekePreferencesDataStore
-import com.sleke.library.data.repository.ApkRepository
+import com.sleke.library.enterprise.data.SessionMutationGate
+import com.sleke.library.enterprise.data.SignOutScope
+import com.sleke.library.enterprise.domain.EnterpriseSessionRepository
+import com.sleke.library.enterprise.domain.PlaySessionGateway
+import com.sleke.library.enterprise.presentation.EntryIntent
+import com.sleke.library.enterprise.presentation.SavedEntryStateStorage
+import com.sleke.library.enterprise.presentation.SlekeEntryCoordinator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,20 +46,41 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     val authProvider: AuthProvider,
-    val dataStore: SlekePreferencesDataStore,
-    val apkRepository: ApkRepository,
     val logoutUseCase: LogoutUseCase,
     @ApplicationContext private val context: Context,
-    private val aC2DMTask: AC2DMTask
+    private val aC2DMTask: AC2DMTask,
+    private val mutationGate: SessionMutationGate,
+    session: EnterpriseSessionRepository,
+    play: PlaySessionGateway,
+    savedState: SavedStateHandle
 ) : ViewModel() {
 
     private val _authState: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.Init)
     val authState = _authState.asStateFlow()
 
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
-
-    private val _currentFirebaseUser = MutableStateFlow<FirebaseUser?>(null)
-    val currentFirebaseUser = _currentFirebaseUser.asStateFlow()
+    private val entryCoordinator =
+        SlekeEntryCoordinator(session, play, mutationGate, SavedEntryStateStorage(savedState))
+    val entryNavigation = entryCoordinator.navigation
+    val emailBusy = entryCoordinator.busy
+    private var successfulPlayEpoch: Long? = null
+    fun captureEntryEpoch(): Long = mutationGate.capture()
+    fun consumeEntryNavigation(id: Long) = entryCoordinator.consumeNavigation(id)
+    fun rememberEntryIntent(intent: EntryIntent) = entryCoordinator.rememberIntent(intent)
+    fun onEmailCancelled() = entryCoordinator.providerCancelled()
+    fun onEmailFailure() {
+        _authState.value =
+            AuthState.Failed(context.getString(R.string.failed_to_generate_session))
+    }
+    fun onEmailSignIn(intent: EntryIntent) {
+        viewModelScope.launch {
+            entryCoordinator.completeEmailEntry(intent)
+            if (entryCoordinator.failure.value != null) onEmailFailure()
+        }
+    }
+    fun completePlayEntry(intent: EntryIntent) {
+        val epoch = successfulPlayEpoch ?: return
+        viewModelScope.launch { entryCoordinator.completePlayEntry(intent, epoch) }
+    }
 
     /** Emits the outcome of adding a Google account (non-default) so the caller can navigate back. */
     private val _accountAdded = MutableSharedFlow<Boolean>()
@@ -65,32 +88,25 @@ class AuthViewModel @Inject constructor(
 
     init {
         updateAuthState()
-        initializeFirebase()
     }
 
-    private fun initializeFirebase() {
-        _currentFirebaseUser.value = firebaseAuth.currentUser
-        firebaseAuth.addAuthStateListener { auth ->
-            _currentFirebaseUser.value = auth.currentUser
-            Log.d(TAG, "Firebase auth state changed: ${auth.currentUser?.email ?: "No user"}")
-        }
-    }
-
-    fun buildGoogleAuthData(email: String, token: String, tokenType: AuthHelper.Token) {
+    fun buildGoogleAuthData(
+        email: String,
+        token: String,
+        tokenType: AuthHelper.Token,
+        epoch: Long = mutationGate.capture()
+    ) {
+        if (mutationGate.capture() != epoch) return
         _authState.value = AuthState.Fetching
         viewModelScope.launch(Dispatchers.IO) {
             try {
-//                if (tokenType == AuthHelper.Token.AUTH) {
-//                    val credential = GoogleAuthProvider.getCredential(token, null)
-//                    firebaseAuth.signInWithCredential(credential).await()
-//                    Log.d(TAG, "Firebase Auth successful with Google")
-//                }
-
                 verifyAndSaveAuth(
                     authProvider.buildGoogleAuthData(email, token, tokenType).getOrThrow(),
-                    AccountType.GOOGLE
+                    AccountType.GOOGLE,
+                    epoch
                 )
             } catch (exception: Exception) {
+                if (exception is CancellationException) throw exception
                 _authState.value =
                     AuthState.Failed(context.getString(R.string.failed_to_generate_session))
                 Log.e(TAG, "Failed to generate Session", exception)
@@ -101,10 +117,10 @@ class AuthViewModel @Inject constructor(
     /**
      * Adds a Google account WITHOUT changing the active default (used by the account screen's
      * "add account" flow). Does not touch [authState], so the current session/UI is unaffected.
-     * Re-syncs the prefs to the real default afterwards, because the AC2DM step
-     * ([buildAuthData]) writes the new account's e-mail/token into the legacy prefs mid-flow.
+     * Mirrors the existing default afterwards so adding an account preserves the active session.
      */
-    fun addGoogleAuthData(email: String, token: String) {
+    fun addGoogleAuthData(email: String, token: String, epoch: Long = mutationGate.capture()) {
+        if (mutationGate.capture() != epoch) return
         viewModelScope.launch(Dispatchers.IO) {
             val added = runCatching {
                 val authData = authProvider
@@ -115,23 +131,27 @@ class AuthViewModel @Inject constructor(
                     authData = authData,
                     accountType = AccountType.GOOGLE,
                     authViaMicroG = false,
-                    makeDefault = false
+                    makeDefault = false,
+                    epoch = epoch
                 )
-            }.isSuccess
+            }.onFailure { if (it is CancellationException) throw it }.getOrDefault(false)
             authProvider.syncDefaultToPrefs()
             _accountAdded.emit(added)
         }
     }
 
-    fun buildAnonymousAuthData() {
+    fun buildAnonymousAuthData(epoch: Long = mutationGate.capture()) {
+        if (mutationGate.capture() != epoch) return
         _authState.value = AuthState.Fetching
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 verifyAndSaveAuth(
                     authProvider.buildAnonymousAuthData().getOrThrow(),
-                    AccountType.ANONYMOUS
+                    AccountType.ANONYMOUS,
+                    epoch
                 )
             } catch (exception: Exception) {
+                if (exception is CancellationException) throw exception
                 Log.e(TAG, "Failed to generate Session", exception)
                 val message = when (exception) {
                     is UnknownHostException -> context.getString(R.string.check_connectivity)
@@ -143,7 +163,13 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun buildAuthData(context: Context, email: String, oauthToken: String) {
+    fun buildAuthData(
+        context: Context,
+        email: String,
+        oauthToken: String,
+        epoch: Long = mutationGate.capture()
+    ) {
+        if (mutationGate.capture() != epoch) return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = aC2DMTask.getAC2DMResponse(email, oauthToken)
@@ -151,22 +177,21 @@ class AuthViewModel @Inject constructor(
                     val aasToken = response["Token"]
                     if (aasToken != null) {
                         val accountEmail = response["Email"]?.takeIf { it.isNotBlank() } ?: email
-                        Preferences.putString(context, Constants.ACCOUNT_EMAIL_PLAIN, accountEmail)
-                        Preferences.putString(context, Constants.ACCOUNT_AAS_PLAIN, aasToken)
-                        AuroraApp.events.send(
-                            AuthEvent.GoogleLogin(true, accountEmail, aasToken)
-                        )
+                        mutationGate.commitIfCurrent(epoch) {
+                            AuroraApp.events.send(
+                                AuthEvent.GoogleLogin(true, accountEmail, aasToken, epoch)
+                            )
+                        }
                     } else {
-                        Preferences.putString(context, Constants.ACCOUNT_EMAIL_PLAIN, "")
-                        Preferences.putString(context, Constants.ACCOUNT_AAS_PLAIN, "")
-                        AuroraApp.events.send(AuthEvent.GoogleLogin(false, "", ""))
+                        AuroraApp.events.send(AuthEvent.GoogleLogin(false, "", "", epoch))
                     }
                 } else {
-                    AuroraApp.events.send(AuthEvent.GoogleLogin(false, "", ""))
+                    AuroraApp.events.send(AuthEvent.GoogleLogin(false, "", "", epoch))
                 }
             } catch (exception: Exception) {
+                if (exception is CancellationException) throw exception
                 Log.e(TAG, "Failed to build AuthData", exception)
-                AuroraApp.events.send(AuthEvent.GoogleLogin(false, "", ""))
+                AuroraApp.events.send(AuthEvent.GoogleLogin(false, "", "", epoch))
             }
         }
     }
@@ -184,118 +209,97 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    private fun buildSavedAuthData() = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            if (authProvider.isSavedAuthDataValid()) {
-                _authState.value = AuthState.Valid
-            } else {
-                when (AccountProvider.getAccountType(context)) {
-                    AccountType.ANONYMOUS -> buildAnonymousAuthData()
-
-                    AccountType.GOOGLE -> {
-                        val email = AccountProvider.getLoginEmail(context)
-                        val tokenPair = AccountProvider.getLoginToken(context)
-
-                        if (email == null || tokenPair == null) {
-                            throw Exception()
-                        }
-
-                        when (tokenPair.second) {
-                            AuthHelper.Token.AAS -> {
-                                buildGoogleAuthData(email, tokenPair.first, AuthHelper.Token.AAS)
-                            }
-
-                            AuthHelper.Token.AUTH -> {
-                                _authState.value =
-                                    AuthState.PendingAccountManager(email, tokenPair.first)
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (exception: Exception) {
-            val error = when (exception) {
-                is UnknownHostException -> context.getString(R.string.title_no_network)
-                is ConnectException -> context.getString(R.string.server_unreachable)
-                else -> context.getString(R.string.bad_request)
-            }
-            _authState.value = AuthState.Failed(error)
-        }
-    }
-
-    private suspend fun verifyAndSaveAuth(authData: AuthData, accountType: AccountType) {
-        _authState.value = AuthState.Verifying
-
+    private fun buildSavedAuthData() {
+        val epoch = mutationGate.capture()
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                if (!isFirebaseUserSignedIn() && accountType == AccountType.GOOGLE) {
-                    try {
-//                        val credential = GoogleAuthProvider.getCredential(authData.authToken, null)
-//                        firebaseAuth.signInWithCredential(credential).await()
-                        Log.d(TAG, "Firebase Auth successful with Google token during verification")
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Firebase Auth failed during verification", e)
-                        logoutUseCase.invoke()
+                if (authProvider.isSavedAuthDataValid()) {
+                    mutationGate.commitIfCurrent(epoch) {
+                        successfulPlayEpoch = epoch
                         _authState.value =
-                            AuthState.Failed(context.getString(R.string.failed_to_generate_session))
-                        return@launch
+                            AuthState.Valid
+                    }
+                } else {
+                    when (AccountProvider.getAccountType(context)) {
+                        AccountType.ANONYMOUS -> buildAnonymousAuthData(epoch)
+
+                        AccountType.GOOGLE -> {
+                            val email = AccountProvider.getLoginEmail(context)
+                            val tokenPair = AccountProvider.getLoginToken(context)
+
+                            if (email == null || tokenPair == null) {
+                                throw Exception()
+                            }
+
+                            when (tokenPair.second) {
+                                AuthHelper.Token.AAS -> {
+                                    buildGoogleAuthData(
+                                        email,
+                                        tokenPair.first,
+                                        AuthHelper.Token.AAS,
+                                        epoch
+                                    )
+                                }
+
+                                AuthHelper.Token.AUTH -> {
+                                    mutationGate.commitIfCurrent(epoch) {
+                                        _authState.value =
+                                            AuthState.PendingAccountManager(
+                                                email,
+                                                tokenPair.first,
+                                                epoch
+                                            )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-
-                if (authData.authToken.isNotEmpty() && authData.deviceConfigToken.isNotEmpty()) {
-                    authProvider.saveAuthData(authData)
-                    val tokenType =
-                        if (authData.aasToken.isBlank()) AuthHelper.Token.AUTH else AuthHelper.Token.AAS
-                    AccountProvider.login(
-                        context,
-                        authData.email,
-                        authData.aasToken.ifBlank { authData.authToken },
-                        tokenType,
-                        accountType
-                    )
-                    // Record whether this Google session relies on microG's AccountManager so we
-                    // can warn the user if microG is later uninstalled.
-                    Preferences.putBoolean(
-                        context,
-                        Preferences.PREFERENCE_AUTH_VIA_MICROG,
-                        accountType == AccountType.GOOGLE &&
-                            tokenType == AuthHelper.Token.AUTH &&
-                            PackageUtil.hasSupportedMicroGVariant(context)
-                    )
-                    authProvider.persistAccount(
-                        authData = authData,
-                        accountType = accountType,
-                        authViaMicroG = Preferences.getBoolean(
-                            context,
-                            Preferences.PREFERENCE_AUTH_VIA_MICROG,
-                            false
-                        ),
-                        makeDefault = true
-                    )
-                    _authState.value = AuthState.SignedIn
-                } else {
-                    logoutUseCase.invoke()
-                    _authState.value =
-                        AuthState.Failed(context.getString(R.string.failed_to_generate_session))
+            } catch (exception: Exception) {
+                if (exception is CancellationException) throw exception
+                val error = when (exception) {
+                    is UnknownHostException -> context.getString(R.string.title_no_network)
+                    is ConnectException -> context.getString(R.string.server_unreachable)
+                    else -> context.getString(R.string.bad_request)
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error during auth verification process", e)
-                logoutUseCase.invoke()
-                _authState.value =
-                    AuthState.Failed(context.getString(R.string.failed_to_generate_session))
+                mutationGate.commitIfCurrent(epoch) { _authState.value = AuthState.Failed(error) }
             }
         }
     }
 
-    fun isFirebaseUserSignedIn(): Boolean {
-        return firebaseAuth.currentUser != null
-    }
-
-    fun onEmailSignIn(uid: String, email: String) {
-        viewModelScope.launch {
-            val hasEnterpriseAccess = apkRepository.hasEnterpriseAccess(uid)
-            dataStore.setEnterpriseAccount(uid, email, hasEnterpriseAccess)
-            buildAnonymousAuthData()
+    private suspend fun verifyAndSaveAuth(
+        authData: AuthData,
+        accountType: AccountType,
+        epoch: Long
+    ) {
+        if (mutationGate.capture() != epoch) return
+        _authState.value = AuthState.Verifying
+        if (authData.authToken.isEmpty() || authData.deviceConfigToken.isEmpty()) {
+            logoutUseCase(SignOutScope.PLAY_RESET)
+            _authState.value =
+                AuthState.Failed(context.getString(R.string.failed_to_generate_session))
+            return
+        }
+        val tokenType = if (authData.aasToken.isBlank()) {
+            AuthHelper.Token.AUTH
+        } else {
+            AuthHelper.Token.AAS
+        }
+        val stored = authProvider.persistAccount(
+            authData,
+            accountType,
+            accountType == AccountType.GOOGLE &&
+                tokenType == AuthHelper.Token.AUTH &&
+                PackageUtil.hasSupportedMicroGVariant(context),
+            makeDefault = true,
+            epoch = epoch
+        )
+        if (stored) {
+            mutationGate.commitIfCurrent(epoch) {
+                successfulPlayEpoch = epoch
+                _authState.value =
+                    AuthState.SignedIn
+            }
         }
     }
 }

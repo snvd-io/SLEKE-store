@@ -15,11 +15,15 @@ import com.aurora.store.data.model.ExodusTracker
 import com.aurora.store.data.model.StorageRequirement
 import com.aurora.store.data.room.update.Update
 import com.aurora.store.util.StorageUtil
+import com.sleke.library.eligibility.domain.CatalogEligibilityPolicy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -36,8 +40,12 @@ class UpdatesViewModel @Inject constructor(
     val storageWarning = _storageWarning.asSharedFlow()
 
     val downloadsList get() = downloadHelper.downloadsList
-    val updates get() = updateHelper.updates
-    val ignoredUpdates get() = updateHelper.ignoredUpdates
+    val updates = updateHelper.updates.map { updates ->
+        updates?.filter { CatalogEligibilityPolicy.isAutomatedUpdateAllowed(it.packageName) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    val ignoredUpdates = updateHelper.ignoredUpdates.map { updates ->
+        updates.filter { CatalogEligibilityPolicy.isAutomatedUpdateAllowed(it.packageName) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val fetchingUpdates = updateHelper.isCheckingUpdates
 
@@ -50,6 +58,7 @@ class UpdatesViewModel @Inject constructor(
     }
 
     fun download(update: Update) {
+        if (!CatalogEligibilityPolicy.isAutomatedUpdateAllowed(update.packageName)) return
         viewModelScope.launch {
             if (hasSpaceFor(listOf(update), update.displayName)) {
                 downloadHelper.enqueueUpdate(update)
@@ -63,8 +72,11 @@ class UpdatesViewModel @Inject constructor(
     ): List<ExodusTracker> = exodusRepository.getNewTrackers(packageName, installedVersionCode)
 
     fun downloadAll(updates: List<Update>) {
+        val eligible = updates.filter {
+            CatalogEligibilityPolicy.isAutomatedUpdateAllowed(it.packageName)
+        }
         viewModelScope.launch {
-            if (hasSpaceFor(updates)) updates.forEach { downloadHelper.enqueueUpdate(it) }
+            if (hasSpaceFor(eligible)) eligible.forEach { downloadHelper.enqueueUpdate(it) }
         }
     }
 

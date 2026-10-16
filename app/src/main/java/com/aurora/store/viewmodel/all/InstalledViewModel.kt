@@ -29,26 +29,31 @@ import com.aurora.store.data.paging.GenericPagingSource.Companion.manualPager
 import com.aurora.store.data.providers.BlacklistProvider
 import com.aurora.store.util.PackageUtil
 import com.aurora.store.util.Preferences
-import com.sleke.library.data.repository.ApkRepository
+import com.sleke.library.catalog.domain.CatalogRepository
+import com.sleke.library.catalog.domain.CatalogScope
+import com.sleke.library.eligibility.domain.CatalogEligibilityPolicy
+import com.sleke.library.eligibility.domain.EligibilityResult
+import com.sleke.library.eligibility.domain.PackageFacts
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class InstalledViewModel @Inject constructor(
     blacklistProvider: BlacklistProvider,
     @ApplicationContext private val context: Context,
     private val webAppDetailsHelper: WebAppDetailsHelper,
-    private val apkRepository: ApkRepository
+    private val catalogRepository: CatalogRepository
 ) : ViewModel() {
 
     private val blacklist = blacklistProvider.blacklist
@@ -65,50 +70,57 @@ class InstalledViewModel @Inject constructor(
     private val _metadata = MutableStateFlow<Map<String, InstalledAppMeta>>(emptyMap())
     val metadata = _metadata.asStateFlow()
 
-    /**
-     * Enumerates installed packages and resolves per-package metadata used for sorting
-     * and filtering. Done lazily on [Dispatchers.IO] so the VM constructor stays cheap;
-     * subsequent state changes reuse this cached list. Restricted to packages that are
-     * also present in SLEKE's own APK catalog, since that's the only source Aurora can
-     * fetch app details/updates for here.
-     */
-    private val enrichedPackages = viewModelScope.async(
-        context = Dispatchers.IO,
-        start = CoroutineStart.LAZY
-    ) {
-        val firebasePackageNames = apkRepository.getAllApks().map { it.packageName }.toSet()
+    private val refreshVersion = MutableStateFlow(0)
+    private val _catalogUnavailable = MutableStateFlow(false)
+    val catalogUnavailable = _catalogUnavailable.asStateFlow()
+    private val _loading = MutableStateFlow(true)
+    val loading = _loading.asStateFlow()
 
+    private suspend fun loadPackages(): List<EnrichedPackage>? = withContext(Dispatchers.IO) {
         val pm = context.packageManager
-        val packages = pm.getInstalledPackages(PackageManager.GET_META_DATA)
+        val installed = pm.getInstalledPackages(PackageManager.GET_META_DATA)
             .filter { it.isValidApp(pm) }
-            .filterNot { it.packageName in blacklist }
-            .filter { firebasePackageNames.contains(it.packageName) }
-            .map { info ->
-                val appInfo = info.applicationInfo!!
-                EnrichedPackage(
-                    info = info,
-                    label = appInfo.loadLabel(pm).toString(),
-                    installer = PackageUtil.getInstallerPackageName(context, info.packageName),
-                    sizeBytes = runCatching { File(appInfo.sourceDir).length() }.getOrDefault(0L),
-                    isSystem = appInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
-                )
-            }
-
-        // Build installer label map for the filter UI (packageName -> human label).
-        _installers.value = packages.mapNotNull { it.installer }
-            .toSet()
+        val eligibility = CatalogEligibilityPolicy.installed(
+            installed.map {
+                PackageFacts(it.packageName, blacklisted = it.packageName in blacklist)
+            },
+            catalogRepository.load(CatalogScope.Regular)
+        )
+        if (eligibility !is EligibilityResult.Allowed) return@withContext null
+        val packages = installed.filter { it.packageName in eligibility.packages }.map { info ->
+            val appInfo = info.applicationInfo!!
+            EnrichedPackage(
+                info = info,
+                label = appInfo.loadLabel(pm).toString(),
+                installer = PackageUtil.getInstallerPackageName(context, info.packageName),
+                sizeBytes = runCatching { File(appInfo.sourceDir).length() }.getOrDefault(0L),
+                isSystem = appInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
+            )
+        }
+        _installers.value = packages.mapNotNull { it.installer }.toSet()
             .associateWith { resolveInstallerLabel(it) }
-
-        // Per-app metadata lookup for the list item tertiary line.
         _metadata.value = packages.associateBy { it.packageName }
-
         packages
     }
 
     init {
         viewModelScope.launch {
-            _state.collectLatest { state ->
-                val all = enrichedPackages.await()
+            combine(_state, refreshVersion) { state, _ -> state }.collectLatest { state ->
+                _loading.value = true
+                _catalogUnavailable.value = false
+                val all = try {
+                    loadPackages()
+                } catch (exception: CancellationException) {
+                    throw exception
+                } catch (_: Exception) {
+                    null
+                }
+                _loading.value = false
+                if (all == null) {
+                    _catalogUnavailable.value = true
+                    _apps.value = PagingData.empty()
+                    return@collectLatest
+                }
                 val filteredSorted = all.applyFilter(state).applySort(state)
                 val chunks = filteredSorted.chunked(GenericPagingSource.DEFAULT_PAGE_SIZE)
                 manualPager(pageSize = GenericPagingSource.DEFAULT_PAGE_SIZE) { page ->
@@ -122,6 +134,10 @@ class InstalledViewModel @Inject constructor(
                     .collect { _apps.value = it }
             }
         }
+    }
+
+    fun retryCatalog() {
+        refreshVersion.value += 1
     }
 
     fun updateState(newState: SortFilterState) {

@@ -15,9 +15,6 @@ object DownloadModule {
 
     @Provides
     @Singleton
-    fun provideWorkManager(
-        @ApplicationContext context: Context
-    ): WorkManager {
-        return WorkManager.getInstance(context)
-    }
+    fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
+        WorkManager.getInstance(context)
 }

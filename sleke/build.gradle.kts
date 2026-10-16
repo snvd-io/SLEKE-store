@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.hilt.android.plugin)
     alias(libs.plugins.google.ksp)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -28,6 +29,7 @@ android {
 
     buildFeatures {
         buildConfig = true
+        compose = true
     }
 
     compileOptions {
@@ -37,6 +39,20 @@ android {
 }
 
 dependencies {
+    testImplementation("io.ktor:ktor-client-mock:3.1.2")
+    implementation(libs.google.android.material)
+    testImplementation(libs.junit)
+    testImplementation(libs.google.truth)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    // Public presentation accepts LazyPagingItems; domain contracts expose Flow/StateFlow.
+    api(libs.androidx.paging.compose)
+    implementation(libs.hilt.navigation.compose)
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.11.0")
+    implementation("androidx.compose.runtime:runtime-saveable")
+    implementation(libs.androidx.activity.compose)
+    debugImplementation(libs.androidx.ui.tooling)
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui)
@@ -44,25 +60,21 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.compose.material.icons.extended)
 
-    
-    //Coil
+    // Coil
     implementation(libs.coil.kt)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
 
-    api(libs.cedar.logging)
-    api(libs.timber)
-    api(libs.androidx.datastore.preferences)
+    implementation(libs.timber)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.play.services)
 
     // Firebase
-    api(platform(libs.firebase.bom))
-    api(libs.firebase.auth)
-    api(libs.firebase.firestore)
-    api(libs.firebase.firestore.ui)
-    api(libs.firebase.ui.auth)
-    api(libs.firebase.core)
-    api(libs.firebase.crashlytics)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.ui.auth)
+    implementation(libs.firebase.crashlytics)
 
     // Paging
     api(libs.androidx.paging.runtime.ktx)
@@ -71,7 +83,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     // Coroutines
-    implementation(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
     // Room annotations for data models
@@ -81,7 +93,6 @@ dependencies {
     ksp(libs.hilt.androidx.compiler)
     implementation(libs.hilt.android.core)
     implementation(libs.hilt.androidx.work)
-    implementation(libs.hilt.navigation.compose)
     implementation(libs.androidx.work.runtime.ktx)
 
     implementation(libs.bundles.ktor)

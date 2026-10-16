@@ -49,6 +49,7 @@ app/preload/*
 
 #Exclude signing configurations & keystore
 signing.properties
+keystore.properties
 *.keystore
 keystore.properties
 
@@ -56,3 +57,7 @@ keystore.properties
 .kotlin/*
 /app/google-services.json
 /.claude/settings.local.json
+
+# Python verification scripts
+__pycache__/
+*.pyc

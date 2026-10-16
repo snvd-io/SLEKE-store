@@ -15,7 +15,10 @@ import com.aurora.store.data.room.update.Update
  * Screens emit one of these via a single `onNavigateTo: (Destination) -> Unit` callback.
  */
 sealed class Destination {
-    data class Splash(val packageName: String? = null) : Destination()
+    data class Splash(
+        val packageName: String? = null,
+        val developerId: String? = null
+    ) : Destination()
     data class Main(val initialTab: Int) : Destination()
 
     data class AppDetails(val packageName: String) : Destination()
@@ -32,7 +35,11 @@ sealed class Destination {
     data class PermissionRationale(val permissions: Set<PermissionType>) : Destination()
 
     data object Accounts : Destination()
-    data class GoogleLogin(val addAccount: Boolean = false) : Destination()
+    data class GoogleLogin(
+        val addAccount: Boolean = false,
+        val packageName: String? = null,
+        val developerId: String? = null
+    ) : Destination()
     data object About : Destination()
     data object Favourite : Destination()
     data object Spoof : Destination()
