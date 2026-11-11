@@ -16,8 +16,6 @@ import com.aurora.extensions.TAG
 import com.aurora.extensions.requiresGMS
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Review
-import com.aurora.gplayapi.data.models.StreamBundle
-import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.data.models.datasafety.Report as DataSafetyReport
 import com.aurora.gplayapi.data.models.details.TestingProgramStatus
 import com.aurora.gplayapi.exceptions.GooglePlayException
@@ -104,11 +102,6 @@ class AppDetailsViewModel @Inject constructor(
     private var retryAttempted = false
     private val _storageWarning = MutableSharedFlow<StorageRequirement>()
     val storageWarning = _storageWarning.asSharedFlow()
-
-    private val _suggestionsBundle = MutableStateFlow<StreamBundle?>(null)
-    val suggestionsBundle: StateFlow<StreamBundle?> = _suggestionsBundle.asStateFlow()
-
-    private var suggestionsState: StreamBundle = StreamBundle.EMPTY
 
     private val _featuredReviews = MutableStateFlow<List<Review>>(emptyList())
     val featuredReviews = _featuredReviews.asStateFlow()
@@ -259,7 +252,6 @@ class AppDetailsViewModel @Inject constructor(
                 fetchUserAppReview(app.value!!)
             }
             fetchDataSafetyReport(packageName)
-            fetchSuggestions()
             fetchExodusPrivacyReport(packageName)
             if (app.value!!.requiresGMS()) fetchPlexusReport(packageName)
         }
@@ -494,54 +486,6 @@ class AppDetailsViewModel @Inject constructor(
             } catch (exception: Exception) {
                 Log.e(TAG, "Failed to fetch data safety report", exception)
                 _dataSafetyReport.value = null
-            }
-        }
-    }
-
-    private fun fetchSuggestions() {
-        val streamUrl = app.value!!.detailsStreamUrl
-
-        // Bail out if we got no suggestions to offer
-        if (streamUrl.isNullOrBlank()) {
-            _suggestionsBundle.value = StreamBundle.EMPTY
-            return
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val pageBundle = appDetailsHelper.getDetailsStream(streamUrl.hashCode(), streamUrl)
-                val pageClusters = pageBundle.streamClusters.filterValues {
-                    it.clusterTitle.isNotBlank() && it.clusterAppList.isNotEmpty()
-                }
-                suggestionsState = pageBundle.copy(streamClusters = pageClusters)
-                _suggestionsBundle.value = suggestionsState
-            } catch (exception: Exception) {
-                Log.e(TAG, "Failed to fetch suggestions stream", exception)
-                _suggestionsBundle.value = StreamBundle.EMPTY
-            }
-        }
-    }
-
-    fun loadMoreCluster(cluster: StreamCluster) {
-        if (!cluster.hasNext()) return
-
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val nextPage = appDetailsHelper.getNextStreamCluster(
-                    cluster.id,
-                    cluster.clusterNextPageUrl
-                )
-                val existing = suggestionsState.streamClusters[cluster.id] ?: return@launch
-                val mergedCluster = existing.copy(
-                    clusterAppList = existing.clusterAppList + nextPage.clusterAppList,
-                    clusterNextPageUrl = nextPage.clusterNextPageUrl
-                )
-                suggestionsState = suggestionsState.copy(
-                    streamClusters = suggestionsState.streamClusters + (cluster.id to mergedCluster)
-                )
-                _suggestionsBundle.value = suggestionsState
-            } catch (exception: Exception) {
-                Log.e(TAG, "Failed to fetch next cluster page", exception)
             }
         }
     }

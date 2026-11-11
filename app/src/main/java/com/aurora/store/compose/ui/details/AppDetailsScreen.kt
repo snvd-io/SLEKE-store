@@ -15,10 +15,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -61,19 +61,14 @@ import com.aurora.extensions.share
 import com.aurora.extensions.toast
 import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Review
-import com.aurora.gplayapi.data.models.StreamBundle
-import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.data.models.datasafety.Report as DataSafetyReport
 import com.aurora.store.ComposeActivity
 import com.aurora.store.R
-import com.aurora.store.compose.composable.ClusterRow
 import com.aurora.store.compose.composable.ContainedLoadingIndicator
 import com.aurora.store.compose.composable.InsufficientStorageDialog
 import com.aurora.store.compose.composable.Placeholder
 import com.aurora.store.compose.composable.ScrollHint
 import com.aurora.store.compose.composable.SectionHeader
-import com.aurora.store.compose.composable.ShimmerCarouselSection
-import com.aurora.store.compose.composable.StreamCarousel
 import com.aurora.store.compose.composable.TopAppBar
 import com.aurora.store.compose.composable.TrackerUpdateWarningDialog
 import com.aurora.store.compose.navigation.Destination
@@ -139,7 +134,6 @@ fun AppDetailsScreen(
     val dataSafetyReport by viewModel.dataSafetyReport.collectAsStateWithLifecycle()
     val plexusScores by viewModel.plexusScores.collectAsStateWithLifecycle()
     val installError by viewModel.installError.collectAsStateWithLifecycle()
-    val suggestionsBundle by viewModel.suggestionsBundle.collectAsStateWithLifecycle()
     val accounts by viewModel.accounts.collectAsStateWithLifecycle()
     var storageWarning by remember { mutableStateOf<StorageRequirement?>(null) }
 
@@ -192,7 +186,6 @@ fun AppDetailsScreen(
                     app = loadedApp,
                     featuredReviews = featuredReviews,
                     userReview = userReview,
-                    suggestionsBundle = suggestionsBundle,
                     isFavorite = favorite,
                     isAnonymous = viewModel.authProvider.isAnonymous,
                     state = currentState,
@@ -200,7 +193,6 @@ fun AppDetailsScreen(
                     dataSafetyReport = dataSafetyReport,
                     exodusReport = exodusReport,
                     onNavigateTo = onNavigateTo,
-                    onLoadMoreCluster = { cluster -> viewModel.loadMoreCluster(cluster) },
                     accounts = accounts,
                     storageWarning = storageWarning,
                     onDismissStorageWarning = { storageWarning = null },
@@ -306,7 +298,6 @@ private fun ScreenContentApp(
     app: App,
     featuredReviews: List<Review> = emptyList(),
     userReview: Review? = null,
-    suggestionsBundle: StreamBundle? = StreamBundle.EMPTY,
     isFavorite: Boolean = false,
     isAnonymous: Boolean = true,
     state: AppState = AppState.Unavailable,
@@ -314,7 +305,6 @@ private fun ScreenContentApp(
     dataSafetyReport: DataSafetyReport? = null,
     exodusReport: Report? = null,
     onNavigateTo: (Destination) -> Unit = {},
-    onLoadMoreCluster: (cluster: StreamCluster) -> Unit = {},
     accounts: List<Account> = emptyList(),
     storageWarning: StorageRequirement? = null,
     onDismissStorageWarning: () -> Unit = {},
@@ -734,14 +724,6 @@ private fun ScreenContentApp(
                             email = app.developerEmail
                         )
                     }
-
-                    if (shouldShowMenuOnMainPane) {
-                        suggestionClusterItems(
-                            suggestionsBundle = suggestionsBundle,
-                            onAppClick = { onNavigateTo(Destination.AppDetails(it.packageName)) },
-                            onClusterScrolled = onLoadMoreCluster
-                        )
-                    }
                 }
                 ScrollHint(
                     listState = listState,
@@ -761,17 +743,7 @@ private fun ScreenContentApp(
                 )
             }
         ) { paddingValues ->
-            val hasContent = suggestionsBundle == null ||
-                suggestionsBundle.streamClusters.isNotEmpty()
-            if (hasContent) {
-                StreamCarousel(
-                    modifier = Modifier.padding(paddingValues),
-                    streamBundle = suggestionsBundle,
-                    filterSingleAppClusters = false,
-                    onAppClick = { onNavigateTo(Destination.AppDetails(it.packageName)) },
-                    onClusterScrolled = onLoadMoreCluster
-                )
-            }
+            Spacer(modifier = Modifier.padding(paddingValues))
         }
     }
 
@@ -842,60 +814,13 @@ private fun ScreenContentApp(
     )
 }
 
-/**
- * Renders the suggestion stream as cluster rows inside the parent [LazyColumn].
- * Shows a shimmer placeholder while the bundle is still loading (`null`).
- */
-private fun LazyListScope.suggestionClusterItems(
-    suggestionsBundle: StreamBundle?,
-    onAppClick: (App) -> Unit,
-    onClusterScrolled: (StreamCluster) -> Unit
-) {
-    if (suggestionsBundle == null) {
-        item(key = "suggestions-shimmer") { ShimmerCarouselSection() }
-        return
-    }
-
-    val clusters = suggestionsBundle.streamClusters.values.filter {
-        it.clusterTitle.isNotBlank() && it.clusterAppList.isNotEmpty()
-    }
-
-    clusters.forEach { cluster ->
-        item(key = "cluster-header-${cluster.id}") {
-            SectionHeader(title = cluster.clusterTitle)
-        }
-        item(key = "cluster-row-${cluster.id}") {
-            ClusterRow(
-                cluster = cluster,
-                onAppClick = onAppClick,
-                onClusterScrolled = onClusterScrolled
-            )
-        }
-    }
-}
-
 @PreviewWrapper(ThemePreviewProvider::class)
 @PreviewScreenSizes
 @Composable
 private fun AppDetailsScreenPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
     ScreenContentApp(
         app = app,
-        isAnonymous = false,
-        suggestionsBundle = StreamBundle(
-            id = 1,
-            streamClusters = mapOf(
-                1 to StreamCluster(
-                    id = 1,
-                    clusterTitle = "Similar apps",
-                    clusterAppList = List(8) { app.copy(id = it) }
-                ),
-                2 to StreamCluster(
-                    id = 2,
-                    clusterTitle = "More by ${app.developerName}",
-                    clusterAppList = List(5) { app.copy(id = 100 + it) }
-                )
-            )
-        )
+        isAnonymous = false
     )
 }
 
