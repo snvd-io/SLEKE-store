@@ -1,7 +1,7 @@
 # microG package-override consent access for the SLEKE store — Design
 
 Date: 2026-11-25
-Status: Approved (guarded variant). Store side implemented; ROM side pending.
+Status: Superseded. This is fixed upstream in microG v0.3.18.252432 (microg/GmsCore#3853, commit 342c28011). Updating GmsCore in the ROM is the fix. The store permission, the allowlist entry and the manifest export described below are not needed and were not shipped.
 Scope: ROM microG (GmsCore) manifest, ROM privileged-permission allowlist, SLEKE store manifest
 
 ## Problem
